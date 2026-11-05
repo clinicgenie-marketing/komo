@@ -355,10 +355,13 @@ const shot = (
   focalPoint,
 });
 
-export const assets = z.array(asset).parse([
+const shotList = [
   shot('treatment-hero', '12.1 P1 Treatment hero', 'Treatment hero',
     'Reclining customer with neck supported, therapist’s hands at the scalp, real KOMO equipment. Leave negative space for text.',
     'Therapist’s hands giving a scalp treatment to a reclining customer.', 'hands, upper third'),
+  shot('treatment-wide', '12.1 P1 Treatment hero (wide view)', 'Treatment room',
+    'Wider view of a treatment in progress at the basin, with the timber and cream room around it. Calm space on one side for text.',
+    'Therapist washing a reclining customer’s hair at the basin in a timber-lined treatment room.', 'therapist, right third'),
   shot('health-consultation', '12.1 P1 Health', 'Consultation',
     'Therapist and customer seated together, discussing a scalp assessment. Listening, not selling.',
     'Therapist discussing a scalp assessment with a seated customer.'),
@@ -395,7 +398,65 @@ export const assets = z.array(asset).parse([
   shot('therapist-portrait', '12.1 P2 Therapist portrait', 'Therapist',
     'Approachable therapist in the actual KOMO uniform, in the treatment area.',
     'A KOMO therapist in uniform in the treatment area.'),
-]);
+];
+
+/**
+ * Photographs in src/assets. On 2026-11-05 the owner confirmed these are real
+ * KOMO photographs approved for website use. Alt text describes what each
+ * frame actually shows, which can differ from the original shot brief.
+ * Still to record per SG 24: photographer, date, release and approved crops.
+ */
+const approvedPhotos: Record<string, { file: string; width: number; height: number; alt: string; objectPosition?: string }> = {
+  'treatment-hero': { file: 'series/Relaxing Shampoo Basin Scalp Massage.png', width: 1536, height: 1024,
+    alt: 'Therapist rinsing a reclining customer’s lathered hair at the basin.', objectPosition: '45% 50%' },
+  'treatment-wide': { file: 'series/Calming Scalp Massage at KOMO.png', width: 1536, height: 1024,
+    alt: 'Therapist washing a reclining customer’s hair at the basin in a timber-lined treatment room.', objectPosition: '62% 50%' },
+  'health-consultation': { file: 'series/Serene KOMO Spa Consultation.png', width: 1536, height: 1024,
+    alt: 'A KOMO therapist and a customer talking together in a quiet seating area.', objectPosition: '40% 50%' },
+  'joy-massage': { file: 'series/KOMO Spa Head Massage Relaxation.png', width: 1536, height: 1024,
+    alt: 'Customer resting with an eye pillow while a therapist massages her scalp.', objectPosition: '45% 50%' },
+  'beauty-mirror': { file: 'series/Calm KOMO Spa Blow-Dry Scene.png', width: 1024, height: 1536,
+    alt: 'Therapist drying a customer’s hair beside an illuminated round mirror.', objectPosition: '50% 40%' },
+  'vitality-departure': { file: 'series/Warm Spa Locker Moment.png', width: 1024, height: 1536,
+    alt: 'Customer with her bag at the timber lockers beside a curved corridor.', objectPosition: '55% 50%' },
+  'arrival-signage': { file: 'series/Welcoming KOMO Wellness Reception.png', width: 1536, height: 1024,
+    alt: 'A therapist welcoming a customer at the curved reception counter beneath the KOMO sign.', objectPosition: '55% 45%' },
+  'flow-architecture': { file: 'Warm Minimalist Salon Interior.png', width: 1536, height: 1024,
+    alt: 'KOMO treatment area with cream chairs, round illuminated mirrors and pale timber counters.', objectPosition: '60% 50%' },
+  'assessment-detail': { file: 'series/Modern KOMO Scalp Consultation.png', width: 1536, height: 1024,
+    alt: 'Therapist examining a seated customer’s scalp with a handheld camera, the image shown on a screen.', objectPosition: '40% 50%' },
+  'water-detail': { file: 'series/Serene Salon Hair Wash.png', width: 1536, height: 1024,
+    alt: 'Water from a hand shower running through a customer’s hair at the basin.', objectPosition: '55% 55%' },
+  'linen-detail': { file: 'Warm Modern Spa Shampoo Lounge.png', width: 1536, height: 1024,
+    alt: 'Rolled towels on a lit timber shelf beside the basin loungers.', objectPosition: '25% 40%' },
+  'hair-texture': { file: 'series/Relaxing Head Massage in a Spa.png', width: 1536, height: 1024,
+    alt: 'A therapist’s hand resting in a customer’s long hair during a head massage.', objectPosition: '45% 50%' },
+  'entrance': { file: 'Bright KOMO Scalp Care Clinic Storefront.png', width: 1536, height: 1024,
+    alt: 'The KOMO storefront, with its sign above an open, light reception area.', objectPosition: '55% 50%' },
+  'therapist-portrait': { file: 'series/Bright Salon Hair Wash Spa Moment.png', width: 1024, height: 1536,
+    alt: 'A KOMO therapist in uniform washing a customer’s hair at the basin.', objectPosition: '60% 40%' },
+};
+
+const withPhoto = (record: ReturnType<typeof shot>) => {
+  const p = approvedPhotos[record.id];
+  if (!p) return record;
+  return {
+    ...record,
+    sourceRef: `src/assets/${p.file}`,
+    verificationStatus: 'verified' as const,
+    verifiedBy: 'KOMO owner (confirmed in session)',
+    verifiedAt: '2026-11-05',
+    publishStatus: 'approved' as const,
+    src: `/src/assets/${p.file}`,
+    width: p.width,
+    height: p.height,
+    alt: p.alt,
+    objectPosition: p.objectPosition ?? '50% 50%',
+    usageRights: 'Owner confirmed 2026-11-05 as real KOMO photography approved for website use. Photographer, release and crops to be recorded.',
+  };
+};
+
+export const assets = z.array(asset).parse(shotList.map(withPhoto));
 
 /**
  * Hero video (style guide 17 Website video; 20.1 The ritual). Decorative ambience:

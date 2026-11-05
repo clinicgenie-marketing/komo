@@ -249,3 +249,20 @@ Checks not run and why: real footage and iOS Safari playback (no asset, no devic
 Blockers / owner input needed: approved hero video and poster photograph with usage rights; reversed (light) logo artwork for use over media.
 
 Next unblocked task: unchanged. Choose a concept, then refine it (T26).
+
+### 2026-11-05 | Homepage exploration: approved photography (T54 for concept routes only)
+Status: completed for the private preview. The wider website build is not complete.
+
+Resulting behaviour: the three concepts now show real KOMO photographs instead of labelled placeholders. Fourteen of the 46 owner-supplied photos in `src/assets/` are mapped to the asset register and served as responsive AVIF and WebP with a JPEG fallback. Concept 3 opens on a wider treatment-room photo. The logo, Flow, prices, durations, contact details and booking destination are still placeholders.
+
+Files changed: `src/lib/images.ts` (new), `src/lib/schema.ts` (`objectPosition`), `src/data/records.ts` (approved photos, `treatment-wide`), `src/components/ui/ImageSlot.astro`, `src/components/ui/HeroVideo.astro`, `src/components/concepts/Concept3Immersive.astro`, `tests/build.test.mjs`, `docs/asset-register.md`, `docs/decisions.md`, `docs/qa.md`, `Task.md`.
+
+Decisions and evidence: owner confirmed in session that the photos are real KOMO photography approved for website use. Device-light, facial and skincare photos are not used because those services are unconfirmed. See `docs/decisions.md` and `docs/asset-register.md`.
+
+Checks run and actual results: `npm run check` 0 errors; `npm test` 26/26; `npm run qa:browser` 82/82; image weight per concept recorded in `docs/qa.md`.
+
+Checks not run and why: Lighthouse and field data, iOS Safari, screen readers (not available in the container).
+
+Blockers / owner input needed: photographer, release and approved crops for each photo (SG 24); which salon interior photo reflects the outlet today; logo; treatment facts; booking and contact destinations.
+
+Next unblocked task: owner chooses a concept, then T26 refinement.
