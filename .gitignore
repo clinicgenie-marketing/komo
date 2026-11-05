@@ -6,3 +6,4 @@ dist-production/
 .env.*
 !.env.example
 qa-output/
+.DS_Store
