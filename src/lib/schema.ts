@@ -34,11 +34,13 @@ export const treatment = evidence.extend({
   slug: z.string().regex(/^[a-z0-9-]+$/),
   /** Confirmed service name. Null until the actual menu name is confirmed (D04). */
   name: nullableText,
-  /** Verified service category from the style guide (15.1, section 3). */
-  category: z.enum(['Scalp care', 'Scalp spa', 'Hair care']),
+  /** Service category, as named in the supplied homepage content. */
+  category: z.enum(['Scalp care', 'Head spa', 'Hair care']),
+  /** What the category is for (Find your kind of care). */
+  categorySummary: z.string().min(1),
+  /** Short line under the treatment name (Explore KOMO favourites). */
+  tagline: nullableText,
   summary: z.string().min(1),
-  focus: z.string().min(1),
-  suitedTo: z.string().min(1),
   /** Whether a scalp assessment is part of this service. Null means unconfirmed. */
   includesAssessment: z.boolean().nullable(),
   experienceSteps: z.array(z.string()),
@@ -74,6 +76,8 @@ export const location = evidence.extend({
 export const destination = evidence.extend({
   kind: z.enum(['booking-provider', 'whatsapp', 'phone', 'map', 'email']),
   label: z.string().min(1),
+  /** Human-readable value, e.g. a telephone number. Shown as text until verified. */
+  display: nullableText,
   /** Absolute URL or tel:/mailto:. Null until the owner confirms the destination (D07). */
   url: nullableText,
   opensNewTab: z.boolean(),
@@ -126,6 +130,13 @@ export const copyBlock = evidence.extend({
   text: z.string().min(1),
 });
 
+/** A titled block with body paragraphs and an optional image (homepage sections). */
+export const contentItem = evidence.extend({
+  title: z.string().min(1),
+  text: z.array(z.string().min(1)).min(1),
+  assetId: z.string().min(1).nullable(),
+});
+
 export type Evidence = z.infer<typeof evidence>;
 export type Treatment = z.infer<typeof treatment>;
 export type Location = z.infer<typeof location>;
@@ -135,3 +146,4 @@ export type Pillar = z.infer<typeof pillar>;
 export type VisitStep = z.infer<typeof visitStep>;
 export type Faq = z.infer<typeof faq>;
 export type CopyBlock = z.infer<typeof copyBlock>;
+export type ContentItem = z.infer<typeof contentItem>;

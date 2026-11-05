@@ -1,12 +1,12 @@
 ---
 /**
  * Concept 2: The care journey.
- * The page is organised around understanding the visit: arrival, conversation,
- * assessment where included, treatment and finish (style guide 20.3), then
- * helps a first-time visitor choose a service. Brand cues: the deep green
- * folder with its gold wordmark frames the visit summary and the treatment
- * menu; step markers glow like the round illuminated mirrors; the wide image
- * carries the broad curve of the ceiling light.
+ * Organised around understanding the visit, using the supplied four-step
+ * first visit, then helps a first-time visitor match what they have noticed to
+ * a kind of care and a treatment. Brand cues: the deep green folder with its
+ * gold wordmark frames the visit summary and the treatment menu; step markers
+ * glow like the round illuminated mirrors; the wide image carries the broad
+ * curve of the ceiling light.
  */
 import PreviewBanner from '../layout/PreviewBanner.astro';
 import SiteHeader from '../layout/SiteHeader.astro';
@@ -17,43 +17,37 @@ import AppointmentAction from '../ui/AppointmentAction.astro';
 import AppointmentPanel from '../ui/AppointmentPanel.astro';
 import Fact from '../ui/Fact.astro';
 import Faq from '../ui/Faq.astro';
-import { copy, outlet, pillars, treatments, visitSteps } from '../../data/records.ts';
-import { formatDuration, formatPrice, treatmentTitle } from '../../lib/format.ts';
+import { concerns, copy, outlet, scienceItems, treatments, visitSteps } from '../../data/records.ts';
+import { formatDuration, formatPrice } from '../../lib/format.ts';
 
 const nav = [
-  { href: '#journey', label: 'Your visit' },
-  { href: '#treatments', label: 'Choosing a treatment' },
-  { href: '#approach', label: 'How it should feel' },
-  { href: '#space', label: 'Finding us' },
+  { href: '#first-visit', label: 'Your visit' },
+  { href: '#care', label: 'Choosing a treatment' },
+  { href: '#approach', label: 'Our approach' },
+  { href: '#space', label: 'Visit us' },
   { href: '#faqs', label: 'FAQs' },
 ];
 
-/** Practical notes per step. Facts that are not yet confirmed render as labelled placeholders. */
+/** Practical notes per step, drawn from the supplied FAQs. Unconfirmed facts render as labelled placeholders. */
 const stepNotes: Record<string, { text?: string; pending?: string }[]> = {
-  'step-arrival': [
-    { text: `KOMO is at ${outlet.address.building}, ${outlet.address.city}.` },
-    { pending: 'Unit number and opening hours to be confirmed' },
+  'step-arrive': [
+    { text: `KOMO is at ${outlet.address.building}, ${outlet.address.street}.` },
+    { pending: 'Opening hours to be confirmed' },
   ],
-  'step-conversation': [
-    { text: 'It can help to think beforehand about what you have noticed and what you would like from the visit.' },
-  ],
-  'step-assessment': [
-    { text: 'Your therapist explains what the assessment shows, in plain language.' },
-    { pending: 'Which services include an assessment is to be confirmed' },
+  'step-understand': [
+    { text: 'A consultant explains the observations and how they inform your care options.' },
+    { pending: 'Which treatments include a scalp analysis is to be confirmed' },
   ],
   'step-treatment': [
-    { text: 'The care itself depends on the treatment you choose.' },
+    { text: 'If you have a sensitive scalp or product allergies, let the team know before your appointment.' },
     { pending: 'Duration of each treatment to be confirmed' },
   ],
-  'step-finish': [
-    { text: 'There is time to ask any questions before you leave.' },
+  'step-forward': [
+    { text: 'At future visits, your needs can be reviewed and your care recommendations adjusted.' },
   ],
 };
-const stepRatios = ['3 / 2', '3 / 2', '3 / 2', '4 / 5', '4 / 5'];
-const stepPositions = ['55% 45%', '50% 45%', '45% 50%', '42% 50%', '50% 45%'];
-
-/** Which visit step each pillar is most associated with (from the pillar's visitMoment). */
-const pillarStep: Record<string, number> = { Health: 2, Joy: 4, Beauty: 5, Vitality: 5 };
+const stepRatios = ['3 / 2', '3 / 2', '4 / 5', '4 / 5'];
+const stepPositions = ['55% 45%', '45% 50%', '42% 50%', '50% 40%'];
 
 const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Included' : 'Not included');
 ---
@@ -61,21 +55,22 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
 <SiteHeader nav={nav} homeHref="/concept-2/" />
 
 <main id="main" class="c2" tabindex="-1">
-  <!-- Hero: practical promise plus the visit at a glance -->
+  <!-- Hero: the promise plus the visit at a glance -->
   <section class="c2-hero" aria-labelledby="c2-hero-title">
     <div class="container grid c2-hero__grid">
       <div class="c2-hero__text">
-        <p class="t-eyebrow">{copy.brandTagline.text}</p>
-        <h1 id="c2-hero-title" class="t-display">Know what happens before you arrive.</h1>
-        <p class="t-lead">{copy.heroSupport.text} Here is how a visit works, from the moment you arrive to the moment you leave.</p>
+        <p class="t-eyebrow">{copy.heroEyebrow.text}</p>
+        <h1 id="c2-hero-title" class="t-display">{copy.heroTitle.text}</h1>
+        <p class="t-lead">{copy.heroSupport.text}</p>
+        <p class="c2-hero__secondary">{copy.heroSecondary.text}</p>
         <div class="button-row">
-          <a class="komo-button" href="#treatments">Explore treatments</a>
+          <a class="komo-button" href="#care">Explore treatments</a>
           <AppointmentAction variant="secondary" placement="hero" />
         </div>
       </div>
       <nav class="c2-glance on-dark on-forest" aria-labelledby="c2-glance-title">
         <p class="c2-glance__brand">{copy.brandDescriptor.text}</p>
-        <p id="c2-glance-title" class="c2-glance__title">Your visit at a glance</p>
+        <p id="c2-glance-title" class="c2-glance__title">{copy.visitTitle.text}</p>
         <ol role="list" class="c2-glance__list">
           {visitSteps.map((s) => (
             <li>
@@ -92,24 +87,32 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
       </nav>
     </div>
     <div class="container">
-      <ImageSlot
-        class="c2-hero__image"
-        assetId="flow-architecture"
-        ratio="21 / 9"
-        ratioMobile="4 / 3"
-        loading="eager"
-        sizes="(min-width: 1240px) 1200px, 100vw"
-      />
+      <ImageSlot class="c2-hero__image" assetId="flow-architecture" ratio="21 / 9" ratioMobile="4 / 3" loading="eager" sizes="(min-width: 1240px) 1200px, 100vw" />
+    </div>
+  </section>
+
+  <!-- Thoughtful care: a short, two-column introduction -->
+  <section id="about" class="section c2-intro" aria-labelledby="c2-intro-title">
+    <div class="container grid c2-intro__grid">
+      <div class="c2-intro__head">
+        <p class="t-eyebrow">{copy.brandTagline.text}</p>
+        <h2 id="c2-intro-title" class="t-h2">{copy.introTitle.text}</h2>
+      </div>
+      <div class="c2-intro__body">
+        <p class="t-lead">{copy.introLead.text}</p>
+        <p>{copy.introBody.text}</p>
+        <p>{copy.introBody2.text}</p>
+      </div>
     </div>
   </section>
 
   <!-- The journey: numbered timeline with process imagery -->
-  <section id="journey" class="section c2-journey" aria-labelledby="c2-journey-title">
+  <section id="first-visit" class="section c2-journey" aria-labelledby="c2-journey-title">
     <div class="container">
       <div class="c2-journey__head">
         <p class="t-eyebrow">Your visit</p>
-        <h2 id="c2-journey-title" class="t-h2">A visit, step by step</h2>
-        <p>{copy.experienceIntro.text} The exact steps depend on the service you choose.</p>
+        <h2 id="c2-journey-title" class="t-h2">{copy.visitTitle.text}, step by step</h2>
+        <p>{copy.visitIntro.text}</p>
       </div>
       <ol role="list" class="c2-steps">
         {visitSteps.map((s, i) => (
@@ -118,7 +121,6 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
             <div class="c2-step__content">
               <p class="c2-step__count">Step {s.order} of {visitSteps.length}</p>
               <h3 class="t-h2 c2-step__title">{s.title}</h3>
-              {s.conditional && <p><span class="tag">{s.conditionNote}</span></p>}
               <p class="c2-step__detail">{s.detail}</p>
               <div class="c2-step__notes">
                 <p class="c2-step__notes-title">Good to know</p>
@@ -136,82 +138,136 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
     </div>
   </section>
 
-  <!-- Choosing a treatment: comparison table, stacked on small screens -->
-  <section id="treatments" class="section c2-choose on-dark on-forest" aria-labelledby="c2-choose-title">
-    <div class="container">
-      <div class="c2-choose__top">
-        <div class="c2-choose__head">
-          <p class="t-eyebrow t-eyebrow--gold">The treatment menu</p>
-          <h2 id="c2-choose-title" class="t-h2">Which treatment suits you?</h2>
-          <span class="rule-accent" aria-hidden="true"></span>
-          <p>Three kinds of care, each beginning with a conversation. Compare them side by side.</p>
-        </div>
-        <ImageSlot class="c2-choose__image" assetId="brand-cover" ratio="3 / 2" ratioMobile="3 / 2" sizes="(min-width: 1024px) 420px, 100vw" />
+  <!-- What have you noticed: prompts that lead into the kinds of care -->
+  <section id="concerns" class="section c2-concerns" aria-labelledby="c2-concerns-title">
+    <div class="container grid c2-concerns__grid">
+      <div class="c2-concerns__text">
+        <p class="t-eyebrow">Before you choose</p>
+        <h2 id="c2-concerns-title" class="t-h2">{copy.concernsTitle.text}</h2>
+        <p class="t-lead">{copy.concernsIntro.text}</p>
+        <p>{copy.concernsBody.text}</p>
       </div>
-      <div class="c2-menu">
-      <table class="c2-table">
-        <caption class="visually-hidden">Comparison of KOMO treatment options</caption>
-        <thead>
-          <tr>
-            <th scope="col">Treatment</th>
-            <th scope="col">Suited to</th>
-            <th scope="col">Scalp assessment</th>
-            <th scope="col">Duration</th>
-            <th scope="col">Price</th>
-            <th scope="col"><span class="visually-hidden">Next step</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          {treatments.map((t) => (
-            <tr>
-              <th scope="row" data-label="Treatment">
-                <span class="c2-table__name">{treatmentTitle(t)}</span>
-                <span class="c2-table__summary">{t.summary}</span>
-              </th>
-              <td data-label="Suited to">{t.suitedTo}</td>
-              <td data-label="Scalp assessment"><Fact value={assessmentLabel(t.includesAssessment)} pending="To be confirmed" /></td>
-              <td data-label="Duration"><Fact value={t.durationMinutes ? formatDuration(t.durationMinutes) : null} pending="To be confirmed" /></td>
-              <td data-label="Price">
-                <Fact value={t.price ? formatPrice(t.price) : null} pending="To be confirmed" />
-                {t.price?.terms && <span class="c2-table__terms">{t.price.terms}</span>}
-              </td>
-              <td class="c2-table__action"><AppointmentAction variant="link" placement={`compare-${t.slug}`} context={treatmentTitle(t)} /></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div class="c2-choose__unsure">
-        <p><strong>Not sure yet?</strong> Mention it in your request and your therapist can talk the options through with you.</p>
-        <AppointmentAction placement="compare-unsure" />
-      </div>
+      <div class="c2-concerns__aside">
+        <ul role="list" class="c2-concerns__list">
+          {concerns.map((c) => <li>{c}</li>)}
+        </ul>
+        <p>{copy.concernsSpa.text}</p>
+        <a class="komo-button" href="#treatments">Find your treatment</a>
       </div>
     </div>
   </section>
 
-  <!-- Philosophy mapped onto moments of the visit -->
-  <section id="approach" class="section c2-feel" aria-labelledby="c2-feel-title">
+  <!-- Find your kind of care: three categories, each leading to its favourite -->
+  <section id="care" class="section c2-care" aria-labelledby="c2-care-title">
     <div class="container">
-      <div class="c2-feel__head">
-        <p class="t-eyebrow">Our approach</p>
-        <h2 id="c2-feel-title" class="t-h2">How each part of the visit should feel</h2>
-        <p>Health, Joy, Beauty and Vitality are the feelings we design each visit around.</p>
+      <div class="c2-care__head">
+        <p class="t-eyebrow">Choosing a treatment</p>
+        <h2 id="c2-care-title" class="t-h2">{copy.careTitle.text}</h2>
+        <p>{copy.careIntro.text}</p>
       </div>
-      <ul role="list" class="c2-feel__list">
-        {pillars.map((p) => (
-          <li class="c2-feel__item">
-            <ImageSlot class="c2-feel__image" assetId={p.assetId} shape="circle" ratio="1 / 1" sizes="120px" />
-            <p class="c2-feel__moment">{p.visitMoment}</p>
-            <h3 class="t-h2">{p.name}</h3>
-            <p class="c2-feel__meaning">{p.meaning}</p>
-            <p>{p.description}</p>
-            <a class="text-link" href={`#step-${pillarStep[p.name]}`}>See step {pillarStep[p.name]}<span class="visually-hidden">, {visitSteps[pillarStep[p.name] - 1].title}</span></a>
+      <ul role="list" class="c2-care__list">
+        {treatments.map((t) => (
+          <li class="c2-care__item">
+            <ImageSlot class="c2-care__image" assetId={t.heroAssetId} shape="circle" ratio="1 / 1" sizes="120px" />
+            <h3 class="t-card-serif">{t.category}</h3>
+            <p>{t.categorySummary}</p>
+            <a class="text-link" href={`#treatment-${t.slug}`}>Explore {t.category.toLowerCase()}</a>
           </li>
         ))}
       </ul>
     </div>
   </section>
 
-  <!-- Finding us: the actual outlet and practical details -->
+  <!-- KOMO favourites: the treatment menu in the green folder -->
+  <section id="treatments" class="section c2-choose on-dark on-forest" aria-labelledby="c2-choose-title">
+    <div class="container">
+      <div class="c2-choose__top">
+        <div class="c2-choose__head">
+          <p class="t-eyebrow t-eyebrow--gold">The treatment menu</p>
+          <h2 id="c2-choose-title" class="t-h2">{copy.favouritesTitle.text}</h2>
+          <span class="rule-accent" aria-hidden="true"></span>
+          <p>One signature treatment for each kind of care. Compare them side by side.</p>
+        </div>
+        <ImageSlot class="c2-choose__image" assetId="brand-cover" ratio="3 / 2" ratioMobile="3 / 2" sizes="(min-width: 1024px) 420px, 100vw" />
+      </div>
+      <div class="c2-menu">
+      <table class="c2-table">
+        <caption class="visually-hidden">KOMO favourite treatments compared</caption>
+        <thead>
+          <tr>
+            <th scope="col">Treatment</th>
+            <th scope="col">What it involves</th>
+            <th scope="col">Scalp analysis</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {treatments.map((t) => (
+            <tr id={`treatment-${t.slug}`}>
+              <th scope="row" data-label="Treatment">
+                <span class="c2-table__kind">{t.category}</span>
+                <span class="c2-table__name">{t.name}</span>
+                <span class="c2-table__summary">{t.tagline}</span>
+              </th>
+              <td data-label="What it involves" class="c2-table__involves">
+                <div class="c2-table__involves-inner">
+                  <p>{t.summary}</p>
+                  <AppointmentAction variant="link" placement={`compare-${t.slug}`} context={t.name ?? t.category} />
+                </div>
+              </td>
+              <td data-label="Scalp analysis"><Fact value={assessmentLabel(t.includesAssessment)} pending="To confirm" /></td>
+              <td data-label="Duration"><Fact value={t.durationMinutes ? formatDuration(t.durationMinutes) : null} pending="To confirm" /></td>
+              <td data-label="Price">
+                <Fact value={t.price ? formatPrice(t.price) : null} pending="To confirm" />
+                {t.price?.terms && <span class="c2-table__terms">{t.price.terms}</span>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div class="c2-choose__unsure">
+        <p><strong>Not sure yet?</strong> If you’re unsure, speak with our team before booking. They can help you find a place to begin.</p>
+        <AppointmentAction placement="compare-unsure" />
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Science & Refinement: three parts, each with its own image -->
+  <section id="approach" class="section c2-feel" aria-labelledby="c2-feel-title">
+    <div class="container">
+      <div class="c2-feel__head">
+        <p class="t-eyebrow">Our approach</p>
+        <h2 id="c2-feel-title" class="t-h2">{copy.scienceTitle.text}</h2>
+        <p>{copy.scienceIntro.text}</p>
+      </div>
+      <ul role="list" class="c2-feel__list">
+        {scienceItems.map((p) => (
+          <li class="c2-feel__item">
+            <ImageSlot assetId={p.assetId!} ratio="4 / 3" ratioMobile="3 / 2" sizes="(min-width: 1024px) 380px, 100vw" />
+            <h3 class="t-card-serif">{p.title}</h3>
+            {p.text.map((t) => <p>{t}</p>)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Care that continues: home care, on lit timber -->
+  <section id="home-care" class="section c2-home" aria-labelledby="c2-home-title">
+    <div class="container grid c2-home__grid">
+      <ImageSlot class="c2-home__image" assetId="product-display" shape="arch" ratio="4 / 5" ratioMobile="4 / 5" glow sizes="(min-width: 1024px) 380px, 80vw" />
+      <div class="c2-home__text">
+        <p class="t-eyebrow">After your visit</p>
+        <h2 id="c2-home-title" class="t-h2">{copy.homeCareTitle.text}</h2>
+        <p class="t-lead">{copy.homeCareLead.text}</p>
+        <p>{copy.homeCareBody.text}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visit us: the actual outlet and practical details -->
   <section id="space" class="section c2-space" aria-labelledby="c2-space-title">
     <div class="container grid c2-space__grid">
       <div class="c2-space__media">
@@ -219,12 +275,10 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
         <ImageSlot class="c2-space__porthole" assetId="porthole-display" shape="circle" ratio="1 / 1" glow sizes="200px" />
       </div>
       <div class="c2-space__text">
-        <p class="t-eyebrow">Finding us</p>
-        <h2 id="c2-space-title" class="t-h2">Our space at Wheelock Place</h2>
-        <p>{outlet.description}</p>
-        <ul class="c2-space__features">
-          {outlet.features.map((f) => <li>{f}</li>)}
-        </ul>
+        <p class="t-eyebrow">Visit us</p>
+        <h2 id="c2-space-title" class="t-h2">{copy.spaceTitle.text}</h2>
+        <p>{copy.spaceBody.text}</p>
+        <p>{copy.spaceBody2.text}</p>
         <ContactChannels />
       </div>
     </div>
@@ -233,7 +287,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   <section id="faqs" class="section c2-faq" aria-labelledby="c2-faq-title">
     <div class="container c2-faq__inner">
       <p class="t-eyebrow">Questions</p>
-      <h2 id="c2-faq-title" class="t-h2">Practical questions</h2>
+      <h2 id="c2-faq-title" class="t-h2">{copy.faqTitle.text}</h2>
       <Faq openFirst />
     </div>
   </section>
@@ -241,7 +295,8 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   <!-- Closing: requesting an appointment, as three honest steps -->
   <section id="appointment" class="section c2-close on-dark on-forest" aria-labelledby="c2-close-title">
     <div class="container">
-      <h2 id="c2-close-title" class="t-h1">Ready for your first visit?</h2>
+      <h2 id="c2-close-title" class="t-h1">{copy.closeTitle.text}</h2>
+      <p class="t-lead c2-close__lead">{copy.closeBody.text}</p>
       <ol role="list" class="c2-close__steps">
         <li><span aria-hidden="true">1</span><p><strong>Choose a treatment.</strong> Or tell us you would like help choosing.</p></li>
         <li><span aria-hidden="true">2</span><p><strong>Send a request.</strong> Include the treatment and when you would prefer to come.</p></li>
@@ -259,6 +314,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   .c2-hero { padding-block: var(--space-12) var(--space-8); }
   .c2-hero__grid { row-gap: var(--space-8); margin-bottom: var(--space-12); align-items: start; }
   .c2-hero__text { grid-column: 1 / -1; display: grid; gap: var(--space-6); justify-items: start; }
+  .c2-hero__secondary { color: var(--komo-text-secondary); max-width: 36em; margin-top: calc(-1 * var(--space-2)); }
   .c2-glance { grid-column: 1 / -1; }
   @media (min-width: 1024px) {
     .c2-hero { padding-top: var(--space-20); }
@@ -289,8 +345,40 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   /* The broad curve of the flowing ceiling light, carried by the wide image. */
   :global(.c2-hero__image .slot__media) { border-radius: 48% 48% var(--radius-card) var(--radius-card) / 28% 28% var(--radius-card) var(--radius-card); }
 
+  /* ---------- Introduction ---------- */
+  .c2-intro { padding-bottom: 0; }
+  .c2-intro__grid { row-gap: var(--space-6); padding-top: var(--space-8); border-top: 1px solid var(--komo-border); }
+  .c2-intro__head, .c2-intro__body { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; }
+  .c2-intro__body { max-width: 40em; }
+  @media (min-width: 1024px) {
+    .c2-intro__head { grid-column: 1 / span 5; }
+    .c2-intro__body { grid-column: 7 / -1; }
+  }
+
   /* ---------- Journey timeline ---------- */
-  .c2-journey__head, .c2-feel__head { display: grid; gap: var(--space-4); max-width: 40em; }
+  .c2-journey__head, .c2-feel__head, .c2-care__head { display: grid; gap: var(--space-4); max-width: 40em; }
+
+  /* ---------- Concerns ---------- */
+  .c2-concerns { background: var(--komo-leaf-light); }
+  .c2-concerns__grid { row-gap: var(--space-8); }
+  .c2-concerns__text, .c2-concerns__aside { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; justify-items: start; }
+  .c2-concerns__list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .c2-concerns__list li {
+    padding: var(--space-2) var(--space-4);
+    background: var(--komo-surface);
+    border-radius: var(--radius-control);
+    font-family: var(--font-display);
+  }
+  @media (min-width: 1024px) {
+    .c2-concerns__text { grid-column: 1 / span 6; }
+    .c2-concerns__aside { grid-column: 8 / -1; padding-top: var(--space-8); }
+  }
+
+  /* ---------- Kinds of care ---------- */
+  .c2-care__list { margin-top: var(--space-12); display: grid; gap: var(--space-8) var(--grid-gap); }
+  .c2-care__item { display: grid; gap: var(--space-3); align-content: start; justify-items: start; padding-top: var(--space-6); border-top: 2px solid var(--komo-oak); }
+  :global(.c2-care__image) { width: 112px; }
+  @media (min-width: 768px) { .c2-care__list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .c2-steps { position: relative; margin-top: var(--space-12); display: grid; gap: var(--space-16); }
   .c2-steps::before {
     content: '';
@@ -359,11 +447,16 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   .c2-table th, .c2-table td { padding: var(--space-4); vertical-align: top; }
   .c2-table thead th { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); border-bottom: 2px solid var(--komo-olive); }
   .c2-table tbody tr { border-bottom: 1px solid var(--komo-border); }
-  .c2-table tbody th { font-weight: 400; width: 30%; }
+  .c2-table tbody th { font-weight: 400; width: 26%; }
+  @media (min-width: 1024px) {
+    .c2-table td:nth-child(n + 3) { white-space: nowrap; }
+    .c2-table td.c2-table__involves { width: 36%; }
+  }
+  .c2-table__kind { display: block; font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); margin-bottom: var(--space-1); }
   .c2-table__name { display: block; font-family: var(--font-display); font-size: var(--text-card); line-height: 1.3; margin-bottom: var(--space-2); }
   .c2-table__summary { display: block; }
   .c2-table__terms { display: block; color: var(--komo-text-secondary); }
-  .c2-table__action { white-space: nowrap; }
+  .c2-table__involves-inner { display: grid; gap: var(--space-3); justify-items: start; }
   @media (max-width: 1023.98px) {
     .c2-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .c2-table, .c2-table tbody, .c2-table tr, .c2-table th, .c2-table td { display: block; width: 100%; }
@@ -377,20 +470,30 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
     .c2-table tbody th { width: 100%; }
     .c2-table td { display: grid; grid-template-columns: minmax(7.5em, 35%) 1fr; gap: var(--space-3); padding-block: var(--space-2); }
     .c2-table td::before { content: attr(data-label); font-weight: 500; color: var(--komo-text-secondary); }
-    .c2-table td.c2-table__action { display: block; white-space: normal; padding-top: var(--space-4); }
-    .c2-table td.c2-table__action::before { content: none; }
   }
   .c2-choose__unsure { margin-top: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); align-items: center; justify-content: space-between; padding: var(--space-6); border-radius: var(--radius-card); background: var(--komo-oak-light); }
   .c2-choose__unsure p { max-width: 40em; }
 
-  /* ---------- How it should feel ---------- */
-  .c2-feel__list { margin-top: var(--space-12); display: grid; gap: var(--space-6) var(--grid-gap); }
-  .c2-feel__item { display: grid; gap: var(--space-2); align-content: start; justify-items: start; padding: var(--space-6); background: var(--komo-leaf-light); border-radius: var(--radius-card); }
-  :global(.c2-feel__image) { width: 104px; margin-bottom: var(--space-3); }
-  .c2-feel__meaning { color: var(--komo-text-secondary); font-size: var(--text-support); }
-  .c2-feel__moment { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); }
-  @media (min-width: 768px) { .c2-feel__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (min-width: 1024px) { .c2-feel__list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  /* ---------- Science & Refinement ---------- */
+  .c2-feel { background: var(--komo-surface); }
+  .c2-feel__list { margin-top: var(--space-12); display: grid; gap: var(--space-12) var(--grid-gap); }
+  .c2-feel__item { display: grid; gap: var(--space-3); align-content: start; }
+  .c2-feel__item h3 { margin-top: var(--space-2); }
+  @media (min-width: 768px) { .c2-feel__list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+  /* ---------- Home care ---------- */
+  .c2-home { background: var(--komo-oak-light); }
+  .c2-home__grid { row-gap: var(--space-8); align-items: center; }
+  :global(.c2-home__image) { grid-column: 1 / -1; width: min(100%, 360px); }
+  .c2-home__text { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 36em; }
+  @media (min-width: 768px) {
+    :global(.c2-home__image) { grid-column: 1 / span 3; }
+    .c2-home__text { grid-column: 4 / -1; }
+  }
+  @media (min-width: 1024px) {
+    :global(.c2-home__image) { grid-column: 2 / span 4; }
+    .c2-home__text { grid-column: 7 / span 5; }
+  }
 
   /* ---------- Space ---------- */
   .c2-space { background: var(--komo-surface); border-top: 1px solid var(--komo-border); }
@@ -399,7 +502,6 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   .c2-space__media :global(.c2-space__porthole) { position: absolute; right: var(--space-4); bottom: 0; width: clamp(110px, 30%, 200px); }
   .c2-space__media :global(.c2-space__porthole .slot__media) { border: 6px solid var(--komo-surface); }
   .c2-space__text { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; }
-  .c2-space__features { margin: 0 0 var(--space-4); padding-left: 1.1em; display: grid; gap: var(--space-1); }
   @media (min-width: 1024px) {
     .c2-space__media { grid-column: 1 / span 7; }
     .c2-space__text { grid-column: 9 / -1; }
@@ -412,6 +514,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
 
   /* ---------- Closing ---------- */
   .c2-close h2 { max-width: 16em; }
+  .c2-close__lead { margin-top: var(--space-4); }
   .c2-close__steps { margin: var(--space-12) 0; display: grid; gap: var(--space-6); }
   .c2-close__steps li { display: grid; grid-template-columns: 48px 1fr; gap: var(--space-4); align-items: start; padding-top: var(--space-4); border-top: 1px solid rgba(207, 171, 114, 0.4); }
   .c2-close__steps span { font-family: var(--font-display); font-size: var(--text-h2); line-height: 1; color: var(--komo-gold); }

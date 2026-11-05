@@ -1,0 +1,20 @@
+---
+/** The outlet address as supplied (HC Location). Unconfirmed parts are flagged in preview. */
+import { outlet } from '../../data/records.ts';
+import Fact from './Fact.astro';
+
+interface Props { class?: string; showName?: boolean }
+const { class: className, showName = true } = Astro.props;
+const a = outlet.address;
+---
+<address class:list={['outlet-address', className]}>
+  {showName && <strong>{outlet.name}</strong>}
+  <span>{a.building}</span>
+  <span>{a.street}, <Fact value={a.unit} pending="Unit number to be confirmed" /></span>
+  <span>{a.city} {a.postalCode}</span>
+</address>
+
+<style>
+  .outlet-address { display: grid; gap: 2px; font-style: normal; }
+  .outlet-address strong { font-family: var(--font-display); font-weight: 500; margin-bottom: var(--space-1); }
+</style>

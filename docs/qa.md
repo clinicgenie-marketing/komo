@@ -116,3 +116,14 @@ Visual review: full-page screenshots at 1440px with all images loaded, and 375px
 Contrast of the new pairings (computed): gold on forest 6.2:1, ivory on forest 11.7:1, olive on oak-light 7.7:1, muted olive on oak-light 5.1:1, olive on leaf-light 7.7:1.
 
 Not checked: real devices, Safari and Firefox; lab performance with the new photographs; screen reader pass.
+
+## 2026-11-05 | Supplied homepage content applied
+
+| Command | Result |
+|---|---|
+| `npm run check` | 0 errors, 0 warnings, 0 hints |
+| `npm test` | 29 of 29 passed. The content test now checks one or more strings from every section of the supplied content, the address and all three contact values. New test per concept: no `tel:`, `mailto:` or WhatsApp link renders while those details are unconfirmed, and unconfirmed values carry the flag |
+| `npm run qa:browser` | 82 of 82 passed (axe WCAG 2.2 AA: 0 violations). The mobile navigation check now follows the Treatments link to `#care` |
+
+Visual review at 1440 and 375px. Fixed during review: the Concept 2 treatment menu squeezed its description column and then overflowed; the row action now sits under the description and the placeholder chips read "To confirm".
+

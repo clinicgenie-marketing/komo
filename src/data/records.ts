@@ -7,12 +7,15 @@
  * Nothing here has been verified by KOMO. See docs/content-register.md.
  *
  * Source abbreviations used in sourceRef:
+ *  HC = KOMO_Singapore_Homepage_Content.md (owner-supplied homepage copy, 5 Nov 2026;
+ *       its editorial notes ask for contact details, inclusions and scalp-analysis
+ *       availability to be confirmed before publishing)
  *  SG = KOMO_Botanical_Sanctuary_Style_Guide.md (section number follows)
  *  ARCH = Architecture.md
  */
 import { z } from 'astro/zod';
 import {
-  asset, copyBlock, destination, faq, location, pillar, treatment, visitStep,
+  asset, contentItem, copyBlock, destination, faq, location, pillar, treatment, visitStep,
 } from '../lib/schema.ts';
 
 const draft = (id: string, sourceRef: string) => ({
@@ -27,37 +30,84 @@ const draft = (id: string, sourceRef: string) => ({
 /* ------------------------------------------------------------------ copy */
 
 export const copy = z.record(z.string(), copyBlock).parse({
+  heroEyebrow: { ...draft('copy-hero-eyebrow', 'HC Hero'), text: 'Scalp wellness & head spa in Singapore' },
+  heroTitle: { ...draft('copy-hero-title', 'HC Hero'), text: 'Understand your scalp. Find your kind of care.' },
   heroSupport: {
-    ...draft('copy-hero-support', 'SG 15.2 hero example'),
-    text: 'Personalised scalp and hair care in a calm, welcoming space at Wheelock Place.',
+    ...draft('copy-hero-support', 'HC Hero'),
+    text: 'Personalised scalp care, botanical formulations and relaxing head spa rituals, brought together at KOMO Wellness, Wheelock Place.',
   },
-  positioning: {
-    ...draft('copy-positioning', 'SG 1.1 positioning'),
-    text: 'KOMO offers personalised scalp and hair care within a restorative spa experience, combining attentive consultation, appropriate care and time to unwind.',
+  heroSecondary: {
+    ...draft('copy-hero-secondary', 'HC Hero'),
+    text: 'Discover a considered approach to caring for your scalp and hair, with time to settle in and unwind.',
   },
-  promise: {
-    ...draft('copy-promise', 'SG 1.2 emotional promise'),
-    text: 'A place to unwind and feel cared for.',
+  introTitle: { ...draft('copy-intro-title', 'HC Thoughtful care'), text: 'Thoughtful care, from the roots' },
+  introLead: { ...draft('copy-intro-lead', 'HC Thoughtful care'), text: 'Your scalp deserves care that considers the whole picture.' },
+  introBody: {
+    ...draft('copy-intro-body', 'HC Thoughtful care'),
+    text: 'At KOMO, we bring together AI-powered scalp analysis, herbal science and attentive service to understand your needs and shape your care.',
   },
-  experienceIntro: {
-    ...draft('copy-experience-intro', 'SG 1.3, 15.1 step 2'),
-    text: 'Every visit begins with listening. We talk through what you have noticed, plan care around you and leave time for you to unwind.',
+  introBody2: {
+    ...draft('copy-intro-body-2', 'HC Thoughtful care'),
+    text: 'Whether you’re noticing changes in your scalp, caring for dry hair or making time for a relaxing head spa, we’ll help you find a place to begin.',
+  },
+  brandTagline: { ...draft('copy-brand-tagline', 'HC Thoughtful care and Footer; supplied wall sign imagery'), text: 'Integrative care for your scalp & hair' },
+  brandDescriptor: { ...draft('copy-brand-descriptor', 'Supplied brand imagery: folder cover and signage'), text: 'Scalp & Hair Wellness' },
+  careTitle: { ...draft('copy-care-title', 'HC Find your kind of care'), text: 'Find your kind of care' },
+  careIntro: {
+    ...draft('copy-care-intro', 'HC Find your kind of care'),
+    text: 'A fresher-feeling scalp. Softer hair. A little time to yourself. Explore care that fits what you need.',
+  },
+  scienceTitle: { ...draft('copy-science-title', 'HC Science & Refinement'), text: 'Science & Refinement, in every visit' },
+  scienceIntro: {
+    ...draft('copy-science-intro', 'HC Science & Refinement'),
+    text: 'Understanding your scalp is one part of the experience. How you feel throughout your visit matters too.',
+  },
+  concernsTitle: { ...draft('copy-concerns-title', 'HC What have you noticed'), text: 'What have you noticed about your scalp and hair?' },
+  concernsIntro: {
+    ...draft('copy-concerns-intro', 'HC What have you noticed'),
+    text: 'Perhaps your scalp feels oily soon after washing. Your hair feels drier than usual. Or you’ve noticed more flakes or shedding.',
+  },
+  concernsBody: {
+    ...draft('copy-concerns-body', 'HC What have you noticed'),
+    text: 'Tell us what’s changed and what you’d like from your visit. Our team can help you understand the available care options.',
+  },
+  concernsSpa: {
+    ...draft('copy-concerns-spa', 'HC What have you noticed'),
+    text: 'You’re also welcome to visit simply for a relaxing head spa experience.',
+  },
+  favouritesTitle: { ...draft('copy-favourites-title', 'HC Explore KOMO favourites'), text: 'Explore KOMO favourites' },
+  visitTitle: { ...draft('copy-visit-title', 'HC Your first KOMO visit'), text: 'Your first KOMO visit' },
+  visitIntro: {
+    ...draft('copy-visit-intro', 'HC Your first KOMO visit'),
+    text: 'You don’t need to have everything figured out before you arrive. We’ll guide you through the experience.',
+  },
+  homeCareTitle: { ...draft('copy-home-care-title', 'HC Care that continues'), text: 'Care that continues with you' },
+  homeCareLead: {
+    ...draft('copy-home-care-lead', 'HC Care that continues'),
+    text: 'Your scalp’s needs can change with your routine. Your care can change with them.',
+  },
+  homeCareBody: {
+    ...draft('copy-home-care-body', 'HC Care that continues'),
+    text: 'Our team can recommend products to complement your treatment and help you build a manageable home-care routine. At future visits, we can review your needs and adjust your care recommendations.',
+  },
+  spaceTitle: { ...draft('copy-space-title', 'HC Location'), text: 'A little space to slow down, on Orchard Road' },
+  spaceBody: {
+    ...draft('copy-space-body', 'HC Location'),
+    text: 'Step into KOMO at Wheelock Place for personalised scalp and hair care in a warm, considered setting.',
+  },
+  spaceBody2: {
+    ...draft('copy-space-body-2', 'HC Location'),
+    text: 'Make room for a visit during your week or take a little longer to unwind at the weekend.',
+  },
+  faqTitle: { ...draft('copy-faq-title', 'HC Before you visit'), text: 'Before you visit' },
+  closeTitle: { ...draft('copy-close-title', 'HC Make room for care'), text: 'Make room for care' },
+  closeBody: {
+    ...draft('copy-close-body', 'HC Make room for care'),
+    text: 'Get to know your scalp. Find a treatment that fits. Enjoy a little time for yourself.',
   },
   boundary: {
     ...draft('copy-boundary', 'SG 1.5 brand boundaries'),
     text: 'KOMO provides scalp and hair wellness care in a spa setting. Our services do not diagnose or treat medical conditions.',
-  },
-  brandTagline: {
-    ...draft('copy-brand-tagline', 'Supplied brand imagery: illuminated wall sign (src/assets/KOMO Integrative Scalp & Hair Care.png)'),
-    text: 'Integrative care for your scalp & hair',
-  },
-  brandDescriptor: {
-    ...draft('copy-brand-descriptor', 'Supplied brand imagery: folder cover and signage (src/assets/KOMO Scalp & Hair Wellness Cover.png)'),
-    text: 'Scalp & Hair Wellness',
-  },
-  belief: {
-    ...draft('copy-belief', 'Supplied brand imagery: wall display panel (src/assets/KOMO Scalp Wellness Wall Display.png)'),
-    text: 'We believe beauty and confidence start at the roots.',
   },
   requestNote: {
     ...draft('copy-request-note', 'SG 16.2, Rules 5'),
@@ -65,74 +115,94 @@ export const copy = z.record(z.string(), copyBlock).parse({
   },
 });
 
-/** The three parts of the experience (SG 15.1 step 2). */
-export const experienceParts = [
+/** Science & Refinement, in every visit (HC). */
+export const scienceItems = z.array(contentItem).parse([
   {
-    title: 'Consultation',
-    text: 'Your therapist asks what you have noticed and what you would like from the visit, then explains the options in plain language.',
+    ...draft('science-understanding', 'HC Science & Refinement; SG 1.5 (describe AI-assisted assessment by verified capability)'),
+    title: 'A closer understanding',
+    text: ['AI-powered scalp imaging gives our team a closer view of your scalp and hair. We explain what we see and use those insights to inform your care recommendations.'],
+    assetId: 'assessment-detail',
   },
   {
-    title: 'Personalised care',
-    text: 'Your care is planned around your scalp, your hair and what matters to you, rather than a fixed routine.',
+    ...draft('science-herbal', 'HC Science & Refinement; SG 1.5 (botanical origin is not proof of safety or effect)'),
+    title: 'Herbal science',
+    text: ['Botanical ingredients and formulation research underpin KOMO’s scalp and hair care range, with products selected to complement your treatment.'],
+    assetId: 'product-display',
   },
   {
-    title: 'Restorative time',
-    text: 'Unhurried, attentive care in a light, calm space, with time to settle before you return to your day.',
+    ...draft('science-details', 'HC Science & Refinement'),
+    title: 'Care in the details',
+    text: ['A considered service process brings consistency to each visit, with attention to your comfort, preferences and personal pace.'],
+    assetId: 'linen-detail',
   },
+]);
+
+/** What have you noticed? (HC). Shown as a list; they are prompts, not services. */
+export const concerns = [
+  'Oiliness and build-up',
+  'Dryness and sensitivity',
+  'Flakes and scalp discomfort',
+  'Hair thinning and shedding',
+  'Dry or damaged-feeling hair',
 ] as const;
 
 /* ------------------------------------------------------------ treatments */
 
+/*
+ * One record per care category, carrying its featured treatment (HC Find your
+ * kind of care and Explore KOMO favourites). Names are the owner's treatment
+ * names; durations, inclusions and prices are still unknown (D04).
+ */
 export const treatments = z.array(treatment).parse([
   {
-    ...draft('treatment-scalp-care', 'SG 15.1 step 3 service categories; SG 4 Health'),
+    ...draft('treatment-scalp-care', 'HC Find your kind of care; HC Explore KOMO favourites'),
     slug: 'scalp-care',
-    name: null,
+    name: 'Signature Scalp Care',
     category: 'Scalp care',
-    summary: 'Care that begins with understanding your scalp, planned around what you and your therapist notice together.',
-    focus: 'Understanding and caring for your scalp',
-    suitedTo: 'You have noticed something about your scalp and would like it explained clearly.',
+    categorySummary: 'Focused care for concerns such as excess oil, dryness and build-up, with treatment options selected around your scalp’s needs.',
+    tagline: 'A fresh start for your scalp',
+    summary: 'Focused cleansing and care, with options for oiliness, dryness, flakes and scalp comfort. Personalised around what your scalp needs.',
     includesAssessment: null,
     experienceSteps: [],
     inclusions: [],
     durationMinutes: null,
     price: null,
     heroAssetId: 'health-consultation',
-    relatedTreatmentIds: ['treatment-scalp-spa'],
+    relatedTreatmentIds: ['treatment-head-spa'],
     appointmentDestinationId: 'appointment',
   },
   {
-    ...draft('treatment-scalp-spa', 'SG 15.1 step 3 service categories; SG 4 Joy'),
-    slug: 'scalp-spa',
-    name: null,
-    category: 'Scalp spa',
-    summary: 'A restorative scalp spa ritual, with unhurried hands-on care and time that feels your own.',
-    focus: 'Restorative comfort and a calm break',
-    suitedTo: 'You would like a pause from a busy week and attentive, hands-on care.',
+    ...draft('treatment-head-spa', 'HC Find your kind of care; HC Explore KOMO favourites'),
+    slug: 'head-spa',
+    name: 'Aromatic Waterfall Relaxing Scalp Spa',
+    category: 'Head spa',
+    categorySummary: 'Settle into flowing water, aromatic care and gentle scalp massage. A relaxing experience with attention to your scalp and hair.',
+    tagline: 'Let the day slow down',
+    summary: 'Flowing water, aromatic care and gentle scalp massage come together in a soothing head spa experience. Settle in and enjoy a little uninterrupted time.',
     includesAssessment: null,
     experienceSteps: [],
     inclusions: [],
     durationMinutes: null,
     price: null,
-    heroAssetId: 'joy-massage',
+    heroAssetId: 'water-detail',
     relatedTreatmentIds: ['treatment-scalp-care'],
     appointmentDestinationId: 'appointment',
   },
   {
-    ...draft('treatment-hair-care', 'SG 15.1 step 3 service categories; SG 4 Beauty'),
+    ...draft('treatment-hair-care', 'HC Find your kind of care; HC Explore KOMO favourites'),
     slug: 'hair-care',
-    name: null,
+    name: 'Moisturising Cuticle Hair Care',
     category: 'Hair care',
-    summary: 'Care for your hair, chosen around its texture and the way you look after it day to day.',
-    focus: 'Comfort and confidence in your hair',
-    suitedTo: 'You would like care for your hair that suits its texture and your routine.',
+    categorySummary: 'Conditioning treatments for hair that feels dry, rough or difficult to manage, with a focus on moisture, softness and shine.',
+    tagline: 'A little more care for thirsty hair',
+    summary: 'A conditioning treatment designed to replenish moisture and improve softness, smoothness and shine in dry, rough-feeling hair.',
     includesAssessment: null,
     experienceSteps: [],
     inclusions: [],
     durationMinutes: null,
     price: null,
     heroAssetId: 'hair-texture',
-    relatedTreatmentIds: ['treatment-scalp-spa'],
+    relatedTreatmentIds: ['treatment-head-spa'],
     appointmentDestinationId: 'appointment',
   },
 ]);
@@ -140,13 +210,13 @@ export const treatments = z.array(treatment).parse([
 /* ---------------------------------------------------------------- outlet */
 
 export const outlet = location.parse({
-  ...draft('location-wheelock-place', 'SG 15.2 hero example (location); SG 5 outlet photograph description'),
+  ...draft('location-wheelock-place', 'HC Location and Footer (address); SG 5 outlet photograph description'),
   kind: 'customer-outlet',
-  name: 'KOMO at Wheelock Place',
-  address: { building: 'Wheelock Place', street: null, unit: null, postalCode: null, city: 'Singapore' },
-  phone: null,
-  whatsapp: null,
-  email: null,
+  name: 'KOMO Wellness Singapore',
+  address: { building: 'Wheelock Place', street: '501 Orchard Road', unit: '#03-03A', postalCode: '238880', city: 'Singapore' },
+  phone: '+65 6224 5497',
+  whatsapp: '+65 8087 7376',
+  email: 'info_sg@komowellness.com',
   hours: null,
   mapUrl: null,
   description: 'A light, contemporary space with cream walls, pale timber and broad curves, softly lit by a flowing ceiling light.',
@@ -160,36 +230,51 @@ export const outlet = location.parse({
 
 /* --------------------------------------------------------- destinations */
 
+/*
+ * Telephone, WhatsApp and email come from the owner's homepage content, but its
+ * editorial notes ask for them to be confirmed, so they stay unverified: shown
+ * as text marked "to be confirmed", never as live links (Rules 7, 8).
+ */
 export const destinations = z.array(destination).parse([
   {
     ...draft('appointment', 'ARCH 6 baseline external handoff; provider not supplied (Task.md D07)'),
     verificationStatus: 'pending',
     kind: 'booking-provider',
     label: 'Request an appointment',
+    display: null,
     url: null,
     opensNewTab: false,
   },
   {
-    ...draft('whatsapp', 'ARCH 8 event contract; number not supplied (Task.md D05)'),
-    verificationStatus: 'pending',
+    ...draft('whatsapp', 'HC Footer (WhatsApp); to be confirmed per HC editorial notes'),
     kind: 'whatsapp',
-    label: 'Contact via WhatsApp',
-    url: null,
-    opensNewTab: false,
+    label: 'WhatsApp',
+    display: '+65 8087 7376',
+    url: 'https://wa.me/6580877376',
+    opensNewTab: true,
   },
   {
-    ...draft('phone', 'ARCH 8 event contract; number not supplied (Task.md D05)'),
-    verificationStatus: 'pending',
+    ...draft('phone', 'HC Footer (Call); to be confirmed per HC editorial notes'),
     kind: 'phone',
-    label: 'Call KOMO',
-    url: null,
+    label: 'Call',
+    display: '+65 6224 5497',
+    url: 'tel:+6562245497',
     opensNewTab: false,
   },
   {
-    ...draft('directions', 'ARCH 8 event contract; map link not supplied (Task.md D05)'),
+    ...draft('email', 'HC Footer (Email); to be confirmed per HC editorial notes'),
+    kind: 'email',
+    label: 'Email',
+    display: 'info_sg@komowellness.com',
+    url: 'mailto:info_sg@komowellness.com',
+    opensNewTab: false,
+  },
+  {
+    ...draft('directions', 'HC Location (Get directions); map link not supplied (Task.md D05)'),
     verificationStatus: 'pending',
     kind: 'map',
     label: 'Get directions',
+    display: null,
     url: null,
     opensNewTab: false,
   },
@@ -236,54 +321,44 @@ export const pillars = z.array(pillar).parse([
 
 export const visitSteps = z.array(visitStep).parse([
   {
-    ...draft('step-arrival', 'SG 20.3 first visit sequence; SG 3 journey'),
+    ...draft('step-arrive', 'HC Your first KOMO visit'),
     order: 1,
-    title: 'Arrival',
-    short: 'A calm welcome at Wheelock Place.',
-    detail: 'You are welcomed at reception in a light, calm space with curved walls and pale timber.',
+    title: 'Arrive and settle in',
+    short: 'Meet the team and share what you’ve noticed.',
+    detail: 'Meet the team and share what you’ve noticed about your scalp, hair and everyday routine.',
     conditional: false,
     conditionNote: null,
     assetId: 'arrival-signage',
   },
   {
-    ...draft('step-conversation', 'SG 20.3; SG 18.2 (ask what the customer has noticed)'),
+    ...draft('step-understand', 'HC Your first KOMO visit; scalp-analysis availability to be confirmed per HC editorial notes'),
     order: 2,
-    title: 'Conversation',
-    short: 'Tell us what you have noticed.',
-    detail: 'Your therapist asks what you have noticed and what you would like from the visit, without judgement or pressure.',
+    title: 'Understand your scalp',
+    short: 'Review your scalp analysis with a consultant.',
+    detail: 'Review your scalp analysis with a consultant, ask questions and explore the care options available to you.',
     conditional: false,
     conditionNote: null,
-    assetId: 'health-consultation',
-  },
-  {
-    ...draft('step-assessment', 'SG 20.3 (assessment where included); SG 1.5 (describe assessment by verified capabilities)'),
-    order: 3,
-    title: 'Scalp assessment',
-    short: 'Where your service includes one.',
-    detail: 'Some services include a scalp assessment. Your therapist explains what it looks at and talks you through what they see.',
-    conditional: true,
-    conditionNote: 'Included with some services only',
     assetId: 'assessment-detail',
   },
   {
-    ...draft('step-treatment', 'SG 20.3; SG 12.1 treatment hero'),
-    order: 4,
-    title: 'Treatment',
-    short: 'Unhurried, hands-on care.',
-    detail: 'Your care is carried out at an unhurried pace, with your neck supported and time to unwind.',
+    ...draft('step-treatment', 'HC Your first KOMO visit'),
+    order: 3,
+    title: 'Enjoy your treatment',
+    short: 'Care shaped around your needs.',
+    detail: 'Settle into your selected treatment, with care shaped around your needs and attention to your comfort.',
     conditional: false,
     conditionNote: null,
     assetId: 'treatment-hero',
   },
   {
-    ...draft('step-finish', 'SG 20.3; SG 4 Vitality'),
-    order: 5,
-    title: 'Finish',
-    short: 'Time to settle before your day.',
-    detail: 'A moment to settle and ask any questions before you return to your day.',
+    ...draft('step-forward', 'HC Your first KOMO visit'),
+    order: 4,
+    title: 'Take your care forward',
+    short: 'Home care guidance and next steps.',
+    detail: 'Receive guidance on suitable home care and discuss any recommended next steps.',
     conditional: false,
     conditionNote: null,
-    assetId: 'beauty-mirror',
+    assetId: 'product-display',
   },
 ]);
 
@@ -291,54 +366,45 @@ export const visitSteps = z.array(visitStep).parse([
 
 export const faqs = z.array(faq.extend({ pendingFact: z.string().nullable() })).parse([
   {
-    ...draft('faq-first-visit', 'SG 20.3'),
-    question: 'What happens on a first visit?',
-    answer: [
-      'A visit follows a simple order: arrival, a conversation with your therapist, a scalp assessment where your service includes one, your treatment and a calm finish.',
-      'The exact steps depend on the service you choose. Each treatment description says what it includes.',
-    ],
-    pendingFact: 'Which services include an assessment is to be confirmed',
+    ...draft('faq-choose', 'HC Before you visit'),
+    question: 'How do I choose a treatment?',
+    answer: ['Start with what you’d like from your visit, whether that’s focused scalp care, conditioning for your hair or a relaxing head spa. If you’re unsure, speak with our team before booking.'],
+    pendingFact: null,
   },
   {
-    ...draft('faq-medical', 'SG 1.5 brand boundaries'),
+    ...draft('faq-analysis', 'HC Before you visit; scalp-analysis availability to be confirmed per HC editorial notes'),
+    question: 'What happens during the scalp analysis?',
+    answer: ['Scalp imaging gives our team a closer view of your scalp and hair. A consultant explains the observations and discusses how they inform your care options.'],
+    pendingFact: 'Which treatments include a scalp analysis is to be confirmed',
+  },
+  {
+    ...draft('faq-no-concern', 'HC Before you visit'),
+    question: 'Can I visit if I don’t have a particular scalp concern?',
+    answer: ['Yes. You can explore our head spa treatments simply as a way to enjoy scalp and hair care while taking time to relax.'],
+    pendingFact: null,
+  },
+  {
+    ...draft('faq-time', 'HC Before you visit; Task.md D04'),
+    question: 'How much time should I allow?',
+    answer: ['Appointment time depends on your selected treatment. Ask our team to confirm the total duration, including consultation and hair finishing, when booking.'],
+    pendingFact: 'Treatment durations to be confirmed by KOMO',
+  },
+  {
+    ...draft('faq-sensitive', 'HC Before you visit'),
+    question: 'What if I have a sensitive scalp or product allergies?',
+    answer: ['Let our team know before your appointment so we can discuss the products and treatment steps with you.'],
+    pendingFact: null,
+  },
+  {
+    // Not in the supplied content. Kept from SG 1.5 because the page invites visitors
+    // to mention thinning and shedding; flagged for the owner in docs/content-register.md.
+    ...draft('faq-medical', 'SG 1.5 brand boundaries (added; not in HC)'),
     question: 'Is KOMO a medical clinic?',
     answer: [
       'No. KOMO provides scalp and hair wellness care in a spa setting. Our services do not diagnose or treat medical conditions.',
       'If you have a medical concern about your scalp or hair, please speak with a doctor.',
     ],
     pendingFact: null,
-  },
-  {
-    ...draft('faq-choose', 'SG 15.1 step 3; SG 4'),
-    question: 'Which treatment should I choose?',
-    answer: [
-      'Scalp care suits you if you have noticed something about your scalp and would like it explained. Scalp spa suits you if you would like a restorative break with hands-on care. Hair care focuses on the hair itself, chosen around its texture and your routine.',
-      'If you are unsure, mention it in your request and your therapist can talk the options through with you.',
-    ],
-    pendingFact: null,
-  },
-  {
-    ...draft('faq-price-duration', 'SG 15.3 treatment page specification; Task.md D04'),
-    question: 'How much does a treatment cost, and how long does it take?',
-    answer: [
-      'Each treatment shows its duration, what is included and its price, with any terms beside the price.',
-    ],
-    pendingFact: 'Durations, inclusions and prices to be confirmed by KOMO',
-  },
-  {
-    ...draft('faq-request', 'SG 16.2; Rules 5; Task.md D07'),
-    question: 'How do I request an appointment?',
-    answer: [
-      'Choose Request an appointment and let us know which treatment interests you and when you would prefer to come.',
-      'Sending a request does not confirm a booking. Your appointment is only confirmed when KOMO confirms it with you.',
-    ],
-    pendingFact: 'Booking channel and confirmation method to be confirmed',
-  },
-  {
-    ...draft('faq-where', 'SG 15.2 (location)'),
-    question: 'Where is KOMO?',
-    answer: ['KOMO is at Wheelock Place, Singapore.'],
-    pendingFact: 'Unit number, opening hours and directions to be confirmed',
   },
 ]);
 
@@ -482,10 +548,10 @@ export function getDestination(id: string) {
 /** Every record a homepage depends on. Used by the production guard. */
 export const homepageRequiredRecords = [
   ...Object.values(copy),
+  ...scienceItems,
   ...treatments,
   outlet,
-  ...pillars,
   ...visitSteps,
   ...faqs,
-  getDestination('appointment'),
+  ...destinations,
 ];

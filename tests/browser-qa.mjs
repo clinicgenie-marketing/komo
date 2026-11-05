@@ -89,11 +89,11 @@ try {
       record(concept, 'mobile: Escape closes menu and returns focus', (await toggle.getAttribute('aria-expanded')) === 'false' && focusBack);
 
       await toggle.click();
-      await page.locator('#site-nav a[href="#treatments"]').click();
+      await page.locator('#site-nav a[href="#care"]').click();
       await page.waitForTimeout(400);
       const closedAfterLink = (await toggle.getAttribute('aria-expanded')) === 'false';
       const headingTop = await page.evaluate(() => {
-        const h = document.querySelector('#treatments h2');
+        const h = document.querySelector('#care h2');
         const header = document.querySelector('[data-site-header]');
         const headerBottom = getComputedStyle(header).position === 'sticky' ? header.getBoundingClientRect().bottom : 0;
         return { top: h.getBoundingClientRect().top, headerBottom };

@@ -2,6 +2,8 @@
 
 Status: homepage concept exploration, 5 November 2026. Single source of truth for the records in `src/data/records.ts`. Nothing here has been verified by KOMO.
 
+Source of the homepage copy: `docs/source/KOMO_Singapore_Homepage_Content.md` (HC), supplied by the owner on 5 November 2026. Its own editorial notes say contact details, treatment inclusions and scalp-analysis availability must be confirmed before publishing, and prices and durations added.
+
 Key: **source-only** = taken from a supplied document, not confirmed as true or current. **pending** = known to be required, value not supplied. **draft** = wording not owner-approved. Source abbreviations: SG = `KOMO_Botanical_Sanctuary_Style_Guide.md`, ARCH = `Architecture.md`.
 
 The production build fails while any of these required records is unapproved (`assertPublishable` in `src/lib/publication.ts`), and concept routes are never generated in production.
@@ -16,60 +18,37 @@ The production build fails while any of these required records is unapproved (`a
 
 ## Records
 
-| ID | Verification | Publish | Source |
-|---|---|---|---|
-| `copy-hero-support` | source-only | draft | SG 15.2 hero example |
-| `copy-positioning` | source-only | draft | SG 1.1 positioning |
-| `copy-promise` | source-only | draft | SG 1.2 emotional promise |
-| `copy-experience-intro` | source-only | draft | SG 1.3, 15.1 step 2 |
-| `copy-boundary` | source-only | draft | SG 1.5 brand boundaries |
-| `copy-request-note` | source-only | draft | SG 16.2, Rules 5 |
-| `copy-brand-tagline` | source-only | draft | Supplied brand imagery: illuminated wall sign, "Integrative Care for your Scalp & Hair" |
-| `copy-brand-descriptor` | source-only | draft | Supplied brand imagery: folder cover and sign, "Scalp & Hair Wellness" |
-| `copy-belief` | source-only | draft | Supplied brand imagery: wall display panel, "We believe beauty and confidence start at the roots" |
-| `treatment-scalp-care` | source-only | draft | SG 15.1 step 3 service categories; SG 4 Health |
-| `treatment-scalp-spa` | source-only | draft | SG 15.1 step 3 service categories; SG 4 Joy |
-| `treatment-hair-care` | source-only | draft | SG 15.1 step 3 service categories; SG 4 Beauty |
-| `location-wheelock-place` | source-only | draft | SG 15.2 (location); SG 5 outlet photograph description |
-| `pillar-health` / `-joy` / `-beauty` / `-vitality` | source-only | draft | SG 4 four pillars table (descriptions are the guide's suggested lines) |
-| `step-arrival` | source-only | draft | SG 20.3 first visit sequence; SG 3 journey |
-| `step-conversation` | source-only | draft | SG 20.3; SG 18.2 |
-| `step-assessment` | source-only | draft | SG 20.3 ("assessment where included"); SG 1.5 |
-| `step-treatment` | source-only | draft | SG 20.3; SG 12.1 |
-| `step-finish` | source-only | draft | SG 20.3; SG 4 Vitality |
-| `faq-first-visit` | source-only | draft | SG 20.3 |
-| `faq-medical` | source-only | draft | SG 1.5 (needs owner review of the "speak with a doctor" line) |
-| `faq-choose` | source-only | draft | SG 15.1; SG 4 |
-| `faq-price-duration` | source-only | draft | SG 15.3; Task.md D04 |
-| `faq-request` | source-only | draft | SG 16.2; Rules 5; Task.md D07 |
-| `faq-where` | source-only | draft | SG 15.2 |
-| `appointment` destination | pending | draft | ARCH 6; provider not supplied (D07) |
-| `whatsapp` destination | pending | draft | Number not supplied (D05) |
-| `phone` destination | pending | draft | Number not supplied (D05) |
-| `directions` destination | pending | draft | Map link not supplied (D05) |
+All records below are `source-only` and `draft`. Records are in `src/data/records.ts`.
 
-## Unresolved facts (stored as null, shown as labelled placeholders in preview)
-
-| Fact | Records | Blocks |
+| Area | Records | Source |
 |---|---|---|
-| Actual treatment names (currently the category names Scalp care, Scalp spa, Hair care) | treatments | Final menu presentation |
-| Duration, price, tax display and terms for each treatment | treatments | Price and duration publication |
-| Inclusions and whether each service includes a scalp assessment | treatments, `step-assessment` | Treatment descriptions; first-visit accuracy |
-| What the scalp assessment does (SG 1.5 requires verified capabilities; any AI-assisted element is undescribed) | `step-assessment` | Any description beyond "your therapist explains what it looks at" |
-| Unit number, postal address, opening hours, map link | `location-wheelock-place` | Location and visit details |
-| Booking provider, WhatsApp number, telephone number | destinations | Every appointment action |
-| How and when appointments are confirmed | `copy-request-note`, `faq-request` | Confirmation wording |
-| Privacy policy and terms text | footer | Public release |
-| Owner approval of all draft wording | all | Public release |
+| Hero, introduction, section headings and intros, closing | `copy-*` (hero eyebrow, title, support, secondary; intro title, lead, two bodies; care, science, concerns, favourites, visit, home care, space, FAQ and close headings and text) | HC, section by section |
+| Brand lines | `copy-brand-tagline`, `copy-brand-descriptor` | HC footer and wall sign; folder cover |
+| Boundary and request note | `copy-boundary`, `copy-request-note` | SG 1.5; SG 16.2 and Rules 5 |
+| Science & Refinement | `science-understanding`, `science-herbal`, `science-details` | HC |
+| What have you noticed | `concerns` list (5 prompts) | HC |
+| Treatments | `treatment-scalp-care` (Signature Scalp Care), `treatment-head-spa` (Aromatic Waterfall Relaxing Scalp Spa), `treatment-hair-care` (Moisturising Cuticle Hair Care) | HC Find your kind of care and Explore KOMO favourites. Duration, inclusions, price and whether a scalp analysis is included are null |
+| First visit | `step-arrive`, `step-understand`, `step-treatment`, `step-forward` | HC |
+| FAQs | `faq-choose`, `faq-analysis`, `faq-no-concern`, `faq-time`, `faq-sensitive` | HC |
+| FAQ added | `faq-medical` (Is KOMO a medical clinic?) | SG 1.5. **Not in HC.** Kept because the page invites people to mention thinning and shedding; the owner should approve or remove it |
+| Outlet | `location-wheelock-place`: Wheelock Place, 501 Orchard Road, #03-03A, Singapore 238880 | HC location and footer. Opening hours and map link not supplied |
+| Contact | `phone` +65 6224 5497, `whatsapp` +65 8087 7376, `email` info_sg@komowellness.com | HC footer. Shown as text marked "To be confirmed", not as links, until verified |
+| Appointment | `appointment` | No booking provider supplied (D07) |
 
-## Wording decisions taken in drafts
+The previous draft records (style guide hero and promise, the three-part experience, five-step visit) were replaced. The Health, Joy, Beauty and Vitality pillar records remain in `records.ts` for a later About page but are no longer on the homepage, because HC does not include them.
 
-- Treatment summaries, "suited to" lines and step details were written from the guide's pillar meanings and first-visit sequence. They avoid durations, inclusions and outcomes.
-- Copy avoids: diagnosis, regrowth, guaranteed, clinically proven, permanent and medical claims (SG 18.3). The build tests check for these words.
-- No em dashes (SG 18.1). Checked by the build tests.
-- "Sending a request does not confirm a booking" is used in place of any success or confirmation state.
+## Departures from the supplied content, and why
+
+| Supplied | On the concepts | Reason |
+|---|---|---|
+| Book a Visit, Book Your KOMO Visit | Request an appointment | No booking system is connected. Rules 5: a label must match what the button does, and a request is not a booking. Switch back once a real booking destination is verified |
+| Ask Us on WhatsApp, WhatsApp Our Team, Get Directions | Not shown as buttons; the WhatsApp number shows in contact details | The number is unconfirmed and no map link was supplied, so a live link could reach the wrong place (Rules 7, 8) |
+| Meet KOMO, Discover Our Approach, Explore KOMO Home Care, View All FAQs, Plan Your Visit, Plan Your First Visit, footer links to About, Journal | Omitted | Those pages do not exist yet; no dead links (Rules 7) |
+| Explore Scalp Care, Explore Head Spa, Explore Hair Care | Link to the matching favourite on the same page | Real in-page navigation until treatment pages exist |
+| Find Your Treatment, Explore Treatments | Link to the favourites and care sections | As above |
+| Title Case headings and labels (Scalp Care, Head Spa) | Sentence case (Scalp care, Head spa). Treatment names keep their capitals | Rules 5 sentence case. "Science & Refinement" keeps its capitals as named brand panels |
 
 ## Observed in supplied brand imagery, not used
 
-The botanical wall display (`src/assets/KOMO Scalp Wellness Wall Display.png`) also lists services (Scalp care, Scalp spa, Hair care, Deep scalp care), product steps (Cleanse, Wash, Nourish, Care, Treat, Style, Body) and panels headed Science, Global and Refinement. Deep scalp care would be a fourth category beyond SG 15.1. None of this is used: the menu is unconfirmed (D04), and the Science and Global panels would need claim evidence (D09). Confirm with KOMO whether Deep scalp care is a current service.
+The botanical wall display (`src/assets/KOMO Scalp Wellness Wall Display.png`) also lists services (Scalp care, Scalp spa, Hair care, Deep scalp care) and product steps (Cleanse, Wash, Nourish, Care, Treat, Style, Body). HC names Head spa rather than Scalp spa and does not mention Deep scalp care. Confirm with KOMO whether the wall display is current. The "We believe beauty and confidence start at the roots" line from the wall is no longer used; HC's "Thoughtful care, from the roots" covers the same idea.
 

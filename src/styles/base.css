@@ -246,6 +246,20 @@ a:hover { text-decoration-thickness: 2px; }
   color: var(--komo-text-secondary);
 }
 
+/* An owner-supplied value awaiting confirmation: readable as-is, flagged quietly. */
+.supplied-fact { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--space-2); }
+.supplied-fact__flag {
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  padding: 0 var(--space-1);
+  border: 1px dashed currentColor;
+  border-radius: var(--radius-tag);
+  opacity: 0.8;
+}
+
 /* Small tag (4px radius) */
 .tag {
   display: inline-block;

@@ -1,18 +1,32 @@
 ---
 import LogoPlaceholder from '../ui/LogoPlaceholder.astro';
 import Fact from '../ui/Fact.astro';
-import { copy, outlet } from '../../data/records.ts';
+import OutletAddress from '../ui/OutletAddress.astro';
+import { copy, getDestination } from '../../data/records.ts';
 import type { NavItem } from './SiteHeader.astro';
 
 interface Props { nav: NavItem[] }
 const { nav } = Astro.props;
+const contact = ['phone', 'whatsapp', 'email'].map(getDestination);
 ---
 <footer class="site-footer on-dark on-forest">
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
       <LogoPlaceholder tone="dark" />
-      <p class="site-footer__descriptor">{copy.brandDescriptor.text}</p>
-      <p class="site-footer__line">Personalised scalp and hair care at {outlet.address.building}, {outlet.address.city}.</p>
+      <p class="site-footer__descriptor">KOMO Wellness</p>
+      <p class="site-footer__line">{copy.brandTagline.text}</p>
+    </div>
+    <div>
+      <h2 class="site-footer__heading">Visit us</h2>
+      <OutletAddress showName={false} />
+    </div>
+    <div>
+      <h2 class="site-footer__heading">Contact</h2>
+      <ul role="list" class="site-footer__list">
+        {contact.map((d) => (
+          <li><span class="site-footer__key">{d.label}:</span> <Fact value={d.display} unverified pending={`${d.label} to be confirmed`} /></li>
+        ))}
+      </ul>
     </div>
     <nav aria-label="Footer">
       <h2 class="site-footer__heading">On this page</h2>
@@ -24,25 +38,27 @@ const { nav } = Astro.props;
       <h2 class="site-footer__heading">Policies</h2>
       <ul role="list" class="site-footer__list">
         <li><Fact value={null} pending="Privacy policy text required before release" /></li>
-        <li><Fact value={null} pending="Terms text required before release" /></li>
+        <li><Fact value={null} pending="Terms and conditions text required before release" /></li>
       </ul>
     </div>
   </div>
   <div class="container site-footer__base">
-    <p>KOMO scalp and hair wellness care does not diagnose or treat medical conditions.</p>
+    <p>{copy.boundary.text}</p>
   </div>
 </footer>
 
 <style>
   .site-footer { background: var(--komo-forest); color: var(--komo-ivory); padding-block: var(--space-16) var(--space-8); }
-  .site-footer__grid { display: grid; gap: var(--space-12); }
-  @media (min-width: 768px) { .site-footer__grid { grid-template-columns: 2fr 1fr 1fr; } }
-  .site-footer__brand { display: grid; gap: var(--space-4); justify-items: start; }
+  .site-footer__grid { display: grid; gap: var(--space-12) var(--space-8); }
+  @media (min-width: 768px) { .site-footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) { .site-footer__grid { grid-template-columns: 1.6fr 1fr 1.3fr 1fr 1fr; } }
+  .site-footer__brand { display: grid; gap: var(--space-3); justify-items: start; align-content: start; }
   .site-footer__descriptor { font-family: var(--font-display); font-size: var(--text-sub); letter-spacing: 0.04em; color: var(--komo-gold); }
-  .site-footer__line { max-width: 28em; }
+  .site-footer__line { max-width: 22em; }
   .site-footer__heading { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-gold); margin-bottom: var(--space-4); }
   .site-footer__list { display: grid; gap: var(--space-2); }
   .site-footer__list a { display: inline-flex; min-height: 32px; align-items: center; }
+  .site-footer__key { opacity: 0.85; }
   .site-footer__list :global(.placeholder-fact) { color: var(--komo-olive); }
   .site-footer__base { margin-top: var(--space-12); padding-top: var(--space-6); border-top: 1px solid rgba(207, 171, 114, 0.35); font-size: var(--text-support); }
 </style>

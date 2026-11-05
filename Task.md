@@ -266,3 +266,16 @@ Checks not run and why: lab performance with photographs, screen reader, Safari 
 Blockers / owner input needed: official logo artwork (now the most visible gap, since the photographs show the real wordmark); provenance, rights and confirmation for every photograph; approval of Jost and the green and gold tokens (D13); approval of the three brand lines; whether Deep scalp care, listed on the wall display, is a current service.
 
 Next unblocked task: unchanged. Choose a concept, then refine it (T26).
+
+### 2026-11-05 | Homepage exploration: supplied homepage content applied (owner request)
+Status: completed for the private preview.
+
+Resulting behaviour: all three concepts now carry the owner's `KOMO_Singapore_Homepage_Content.md` (kept in `docs/source/`): hero, Thoughtful care, Find your kind of care, Science & Refinement, What have you noticed, KOMO favourites with the three named treatments, the four-step first visit, home care, the Orchard Road address, the five FAQs and the closing invitation. Each concept keeps its own composition and brand treatment. Telephone, WhatsApp and email show as text marked "To be confirmed". Departures from the supplied wording are listed in `docs/content-register.md`.
+
+Files changed: `src/lib/schema.ts`, `src/data/records.ts`, `src/components/ui/Fact.astro`, `src/components/ui/OutletAddress.astro` (new), `src/components/layout/ContactChannels.astro`, `src/components/layout/SiteFooter.astro`, the three concept components and the index, `src/styles/base.css`, `tests/build.test.mjs`, `tests/browser-qa.mjs`, `docs/source/KOMO_Singapore_Homepage_Content.md` (new), `docs/content-register.md`, `docs/decisions.md`, `docs/qa.md`.
+
+Checks run and actual results: `npm run check` 0 errors; `npm test` 29/29; `npm run qa:browser` 82/82.
+
+Blockers / owner input needed: confirm telephone, WhatsApp and email (then they become links); prices, durations and inclusions for the three treatments; which treatments include the scalp analysis; opening hours and a map link; a booking destination (so Request an appointment can become Book a visit); whether to keep the added "Is KOMO a medical clinic?" FAQ; whether the four pillars belong on the homepage.
+
+Next unblocked task: choose a concept, then refine it (T26).

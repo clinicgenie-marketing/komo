@@ -19,7 +19,8 @@ const read = (route) => readFileSync(join(DIST, route, 'index.html'), 'utf8');
 const textOnly = (html) => html
   .replace(/<script[\s\S]*?<\/script>/g, '')
   .replace(/<style[\s\S]*?<\/style>/g, '')
-  .replace(/<[^>]+>/g, ' ');
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&amp;/g, '&').replace(/&#39;|&#x27;/g, "'");
 
 test('every preview route and a real 404 page are generated', () => {
   for (const r of PREVIEW_ROUTES) assert.ok(existsSync(join(DIST, r, 'index.html')), `missing /${r}/`);
@@ -57,10 +58,21 @@ for (const route of CONCEPTS) {
   test(`/${route}/ contains the required homepage content`, () => {
     const text = textOnly(read(route));
     for (const required of [
-      'Explore treatments', 'Request an appointment',
-      'Scalp care', 'Scalp spa', 'Hair care',
-      'Health', 'Joy', 'Beauty', 'Vitality',
-      'Wheelock Place', 'Arrival', 'Conversation', 'Scalp assessment', 'Treatment', 'Finish',
+      // Supplied homepage content (KOMO_Singapore_Homepage_Content.md), one check per section.
+      'Understand your scalp. Find your kind of care.',
+      'Thoughtful care, from the roots',
+      'Find your kind of care', 'Scalp care', 'Head spa', 'Hair care',
+      'Science & Refinement, in every visit', 'A closer understanding', 'Herbal science', 'Care in the details',
+      'What have you noticed about your scalp and hair?', 'Hair thinning and shedding',
+      'Explore KOMO favourites', 'Signature Scalp Care', 'Aromatic Waterfall Relaxing Scalp Spa', 'Moisturising Cuticle Hair Care',
+      'Arrive and settle in', 'Understand your scalp', 'Enjoy your treatment', 'Take your care forward',
+      'Care that continues with you',
+      'A little space to slow down, on Orchard Road', '501 Orchard Road', 'Singapore 238880',
+      'How do I choose a treatment?', 'What if I have a sensitive scalp or product allergies?',
+      'Make room for care',
+      '+65 6224 5497', '+65 8087 7376', 'info_sg@komowellness.com',
+      // Actions and the brand boundary.
+      'Explore treatments', 'Request an appointment', 'Find your treatment',
       'Is KOMO a medical clinic?',
     ]) assert.ok(text.includes(required), `missing "${required}"`);
     const html = read(route);
@@ -127,8 +139,21 @@ test('no fact is invented in the shared records', () => {
     assert.equal(t.price, null, `${t.slug} price`);
     assert.equal(t.verificationStatus === 'verified', false);
   }
-  for (const d of destinations) assert.equal(d.url, null, `${d.id} url`);
+  for (const d of destinations) {
+    // Contact details were supplied but must be confirmed before they become links.
+    assert.equal(isPublishable(d), false, `${d.id} is not yet confirmed`);
+    if (d.url) assert.ok(safeExternalUrl(d.url), `${d.id} url uses an allowlisted protocol`);
+  }
+  assert.equal(destinations.find((d) => d.id === 'appointment').url, null, 'no booking destination exists');
 });
+
+for (const route of CONCEPTS) {
+  test(`/${route}/ shows supplied contact details as text, not links, until confirmed`, () => {
+    const html = read(route);
+    assert.doesNotMatch(html, /href="(tel:|mailto:|https:\/\/wa\.me)/, 'unconfirmed contact link');
+    assert.match(html, /class="supplied-fact"/, 'unconfirmed values are flagged');
+  });
+}
 
 test('supplied photographs are recorded as unapproved concept images with existing files', () => {
   const files = new Set(readdirSync('src/assets', { recursive: true }).map(String));

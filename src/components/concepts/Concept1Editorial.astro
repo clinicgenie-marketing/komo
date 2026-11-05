@@ -1,12 +1,11 @@
 ---
 /**
  * Concept 1: Editorial sanctuary.
- * Asymmetric split hero, varied image-and-text compositions and a calm
- * storytelling rhythm. Brand cues from the outlet and KOMO's own materials:
- * the backlit timber arch (hero and pillars), round illuminated mirrors
- * (experience and treatment images), the deep green cover with its gold
- * wordmark (belief band and outlet). Order: brand experience, belief,
- * philosophy, treatments, first visit, outlet, FAQs, closing action.
+ * The supplied homepage content in its own order, told as a calm editorial
+ * sequence. Brand cues from the outlet and KOMO's own materials: the backlit
+ * timber arch (hero and care categories), round illuminated mirrors (science
+ * and treatment images), the deep green cover with its gold wordmark
+ * (introduction and outlet).
  */
 import PreviewBanner from '../layout/PreviewBanner.astro';
 import SiteHeader from '../layout/SiteHeader.astro';
@@ -16,19 +15,19 @@ import ImageSlot from '../ui/ImageSlot.astro';
 import AppointmentAction from '../ui/AppointmentAction.astro';
 import AppointmentPanel from '../ui/AppointmentPanel.astro';
 import TreatmentFacts from '../ui/TreatmentFacts.astro';
+import OutletAddress from '../ui/OutletAddress.astro';
 import Faq from '../ui/Faq.astro';
-import { copy, experienceParts, outlet, pillars, treatments, visitSteps } from '../../data/records.ts';
-import { treatmentTitle } from '../../lib/format.ts';
+import { concerns, copy, scienceItems, treatments, visitSteps } from '../../data/records.ts';
 
 const nav = [
-  { href: '#experience', label: 'The experience' },
-  { href: '#treatments', label: 'Treatments' },
+  { href: '#care', label: 'Treatments' },
+  { href: '#approach', label: 'Our approach' },
   { href: '#first-visit', label: 'Your first visit' },
-  { href: '#space', label: 'Our space' },
+  { href: '#space', label: 'Visit us' },
   { href: '#faqs', label: 'FAQs' },
 ];
 /** Arch crops: keep faces and the care action inside the mask (SG 10.3). */
-const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
+const carePositions = ['62% 50%', '50% 50%', '45% 50%'];
 ---
 <PreviewBanner concept="Concept 1, Editorial sanctuary" />
 <SiteHeader nav={nav} homeHref="/concept-1/" />
@@ -38,91 +37,58 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   <section class="c1-hero" aria-labelledby="c1-hero-title">
     <div class="container grid c1-hero__grid">
       <div class="c1-hero__text">
-        <p class="t-eyebrow">{copy.brandTagline.text}</p>
-        <h1 id="c1-hero-title" class="t-display">Let the day fall away.</h1>
+        <p class="t-eyebrow">{copy.heroEyebrow.text}</p>
+        <h1 id="c1-hero-title" class="t-display">{copy.heroTitle.text}</h1>
         <p class="t-lead">{copy.heroSupport.text}</p>
+        <p class="c1-hero__secondary">{copy.heroSecondary.text}</p>
         <div class="button-row">
-          <a class="komo-button" href="#treatments">Explore treatments</a>
+          <a class="komo-button" href="#care">Explore treatments</a>
           <AppointmentAction variant="secondary" placement="hero" />
         </div>
       </div>
       <div class="c1-hero__visual">
         <div class="c1-niche">
-          <ImageSlot
-            class="c1-hero__image"
-            assetId="therapist-portrait"
-            shape="arch"
-            ratio="4 / 5"
-            ratioMobile="4 / 5"
-            loading="eager"
-            sizes="(min-width: 1024px) 520px, 90vw"
-          />
+          <ImageSlot class="c1-hero__image" assetId="therapist-portrait" shape="arch" ratio="4 / 5" ratioMobile="4 / 5" loading="eager" sizes="(min-width: 1024px) 500px, 90vw" />
         </div>
-        <ImageSlot
-          class="c1-hero__porthole"
-          assetId="linen-detail"
-          shape="circle"
-          ratio="1 / 1"
-          glow
-          sizes="(min-width: 1024px) 220px, 40vw"
-        />
+        <ImageSlot class="c1-hero__porthole" assetId="linen-detail" shape="circle" ratio="1 / 1" glow sizes="(min-width: 1024px) 200px, 40vw" />
       </div>
     </div>
   </section>
 
-  <!-- The experience: editorial statement, then a round mirror image beside the three parts -->
-  <section id="experience" class="section c1-experience" aria-labelledby="c1-experience-title">
-    <div class="container grid">
-      <p class="t-eyebrow c1-experience__eyebrow">The experience</p>
-      <h2 id="c1-experience-title" class="t-h1 c1-experience__statement">{copy.promise.text}</h2>
-      <p class="t-lead c1-experience__lead">{copy.positioning.text}</p>
-    </div>
-    <div class="container grid c1-experience__pair">
-      <ImageSlot class="c1-experience__image" assetId="porthole-display" shape="circle" ratio="1 / 1" glow sizes="(min-width: 1024px) 480px, 80vw" />
-      <ol role="list" class="c1-experience__parts">
-        {experienceParts.map((p, i) => (
-          <li>
-            <span class="c1-numeral" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-            <h3 class="t-card-serif">{p.title}</h3>
-            <p>{p.text}</p>
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
-
-  <!-- Belief: the deep green and gold of KOMO's own cover, beside the illuminated sign -->
-  <section class="c1-belief on-dark on-forest" aria-labelledby="c1-belief-title">
+  <!-- Thoughtful care: the deep green and gold of KOMO's own cover, beside the illuminated sign -->
+  <section id="about" class="c1-belief on-dark on-forest" aria-labelledby="c1-belief-title">
     <div class="container grid c1-belief__grid">
       <div class="c1-belief__text">
-        <p class="t-eyebrow t-eyebrow--gold">{copy.brandDescriptor.text}</p>
-        <h2 id="c1-belief-title" class="t-h1">{copy.belief.text}</h2>
+        <p class="t-eyebrow t-eyebrow--gold">{copy.brandTagline.text}</p>
+        <h2 id="c1-belief-title" class="t-h1">{copy.introTitle.text}</h2>
         <span class="rule-accent" aria-hidden="true"></span>
-        <p>{copy.experienceIntro.text}</p>
+        <p class="t-lead">{copy.introLead.text}</p>
+        <p>{copy.introBody.text}</p>
+        <p>{copy.introBody2.text}</p>
       </div>
       <ImageSlot class="c1-belief__image" assetId="brand-signage" ratio="4 / 3" ratioMobile="3 / 2" sizes="(min-width: 1024px) 560px, 100vw" />
     </div>
   </section>
 
-  <!-- Philosophy: four arches, like the lit timber niches, labels below photographs -->
-  <section id="approach" class="section c1-pillars" aria-labelledby="c1-pillars-title">
+  <!-- Find your kind of care: three arches, like the lit timber niches -->
+  <section id="care" class="section c1-care" aria-labelledby="c1-care-title">
     <div class="container grid">
-      <div class="c1-pillars__intro">
-        <p class="t-eyebrow">Our approach</p>
-        <h2 id="c1-pillars-title" class="t-h2">Health, Joy, Beauty and Vitality</h2>
-        <p>Four feelings we hope you take from every visit, each with its own place in the experience.</p>
+      <div class="c1-care__intro">
+        <p class="t-eyebrow">Treatments</p>
+        <h2 id="c1-care-title" class="t-h2">{copy.careTitle.text}</h2>
+        <p>{copy.careIntro.text}</p>
       </div>
     </div>
     <div class="container">
-      <ul role="list" class="c1-pillars__list">
-        {pillars.map((p, i) => (
-          <li class="c1-pillar">
-            <ImageSlot assetId={p.assetId} shape="arch" ratio="3 / 4" ratioMobile="4 / 5" position={pillarPositions[i]} sizes="(min-width: 1024px) 280px, (min-width: 768px) 45vw, 100vw" />
-            <div class="c1-pillar__label">
-              <p class="c1-pillar__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
-              <h3 class="t-card-serif">{p.name}</h3>
-              <p class="t-support">{p.meaning}</p>
-              <p>{p.description}</p>
+      <ul role="list" class="c1-care__list">
+        {treatments.map((t, i) => (
+          <li class="c1-care__item">
+            <ImageSlot assetId={t.heroAssetId} shape="arch" ratio="3 / 4" ratioMobile="4 / 5" position={carePositions[i]} sizes="(min-width: 1024px) 360px, (min-width: 768px) 30vw, 100vw" />
+            <div class="c1-care__label">
+              <p class="c1-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
+              <h3 class="t-card-serif">{t.category}</h3>
+              <p>{t.categorySummary}</p>
+              <a class="text-link" href={`#treatment-${t.slug}`}>Explore {t.category.toLowerCase()}</a>
             </div>
           </li>
         ))}
@@ -130,29 +96,71 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
     </div>
   </section>
 
-  <!-- Treatments: editorial index rows with round mirror images -->
+  <!-- Science & Refinement: a round mirror image beside three numbered parts -->
+  <section id="approach" class="section c1-experience" aria-labelledby="c1-science-title">
+    <div class="container grid">
+      <p class="t-eyebrow c1-experience__eyebrow">Our approach</p>
+      <h2 id="c1-science-title" class="t-h1 c1-experience__statement">{copy.scienceTitle.text}</h2>
+      <p class="t-lead c1-experience__lead">{copy.scienceIntro.text}</p>
+    </div>
+    <div class="container grid c1-experience__pair">
+      <ImageSlot class="c1-experience__image" assetId="porthole-display" shape="circle" ratio="1 / 1" glow sizes="(min-width: 1024px) 480px, 80vw" />
+      <ol role="list" class="c1-experience__parts">
+        {scienceItems.map((p, i) => (
+          <li>
+            <span class="c1-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="t-card-serif">{p.title}</h3>
+            {p.text.map((t) => <p>{t}</p>)}
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- What have you noticed: an inviting, non-judgemental prompt on lit timber -->
+  <section id="concerns" class="section c1-concerns" aria-labelledby="c1-concerns-title">
+    <div class="container">
+      <div class="c1-concerns__panel">
+        <div class="c1-concerns__text">
+          <h2 id="c1-concerns-title" class="t-h2">{copy.concernsTitle.text}</h2>
+          <p class="t-lead">{copy.concernsIntro.text}</p>
+          <p>{copy.concernsBody.text}</p>
+        </div>
+        <div class="c1-concerns__aside">
+          <ul role="list" class="c1-concerns__list">
+            {concerns.map((c) => <li>{c}</li>)}
+          </ul>
+          <p class="c1-concerns__spa">{copy.concernsSpa.text}</p>
+          <div class="button-row">
+            <a class="komo-button" href="#treatments">Find your treatment</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KOMO favourites: editorial index rows with round mirror images -->
   <section id="treatments" class="section c1-treatments" aria-labelledby="c1-treatments-title">
     <div class="container grid">
       <div class="c1-treatments__intro">
-        <p class="t-eyebrow">Treatments</p>
-        <h2 id="c1-treatments-title" class="t-h2">Three ways to begin</h2>
-        <p>Each treatment starts with a conversation, so your care can be shaped around you.</p>
+        <p class="t-eyebrow">Favourites</p>
+        <h2 id="c1-treatments-title" class="t-h2">{copy.favouritesTitle.text}</h2>
       </div>
     </div>
     <div class="container">
       <ol role="list" class="c1-treatments__list">
-        {treatments.map((t, i) => (
-          <li class="c1-treatment grid">
+        {treatments.map((t) => (
+          <li id={`treatment-${t.slug}`} class="c1-treatment grid">
             <ImageSlot class="c1-treatment__image" assetId={t.heroAssetId} shape="circle" ratio="1 / 1" sizes="(min-width: 1024px) 200px, 160px" />
             <div class="c1-treatment__body">
-              <p class="c1-treatment__index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
-              <h3 class="t-h2 c1-treatment__title">{treatmentTitle(t)}</h3>
+              <p class="c1-num" aria-hidden="true">{t.category}</p>
+              <h3 class="t-h2 c1-treatment__title">{t.name}</h3>
+              <p class="t-sub">{t.tagline}</p>
               <p>{t.summary}</p>
-              <p class="t-support"><strong>Suited to:</strong> {t.suitedTo}</p>
             </div>
             <div class="c1-treatment__facts">
               <TreatmentFacts treatment={t} />
-              <AppointmentAction variant="link" placement={`treatment-${t.slug}`} context={treatmentTitle(t)} />
+              <AppointmentAction variant="link" placement={`treatment-${t.slug}`} context={t.name ?? t.category} />
             </div>
           </li>
         ))}
@@ -166,15 +174,14 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
       <div class="c1-visit__panel">
         <div class="c1-visit__head">
           <p class="t-eyebrow">Your first visit</p>
-          <h2 id="c1-visit-title" class="t-h2">What to expect, in order</h2>
-          <p>The exact steps depend on the service you choose.</p>
+          <h2 id="c1-visit-title" class="t-h2">{copy.visitTitle.text}</h2>
+          <p>{copy.visitIntro.text}</p>
         </div>
         <ol role="list" class="c1-visit__steps">
           {visitSteps.map((s) => (
             <li class="c1-visit__step">
               <span class="c1-visit__num" aria-hidden="true">{s.order}</span>
               <h3 class="t-sub">{s.title}</h3>
-              {s.conditional && <span class="tag">{s.conditionNote}</span>}
               <p class="t-support">{s.detail}</p>
             </li>
           ))}
@@ -183,17 +190,29 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
     </div>
   </section>
 
+  <!-- Care that continues: product shelves beside a short explanation -->
+  <section id="home-care" class="section c1-home" aria-labelledby="c1-home-title">
+    <div class="container grid c1-home__grid">
+      <div class="c1-home__text">
+        <p class="t-eyebrow">Home care</p>
+        <h2 id="c1-home-title" class="t-h2">{copy.homeCareTitle.text}</h2>
+        <p class="t-lead">{copy.homeCareLead.text}</p>
+        <p>{copy.homeCareBody.text}</p>
+      </div>
+      <ImageSlot class="c1-home__image" assetId="product-display" shape="arch" ratio="4 / 5" ratioMobile="4 / 5" sizes="(min-width: 1024px) 420px, 90vw" />
+    </div>
+  </section>
+
   <!-- The outlet: forest contrast section with the backlit arch display -->
   <section id="space" class="section c1-space on-dark on-forest" aria-labelledby="c1-space-title">
     <div class="container grid c1-space__grid">
       <ImageSlot class="c1-space__image" assetId="arch-display" ratio="4 / 3" ratioMobile="4 / 3" glow sizes="(min-width: 1024px) 640px, 100vw" />
       <div class="c1-space__text">
-        <p class="t-eyebrow t-eyebrow--gold">Our space</p>
-        <h2 id="c1-space-title" class="t-h2">A light, calm space at Wheelock Place</h2>
-        <p>{outlet.description}</p>
-        <ul class="c1-space__features">
-          {outlet.features.map((f) => <li>{f}</li>)}
-        </ul>
+        <p class="t-eyebrow t-eyebrow--gold">Visit us</p>
+        <h2 id="c1-space-title" class="t-h2">{copy.spaceTitle.text}</h2>
+        <p>{copy.spaceBody.text}</p>
+        <p>{copy.spaceBody2.text}</p>
+        <OutletAddress class="c1-space__address" />
       </div>
     </div>
   </section>
@@ -203,8 +222,7 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
     <div class="container grid">
       <div class="c1-faq__intro">
         <p class="t-eyebrow">Questions</p>
-        <h2 id="c1-faq-title" class="t-h2">Before you visit</h2>
-        <p>Plain answers to the questions people ask most.</p>
+        <h2 id="c1-faq-title" class="t-h2">{copy.faqTitle.text}</h2>
       </div>
       <Faq class="c1-faq__list" />
     </div>
@@ -214,8 +232,8 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   <section id="appointment" class="section c1-close" aria-labelledby="c1-close-title">
     <div class="container grid c1-close__grid">
       <div class="c1-close__lead">
-        <h2 id="c1-close-title" class="t-h1">Take a little time for yourself.</h2>
-        <p class="t-lead">Tell us which treatment interests you and when you would like to come.</p>
+        <h2 id="c1-close-title" class="t-h1">{copy.closeTitle.text}</h2>
+        <p class="t-lead">{copy.closeBody.text}</p>
         <AppointmentPanel />
       </div>
       <div class="c1-close__channels">
@@ -233,6 +251,7 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   .c1-hero { padding-block: var(--space-8) var(--space-12); overflow-x: clip; }
   .c1-hero__grid { row-gap: var(--space-8); align-items: center; }
   .c1-hero__text { grid-column: 1 / -1; display: grid; gap: var(--space-6); align-content: end; justify-items: start; }
+  .c1-hero__secondary { color: var(--komo-text-secondary); max-width: 34em; margin-top: calc(-1 * var(--space-2)); }
   .c1-hero__visual { grid-column: 1 / -1; grid-row: 1; position: relative; padding-bottom: var(--space-12); }
   /* The niche: a pale timber arch frame around the photograph, as in the outlet joinery. */
   .c1-niche {
@@ -259,7 +278,6 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   }
 
   /* ---------- Experience ---------- */
-  .c1-experience { border-top: 1px solid var(--komo-border); }
   .c1-experience__eyebrow,
   .c1-experience__statement,
   .c1-experience__lead { grid-column: 1 / -1; }
@@ -274,7 +292,6 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   :global(.c1-experience__image) { grid-column: 1 / -1; width: min(100%, 420px); justify-self: center; }
   .c1-experience__parts { grid-column: 1 / -1; display: grid; gap: var(--space-8); }
   .c1-experience__parts li { display: grid; gap: var(--space-2); padding-top: var(--space-6); border-top: 1px solid var(--komo-border); }
-  .c1-numeral { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); color: var(--komo-text-secondary); }
   @media (min-width: 768px) {
     :global(.c1-experience__image) { grid-column: 1 / span 4; }
     .c1-experience__parts { grid-column: 5 / -1; }
@@ -288,7 +305,8 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   /* ---------- Belief ---------- */
   .c1-belief { padding-block: var(--section-pad); }
   .c1-belief__grid { row-gap: var(--space-8); align-items: center; }
-  .c1-belief__text { grid-column: 1 / -1; display: grid; gap: var(--space-6); max-width: 34em; }
+  .c1-belief__text { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 34em; }
+  .c1-belief__text .t-lead { color: var(--komo-ivory); }
   .c1-belief__text h2 { color: var(--komo-ivory); }
   :global(.c1-belief__image) { grid-column: 1 / -1; }
   @media (min-width: 1024px) {
@@ -296,22 +314,54 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
     :global(.c1-belief__image) { grid-column: 8 / -1; }
   }
 
-  /* ---------- Pillars ---------- */
-  .c1-pillars { background: var(--komo-surface); }
-  .c1-pillars__intro { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 36em; }
-  @media (min-width: 1024px) { .c1-pillars__intro { grid-column: 1 / span 6; } }
-  .c1-pillars__list { margin-top: var(--space-12); display: grid; gap: var(--space-12); }
-  .c1-pillar { display: grid; gap: var(--space-4); align-content: start; }
-  .c1-pillar__label { display: grid; gap: var(--space-1); max-width: 30em; }
-  .c1-pillar__num { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); color: var(--komo-text-secondary); }
+  /* ---------- Care categories ---------- */
+  .c1-care { background: var(--komo-surface); }
+  .c1-care__intro { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 36em; }
+  @media (min-width: 1024px) { .c1-care__intro { grid-column: 1 / span 6; } }
+  .c1-care__list { margin-top: var(--space-12); display: grid; gap: var(--space-12); }
+  .c1-care__item { display: grid; gap: var(--space-4); align-content: start; }
+  .c1-care__label { display: grid; gap: var(--space-2); justify-items: start; max-width: 30em; }
+  .c1-num { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); }
   @media (min-width: 768px) {
-    .c1-pillars__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-12); }
+    .c1-care__list { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--space-8); align-items: start; }
+    /* A gentle rise across the row, like the curved ceiling light. */
+    .c1-care__item:nth-child(2) { margin-top: var(--space-12); }
+  }
+  @media (min-width: 1024px) { .c1-care__list { column-gap: var(--space-12); } }
+
+  /* ---------- Concerns ---------- */
+  .c1-concerns { padding-bottom: 0; }
+  .c1-concerns__panel {
+    display: grid; gap: var(--space-8);
+    padding: var(--space-8) var(--space-6);
+    background: var(--komo-leaf-light);
+    border-radius: var(--radius-card);
+  }
+  .c1-concerns__text, .c1-concerns__aside { display: grid; gap: var(--space-4); align-content: start; }
+  .c1-concerns__list { display: grid; }
+  .c1-concerns__list li {
+    padding-block: var(--space-3);
+    border-top: 1px solid rgba(52, 70, 58, 0.18);
+    font-family: var(--font-display);
+    font-size: var(--text-sub);
+  }
+  .c1-concerns__list li:last-child { border-bottom: 1px solid rgba(52, 70, 58, 0.18); }
+  .c1-concerns__spa { color: var(--komo-text-secondary); }
+  @media (min-width: 1024px) {
+    .c1-concerns__panel { grid-template-columns: 1fr 1fr; gap: var(--space-16); padding: var(--space-12); }
+  }
+
+  /* ---------- Home care ---------- */
+  .c1-home__grid { row-gap: var(--space-8); align-items: center; }
+  .c1-home__text { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 34em; }
+  :global(.c1-home__image) { grid-column: 1 / -1; width: min(100%, 420px); }
+  @media (min-width: 768px) {
+    .c1-home__text { grid-column: 1 / span 5; }
+    :global(.c1-home__image) { grid-column: 6 / -1; justify-self: end; }
   }
   @media (min-width: 1024px) {
-    .c1-pillars__list { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--space-8); align-items: start; }
-    /* A gentle rise and fall across the row, like the curved ceiling light. */
-    .c1-pillar:nth-child(2), .c1-pillar:nth-child(3) { margin-top: var(--space-12); }
-    .c1-pillar:nth-child(3) { margin-top: var(--space-20); }
+    .c1-home__text { grid-column: 2 / span 5; }
+    :global(.c1-home__image) { grid-column: 8 / span 4; }
   }
 
   /* ---------- Treatments ---------- */
@@ -319,7 +369,6 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
   .c1-treatments__list { margin-top: var(--space-12); border-bottom: 1px solid var(--komo-border); }
   .c1-treatment { padding-block: var(--space-8); border-top: 1px solid var(--komo-border); row-gap: var(--space-6); align-items: center; }
   :global(.c1-treatment__image) { grid-column: 1 / span 2; width: 140px; }
-  .c1-treatment__index { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); color: var(--komo-text-secondary); }
   .c1-treatment__body { grid-column: 1 / -1; display: grid; gap: var(--space-3); align-content: start; }
   .c1-treatment__facts { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; justify-items: start; }
   @media (min-width: 768px) {
@@ -363,15 +412,14 @@ const pillarPositions = ['62% 50%', '48% 50%', '50% 40%', '55% 45%'];
     .c1-visit__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-8); }
   }
   @media (min-width: 1024px) {
-    .c1-visit__steps { grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--space-6); }
+    .c1-visit__steps { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--space-8); }
   }
 
   /* ---------- Space ---------- */
   .c1-space__grid { row-gap: var(--space-8); align-items: center; }
   :global(.c1-space__image), .c1-space__text { grid-column: 1 / -1; }
   .c1-space__text { display: grid; gap: var(--space-4); }
-  .c1-space__features { display: grid; gap: var(--space-2); padding-left: 1.1em; margin: 0; }
-  .c1-space__features li::marker { color: var(--komo-gold); }
+  :global(.c1-space__address) { margin-top: var(--space-2); padding-left: var(--space-4); border-left: 2px solid var(--komo-gold); }
   @media (min-width: 768px) {
     :global(.c1-space__image) { grid-column: 1 / span 4; }
     .c1-space__text { grid-column: 5 / -1; }
