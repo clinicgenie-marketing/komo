@@ -1,0 +1,51 @@
+---
+/** Duration and price for a treatment, with any terms kept beside the price (Rules 5). */
+import type { Treatment } from '../../lib/schema.ts';
+import { formatDuration, formatPrice } from '../../lib/format.ts';
+import Fact from './Fact.astro';
+
+interface Props {
+  treatment: Treatment;
+  class?: string;
+  /** Show the inclusions row. */
+  showInclusions?: boolean;
+}
+const { treatment: t, class: className, showInclusions = false } = Astro.props;
+const duration = t.durationMinutes !== null ? formatDuration(t.durationMinutes) : null;
+const price = t.price ? formatPrice(t.price) : null;
+const terms = t.price?.terms ?? null;
+---
+<dl class:list={['treatment-facts', className]}>
+  <div>
+    <dt>Duration</dt>
+    <dd><Fact value={duration} pending="Duration to be confirmed" /></dd>
+  </div>
+  <div>
+    <dt>Price</dt>
+    <dd>
+      <Fact value={price} pending="Price to be confirmed" />
+      {terms && <span class="treatment-facts__terms">{terms}</span>}
+    </dd>
+  </div>
+  {showInclusions && (
+    <div>
+      <dt>Includes</dt>
+      <dd>
+        {t.inclusions.length > 0
+          ? <ul>{t.inclusions.map((i) => <li>{i}</li>)}</ul>
+          : <Fact value={null} pending="Inclusions to be confirmed" />}
+      </dd>
+    </div>
+  )}
+</dl>
+
+<style>
+  .treatment-facts { display: grid; gap: var(--space-3); font-size: var(--text-support); }
+  .treatment-facts div { display: grid; gap: 2px; }
+  .treatment-facts dt { color: var(--komo-text-secondary); font-weight: 500; font-size: var(--text-eyebrow); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+  .treatment-facts dd { margin: 0; }
+  .treatment-facts ul { margin: 0; padding-left: 1.1em; }
+  .treatment-facts__terms { display: block; color: var(--komo-text-secondary); }
+  :global(.on-dark) .treatment-facts dt,
+  :global(.on-dark) .treatment-facts__terms { color: var(--komo-ivory); }
+</style>

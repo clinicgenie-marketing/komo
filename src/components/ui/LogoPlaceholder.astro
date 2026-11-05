@@ -1,0 +1,31 @@
+---
+/**
+ * Placeholder for the official KOMO master logo (style guide 6.1).
+ * The logo is not reconstructed from a typeface. Replace this component's
+ * contents with the approved vector artwork when it is supplied (Task.md D06).
+ */
+interface Props { tone?: 'light' | 'dark'; class?: string }
+const { tone = 'light', class: className } = Astro.props;
+---
+<span class:list={['logo-slot', `logo-slot--${tone}`, className]} aria-hidden="true">
+  <span class="logo-slot__name">KOMO logo</span>
+  <span class="logo-slot__note">official artwork required</span>
+</span>
+
+<style>
+  .logo-slot {
+    display: inline-grid;
+    place-content: center;
+    min-width: 128px;
+    min-height: 44px;
+    padding: var(--space-1) var(--space-3);
+    border: 1.5px dashed currentColor;
+    border-radius: var(--radius-control);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .logo-slot--light { color: var(--komo-olive); }
+  .logo-slot--dark { color: var(--komo-ivory); }
+  .logo-slot__name { font-size: 0.875rem; font-weight: 600; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+  .logo-slot__note { font-size: 0.6875rem; }
+</style>

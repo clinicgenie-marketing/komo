@@ -1,0 +1,114 @@
+---
+/**
+ * Image slot driven by the asset register.
+ * Approved documentary assets render as a sized <img>. Until then a labelled
+ * placeholder reserves the same aspect ratio, so the composition can be judged
+ * without implying that any image documents real KOMO premises or people.
+ */
+import { getAsset } from '../../data/records.ts';
+import { isPreview, isPublishable } from '../../lib/publication.ts';
+
+interface Props {
+  assetId: string;
+  /** CSS aspect-ratio, e.g. "4 / 5". */
+  ratio: string;
+  /** Optional aspect ratio below 768px. */
+  ratioMobile?: string;
+  tone?: 'stone' | 'sage' | 'surface' | 'olive' | 'timber';
+  loading?: 'eager' | 'lazy';
+  sizes?: string;
+  arch?: boolean;
+  caption?: string;
+  class?: string;
+  /** Fill the parent's height instead of using the aspect ratio (desktop only). */
+  fill?: boolean;
+  /** Full-bleed slot: square corners, placeholder label aligned to the page container. */
+  bleed?: boolean;
+}
+const {
+  assetId, ratio, ratioMobile, tone = 'stone', loading = 'lazy', sizes = '100vw',
+  arch = false, caption, class: className, fill = false, bleed = false,
+} = Astro.props;
+const a = getAsset(assetId);
+const approved = a.src !== null && isPublishable(a);
+if (!approved && !isPreview) {
+  throw new Error(`Asset "${assetId}" is not approved; production build blocked.`);
+}
+const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? ratio};`;
+---
+<figure class:list={['slot', `slot--${tone}`, { 'slot--arch': arch, 'slot--fill': fill, 'slot--bleed': bleed }, className]} style={style}>
+  {approved ? (
+    <img
+      class="slot__media"
+      src={a.src!}
+      width={a.width!}
+      height={a.height!}
+      alt={a.decorative ? '' : a.alt}
+      loading={loading}
+      decoding="async"
+      fetchpriority={loading === 'eager' ? 'high' : undefined}
+      sizes={sizes}
+    />
+  ) : (
+    <div class="slot__media slot__placeholder" role="img" aria-label={`Photograph placeholder: ${a.subject}`}>
+      <span class="slot__label" aria-hidden="true">
+        <span class="slot__kicker">Photograph required</span>
+        <span class="slot__ref">{a.shotRef}</span>
+        <span class="slot__brief">{a.brief}</span>
+      </span>
+    </div>
+  )}
+  {caption && <figcaption class="slot__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .slot { position: relative; min-width: 0; }
+  .slot__media {
+    width: 100%;
+    aspect-ratio: var(--slot-ratio-mobile);
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+  @media (min-width: 768px) {
+    .slot__media { aspect-ratio: var(--slot-ratio); }
+    .slot--fill { height: 100%; }
+    .slot--fill .slot__media { height: 100%; aspect-ratio: auto; min-height: 100%; }
+  }
+  .slot--arch .slot__media { border-radius: 999px 999px var(--radius-card) var(--radius-card); }
+
+  .slot__placeholder {
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-4);
+    color: var(--komo-olive);
+  }
+  .slot--stone .slot__placeholder { background: var(--komo-stone); }
+  .slot--sage .slot__placeholder { background: var(--komo-sage); }
+  .slot--surface .slot__placeholder { background: var(--komo-surface); box-shadow: inset 0 0 0 1px var(--komo-border); }
+  .slot--timber .slot__placeholder { background: #ddcfbd; }
+  .slot--olive .slot__placeholder { background: var(--komo-action-hover); color: var(--komo-ivory); }
+  .slot--arch .slot__placeholder { align-items: center; justify-content: center; text-align: center; padding-inline: 18%; }
+
+  .slot--bleed .slot__media { border-radius: 0; }
+  .slot--bleed .slot__placeholder {
+    align-items: flex-start;
+    padding: var(--space-6) max(var(--gutter), calc((100% - var(--container-max)) / 2));
+  }
+  .slot__label {
+    display: grid;
+    gap: var(--space-1);
+    max-width: 30em;
+    font-size: var(--text-eyebrow);
+    line-height: 1.45;
+  }
+  .slot__kicker { font-weight: 600; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+  .slot__ref { font-weight: 500; }
+  .slot__brief { font-size: 0.8125rem; }
+  .slot__caption {
+    margin-top: var(--space-3);
+    font-size: var(--text-support);
+    line-height: 1.5;
+    color: var(--komo-text-secondary);
+  }
+</style>

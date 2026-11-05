@@ -1,0 +1,46 @@
+---
+import LogoPlaceholder from '../ui/LogoPlaceholder.astro';
+import Fact from '../ui/Fact.astro';
+import { outlet } from '../../data/records.ts';
+import type { NavItem } from './SiteHeader.astro';
+
+interface Props { nav: NavItem[] }
+const { nav } = Astro.props;
+---
+<footer class="site-footer on-dark">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <LogoPlaceholder tone="dark" />
+      <p class="site-footer__line">Personalised scalp and hair care at {outlet.address.building}, {outlet.address.city}.</p>
+    </div>
+    <nav aria-label="Footer">
+      <h2 class="site-footer__heading">On this page</h2>
+      <ul role="list" class="site-footer__list">
+        {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+      </ul>
+    </nav>
+    <div>
+      <h2 class="site-footer__heading">Policies</h2>
+      <ul role="list" class="site-footer__list">
+        <li><Fact value={null} pending="Privacy policy text required before release" /></li>
+        <li><Fact value={null} pending="Terms text required before release" /></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container site-footer__base">
+    <p>KOMO scalp and hair wellness care does not diagnose or treat medical conditions.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--komo-olive); color: var(--komo-ivory); padding-block: var(--space-16) var(--space-8); }
+  .site-footer__grid { display: grid; gap: var(--space-12); }
+  @media (min-width: 768px) { .site-footer__grid { grid-template-columns: 2fr 1fr 1fr; } }
+  .site-footer__brand { display: grid; gap: var(--space-4); justify-items: start; }
+  .site-footer__line { max-width: 28em; }
+  .site-footer__heading { font-family: var(--font-body); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-ivory); margin-bottom: var(--space-4); }
+  .site-footer__list { display: grid; gap: var(--space-2); }
+  .site-footer__list a { display: inline-flex; min-height: 32px; align-items: center; }
+  .site-footer__list :global(.placeholder-fact) { color: var(--komo-olive); }
+  .site-footer__base { margin-top: var(--space-12); padding-top: var(--space-6); border-top: 1px solid rgba(244, 240, 231, 0.3); font-size: var(--text-support); }
+</style>

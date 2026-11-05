@@ -1,0 +1,346 @@
+---
+/**
+ * Concept 1: Editorial sanctuary.
+ * Asymmetric split hero, varied image-and-text compositions and a calm
+ * storytelling rhythm. Order: brand experience, philosophy, treatments,
+ * first visit, outlet, FAQs, closing action.
+ */
+import PreviewBanner from '../layout/PreviewBanner.astro';
+import SiteHeader from '../layout/SiteHeader.astro';
+import SiteFooter from '../layout/SiteFooter.astro';
+import ContactChannels from '../layout/ContactChannels.astro';
+import ImageSlot from '../ui/ImageSlot.astro';
+import AppointmentAction from '../ui/AppointmentAction.astro';
+import AppointmentPanel from '../ui/AppointmentPanel.astro';
+import TreatmentFacts from '../ui/TreatmentFacts.astro';
+import Faq from '../ui/Faq.astro';
+import { copy, experienceParts, outlet, pillars, treatments, visitSteps } from '../../data/records.ts';
+import { treatmentTitle } from '../../lib/format.ts';
+
+const nav = [
+  { href: '#experience', label: 'The experience' },
+  { href: '#treatments', label: 'Treatments' },
+  { href: '#first-visit', label: 'Your first visit' },
+  { href: '#space', label: 'Our space' },
+  { href: '#faqs', label: 'FAQs' },
+];
+const pillarRatios = ['4 / 5', '1 / 1', '1 / 1', '4 / 5'];
+const pillarTones = ['stone', 'sage', 'timber', 'stone'] as const;
+---
+<PreviewBanner concept="Concept 1, Editorial sanctuary" />
+<SiteHeader nav={nav} homeHref="/concept-1/" />
+
+<main id="main" class="c1" tabindex="-1">
+  <!-- Hero: asymmetric split, text beside a generous treatment photograph -->
+  <section class="c1-hero" aria-labelledby="c1-hero-title">
+    <div class="container grid c1-hero__grid">
+      <div class="c1-hero__text">
+        <p class="t-eyebrow">Scalp and hair wellness at Wheelock Place</p>
+        <h1 id="c1-hero-title" class="t-display">Let the day fall away.</h1>
+        <p class="t-lead">{copy.heroSupport.text}</p>
+        <div class="button-row">
+          <a class="komo-button" href="#treatments">Explore treatments</a>
+          <AppointmentAction variant="secondary" placement="hero" />
+        </div>
+      </div>
+      <ImageSlot
+        class="c1-hero__image"
+        assetId="treatment-hero"
+        ratio="4 / 5"
+        ratioMobile="4 / 3"
+        tone="stone"
+        loading="eager"
+        sizes="(min-width: 1024px) 640px, 100vw"
+      />
+    </div>
+  </section>
+
+  <!-- The experience: editorial statement, then offset image and text -->
+  <section id="experience" class="section c1-experience" aria-labelledby="c1-experience-title">
+    <div class="container grid">
+      <p class="t-eyebrow c1-experience__eyebrow">The experience</p>
+      <h2 id="c1-experience-title" class="t-h1 c1-experience__statement">{copy.promise.text}</h2>
+      <p class="t-lead c1-experience__lead">{copy.positioning.text}</p>
+    </div>
+    <div class="container grid c1-experience__pair">
+      <ImageSlot class="c1-experience__image" assetId="water-detail" ratio="3 / 2" tone="sage" sizes="(min-width: 1024px) 560px, 100vw" />
+      <ol role="list" class="c1-experience__parts">
+        {experienceParts.map((p, i) => (
+          <li>
+            <span class="c1-numeral" aria-hidden="true">{['i', 'ii', 'iii'][i]}</span>
+            <h3 class="t-card-serif">{p.title}</h3>
+            <p>{p.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- Philosophy: staggered editorial gallery, labels below photographs -->
+  <section id="approach" class="section c1-pillars" aria-labelledby="c1-pillars-title">
+    <div class="container grid">
+      <div class="c1-pillars__intro">
+        <p class="t-eyebrow">Our approach</p>
+        <h2 id="c1-pillars-title" class="t-h2">Health, Joy, Beauty and Vitality</h2>
+        <p>Four feelings we hope you take from every visit, each with its own place in the experience.</p>
+      </div>
+    </div>
+    <div class="container">
+      <ul role="list" class="c1-pillars__list">
+        {pillars.map((p, i) => (
+          <li class="c1-pillar">
+            <ImageSlot assetId={p.assetId} ratio={pillarRatios[i]} tone={pillarTones[i]} sizes="(min-width: 768px) 45vw, 100vw" />
+            <div class="c1-pillar__label">
+              <h3 class="t-card-serif">{p.name}</h3>
+              <p class="t-support">{p.meaning}</p>
+              <p>{p.description}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Treatments: editorial index rows -->
+  <section id="treatments" class="section c1-treatments" aria-labelledby="c1-treatments-title">
+    <div class="container grid">
+      <div class="c1-treatments__intro">
+        <p class="t-eyebrow">Treatments</p>
+        <h2 id="c1-treatments-title" class="t-h2">Three ways to begin</h2>
+        <p>Each treatment starts with a conversation, so your care can be shaped around you.</p>
+      </div>
+    </div>
+    <div class="container">
+      <ol role="list" class="c1-treatments__list">
+        {treatments.map((t, i) => (
+          <li class="c1-treatment grid">
+            <span class="c1-treatment__index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div class="c1-treatment__body">
+              <h3 class="t-h2 c1-treatment__title">{treatmentTitle(t)}</h3>
+              <p>{t.summary}</p>
+              <p class="t-support"><strong>Suited to:</strong> {t.suitedTo}</p>
+            </div>
+            <div class="c1-treatment__facts">
+              <TreatmentFacts treatment={t} />
+              <AppointmentAction variant="link" placement={`treatment-${t.slug}`} context={treatmentTitle(t)} />
+            </div>
+            <ImageSlot class="c1-treatment__image" assetId={t.heroAssetId} ratio="4 / 3" tone={i === 1 ? 'sage' : 'stone'} sizes="(min-width: 1024px) 280px, 100vw" />
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- First visit: one calm horizontal sequence on a soft surface -->
+  <section id="first-visit" class="section c1-visit" aria-labelledby="c1-visit-title">
+    <div class="container">
+      <div class="c1-visit__panel">
+        <div class="c1-visit__head">
+          <h2 id="c1-visit-title" class="t-h2">Your first visit</h2>
+          <p>What to expect, in the order it happens. The exact steps depend on the service you choose.</p>
+        </div>
+        <ol role="list" class="c1-visit__steps">
+          {visitSteps.map((s) => (
+            <li class="c1-visit__step">
+              <span class="c1-visit__num" aria-hidden="true">{s.order}</span>
+              <h3 class="t-sub">{s.title}</h3>
+              {s.conditional && <span class="tag">{s.conditionNote}</span>}
+              <p class="t-support">{s.detail}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- The outlet: olive contrast section with an arched architectural image -->
+  <section id="space" class="section c1-space on-dark" aria-labelledby="c1-space-title">
+    <div class="container grid c1-space__grid">
+      <ImageSlot class="c1-space__image" assetId="flow-architecture" ratio="4 / 5" ratioMobile="1 / 1" tone="timber" arch sizes="(min-width: 1024px) 520px, 100vw" />
+      <div class="c1-space__text">
+        <p class="c1-space__eyebrow">Our space</p>
+        <h2 id="c1-space-title" class="t-h2">A light, calm space at Wheelock Place</h2>
+        <p>{outlet.description}</p>
+        <ul class="c1-space__features">
+          {outlet.features.map((f) => <li>{f}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQs: heading column beside disclosures -->
+  <section id="faqs" class="section c1-faq" aria-labelledby="c1-faq-title">
+    <div class="container grid">
+      <div class="c1-faq__intro">
+        <p class="t-eyebrow">Questions</p>
+        <h2 id="c1-faq-title" class="t-h2">Before you visit</h2>
+        <p>Plain answers to the questions people ask most.</p>
+      </div>
+      <Faq class="c1-faq__list" />
+    </div>
+  </section>
+
+  <!-- Closing action -->
+  <section id="appointment" class="section c1-close" aria-labelledby="c1-close-title">
+    <div class="container grid c1-close__grid">
+      <div class="c1-close__lead">
+        <h2 id="c1-close-title" class="t-h1">Take a little time for yourself.</h2>
+        <p class="t-lead">Tell us which treatment interests you and when you would like to come.</p>
+        <AppointmentPanel />
+      </div>
+      <div class="c1-close__channels">
+        <h3 class="t-sub">Contact and visit details</h3>
+        <ContactChannels />
+      </div>
+    </div>
+  </section>
+</main>
+
+<SiteFooter nav={nav} />
+
+<style>
+  /* ---------- Hero ---------- */
+  .c1-hero { padding-block: var(--space-8) var(--space-16); }
+  .c1-hero__grid { row-gap: var(--space-8); align-items: center; }
+  .c1-hero__text { grid-column: 1 / -1; display: grid; gap: var(--space-6); align-content: end; }
+  :global(.c1-hero__image) { grid-column: 1 / -1; grid-row: 1; }
+  @media (min-width: 768px) {
+    .c1-hero__text { grid-column: 1 / span 5; grid-row: 2; }
+    :global(.c1-hero__image) { grid-column: 2 / -1; }
+  }
+  @media (min-width: 1024px) {
+    .c1-hero { padding-block: var(--space-16) var(--space-24); }
+    .c1-hero__text { grid-column: 1 / span 5; grid-row: 1; }
+    :global(.c1-hero__image) { grid-column: 7 / -1; grid-row: 1; }
+  }
+
+  /* ---------- Experience ---------- */
+  .c1-experience { border-top: 1px solid var(--komo-border); }
+  .c1-experience__eyebrow,
+  .c1-experience__statement,
+  .c1-experience__lead { grid-column: 1 / -1; }
+  .c1-experience__statement { margin-top: var(--space-4); }
+  .c1-experience__lead { margin-top: var(--space-6); color: var(--komo-text-secondary); }
+  @media (min-width: 1024px) {
+    .c1-experience__eyebrow { grid-column: 2 / span 8; }
+    .c1-experience__statement { grid-column: 2 / span 9; }
+    .c1-experience__lead { grid-column: 2 / span 6; }
+  }
+  .c1-experience__pair { margin-top: var(--space-16); row-gap: var(--space-8); align-items: center; }
+  :global(.c1-experience__image) { grid-column: 1 / -1; }
+  .c1-experience__parts { grid-column: 1 / -1; display: grid; gap: var(--space-8); }
+  .c1-experience__parts li { display: grid; gap: var(--space-2); padding-top: var(--space-6); border-top: 1px solid var(--komo-border); }
+  .c1-numeral { font-family: var(--font-editorial); font-style: italic; color: var(--komo-text-secondary); }
+  @media (min-width: 768px) {
+    :global(.c1-experience__image) { grid-column: 1 / span 5; }
+    .c1-experience__parts { grid-column: 6 / -1; }
+  }
+  @media (min-width: 1024px) {
+    .c1-experience__pair { margin-top: var(--space-24); }
+    :global(.c1-experience__image) { grid-column: 1 / span 6; }
+    .c1-experience__parts { grid-column: 8 / span 5; }
+  }
+
+  /* ---------- Pillars ---------- */
+  .c1-pillars { background: var(--komo-surface); }
+  .c1-pillars__intro { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 36em; }
+  @media (min-width: 1024px) { .c1-pillars__intro { grid-column: 1 / span 6; } }
+  .c1-pillars__list { margin-top: var(--space-12); display: grid; gap: var(--space-12); }
+  .c1-pillar { display: grid; gap: var(--space-4); align-content: start; }
+  .c1-pillar__label { display: grid; gap: var(--space-1); max-width: 30em; }
+  @media (min-width: 768px) {
+    .c1-pillars__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-16); row-gap: var(--space-16); align-items: start; }
+    .c1-pillar:nth-child(even) { transform: translateY(var(--space-30)); }
+    .c1-pillars__list { padding-bottom: var(--space-30); }
+  }
+  @media (min-width: 1024px) {
+    .c1-pillars__list { column-gap: var(--space-24); }
+    .c1-pillar:nth-child(odd) { padding-right: var(--space-8); }
+  }
+
+  /* ---------- Treatments ---------- */
+  .c1-treatments__intro { grid-column: 1 / -1; display: grid; gap: var(--space-4); max-width: 36em; }
+  .c1-treatments__list { margin-top: var(--space-12); border-bottom: 1px solid var(--komo-border); }
+  .c1-treatment { padding-block: var(--space-8); border-top: 1px solid var(--komo-border); row-gap: var(--space-4); }
+  .c1-treatment__index { grid-column: 1 / -1; font-family: var(--font-editorial); color: var(--komo-text-secondary); }
+  .c1-treatment__body { grid-column: 1 / -1; display: grid; gap: var(--space-3); align-content: start; }
+  .c1-treatment__facts { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; justify-items: start; }
+  :global(.c1-treatment__image) { grid-column: 1 / -1; }
+  @media (min-width: 768px) {
+    .c1-treatment__index { grid-column: 1 / span 1; }
+    .c1-treatment__body { grid-column: 2 / span 4; }
+    .c1-treatment__facts { grid-column: 6 / -1; }
+    :global(.c1-treatment__image) { grid-column: 2 / span 4; grid-row: 2; }
+  }
+  @media (min-width: 1024px) {
+    .c1-treatment { padding-block: var(--space-12); }
+    .c1-treatment__index { grid-column: 1 / span 1; }
+    .c1-treatment__body { grid-column: 2 / span 5; }
+    .c1-treatment__facts { grid-column: 7 / span 3; }
+    :global(.c1-treatment__image) { grid-column: 10 / -1; grid-row: 1; }
+  }
+
+  /* ---------- First visit ---------- */
+  .c1-visit { padding-top: 0; }
+  .c1-visit__panel {
+    display: grid;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-6);
+    background: var(--komo-surface);
+    border: 1px solid var(--komo-border);
+    border-radius: var(--radius-card);
+  }
+  .c1-visit__head { display: grid; gap: var(--space-3); max-width: 40em; }
+  .c1-visit__steps { display: grid; gap: var(--space-6); counter-reset: step; }
+  .c1-visit__step { display: grid; gap: var(--space-2); align-content: start; justify-items: start; }
+  .c1-visit__num {
+    font-family: var(--font-editorial);
+    font-size: var(--text-h2);
+    line-height: 1;
+    color: var(--komo-olive);
+  }
+  @media (min-width: 768px) {
+    .c1-visit__panel { padding: var(--space-12); }
+    .c1-visit__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--space-8); }
+  }
+  @media (min-width: 1024px) {
+    .c1-visit__steps { grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--space-6); }
+    .c1-visit__step { padding-top: var(--space-4); border-top: 2px solid var(--komo-olive); }
+  }
+
+  /* ---------- Space ---------- */
+  .c1-space { background: var(--komo-olive); color: var(--komo-ivory); }
+  .c1-space h2 { color: var(--komo-ivory); }
+  .c1-space__grid { row-gap: var(--space-8); align-items: center; }
+  :global(.c1-space__image), .c1-space__text { grid-column: 1 / -1; }
+  .c1-space__text { display: grid; gap: var(--space-4); }
+  .c1-space__eyebrow { font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+  .c1-space__features { display: grid; gap: var(--space-2); padding-left: 1.1em; margin: 0; }
+  @media (min-width: 768px) {
+    :global(.c1-space__image) { grid-column: 1 / span 4; }
+    .c1-space__text { grid-column: 5 / -1; }
+  }
+  @media (min-width: 1024px) {
+    :global(.c1-space__image) { grid-column: 1 / span 5; }
+    .c1-space__text { grid-column: 7 / span 5; }
+  }
+
+  /* ---------- FAQ ---------- */
+  .c1-faq__intro { grid-column: 1 / -1; display: grid; gap: var(--space-3); align-content: start; margin-bottom: var(--space-8); }
+  :global(.c1-faq__list) { grid-column: 1 / -1; }
+  @media (min-width: 1024px) {
+    .c1-faq__intro { grid-column: 1 / span 4; margin-bottom: 0; }
+    :global(.c1-faq__list) { grid-column: 6 / -1; }
+  }
+
+  /* ---------- Closing ---------- */
+  .c1-close { background: var(--komo-stone); }
+  .c1-close__grid { row-gap: var(--space-12); }
+  .c1-close__lead { grid-column: 1 / -1; display: grid; gap: var(--space-6); align-content: start; }
+  .c1-close__channels { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; }
+  .c1-close :global(.t-lead) { color: var(--komo-olive); }
+  @media (min-width: 1024px) {
+    .c1-close__lead { grid-column: 1 / span 7; }
+    .c1-close__channels { grid-column: 9 / -1; padding-top: var(--space-4); }
+  }
+</style>

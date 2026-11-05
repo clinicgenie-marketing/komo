@@ -1,0 +1,53 @@
+---
+/** FAQ disclosures using native <details>: keyboard operable with announced state. */
+import { faqs } from '../../data/records.ts';
+import Fact from './Fact.astro';
+
+interface Props {
+  class?: string;
+  /** Heading level for questions, to keep the outline correct. */
+  headingLevel?: 3 | 4;
+  /** Open the first item by default. */
+  openFirst?: boolean;
+}
+const { class: className, headingLevel = 3, openFirst = false } = Astro.props;
+const H = `h${headingLevel}` as 'h3' | 'h4';
+---
+<div class:list={['faq', className]}>
+  {faqs.map((f, i) => (
+    <details class="faq__item" open={openFirst && i === 0 ? true : undefined}>
+      <summary class="faq__summary"><H class="faq__question">{f.question}</H><span class="faq__icon" aria-hidden="true"></span></summary>
+      <div class="faq__answer">
+        {f.answer.map((p) => <p>{p}</p>)}
+        {f.pendingFact && <p><Fact value={null} pending={f.pendingFact} /></p>}
+      </div>
+    </details>
+  ))}
+</div>
+
+<style>
+  .faq { border-top: 1px solid var(--komo-border); }
+  .faq__item { border-bottom: 1px solid var(--komo-border); }
+  .faq__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 48px;
+    padding-block: var(--space-4);
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq__summary::-webkit-details-marker { display: none; }
+  .faq__question { font-family: var(--font-body); font-size: var(--text-sub); line-height: 1.4; font-weight: 500; }
+  .faq__summary:hover .faq__question { text-decoration: underline; text-underline-offset: 0.2em; }
+  .faq__icon { position: relative; flex: none; width: 20px; height: 20px; }
+  .faq__icon::before, .faq__icon::after {
+    content: ''; position: absolute; left: 2px; right: 2px; top: 9px; height: 2px;
+    background: currentColor; border-radius: 1px;
+    transition: transform var(--duration-fast) ease;
+  }
+  .faq__icon::after { transform: rotate(90deg); }
+  details[open] .faq__icon::after { transform: rotate(0deg); }
+  .faq__answer { display: grid; gap: var(--space-3); padding-bottom: var(--space-6); max-width: 62ch; }
+</style>

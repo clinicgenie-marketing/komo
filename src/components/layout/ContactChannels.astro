@@ -1,0 +1,48 @@
+---
+/**
+ * Contact and appointment channels. A channel renders as a link only when its
+ * destination is verified. Otherwise the preview shows an honest placeholder
+ * with no interactive element (Rules 7: no dead links).
+ */
+import { destinations, outlet } from '../../data/records.ts';
+import { resolveDestination } from '../../lib/destinations.ts';
+import Fact from '../ui/Fact.astro';
+
+interface Props { tone?: 'light' | 'dark'; class?: string; layout?: 'list' | 'row' }
+const { tone = 'light', class: className, layout = 'list' } = Astro.props;
+const channels = destinations.map((d) => ({ d, r: resolveDestination(d) }));
+const pendingText: Record<string, string> = {
+  'booking-provider': 'Booking destination to be confirmed',
+  whatsapp: 'WhatsApp number to be confirmed',
+  phone: 'Telephone number to be confirmed',
+  map: 'Map link to be confirmed',
+  email: 'Email address to be confirmed',
+};
+---
+<ul role="list" class:list={['channels', `channels--${tone}`, `channels--${layout}`, className]}>
+  {channels.map(({ d, r }) => (
+    <li class="channels__item">
+      <span class="channels__label">{d.label}</span>
+      {r.href
+        ? <a class="text-link" href={r.href} data-placement="contact-channels">{r.label}</a>
+        : <Fact value={null} pending={pendingText[d.kind] ?? 'Destination to be confirmed'} />}
+    </li>
+  ))}
+  <li class="channels__item">
+    <span class="channels__label">Opening hours</span>
+    <Fact value={null} pending="Opening hours to be confirmed" />
+  </li>
+  <li class="channels__item">
+    <span class="channels__label">Address</span>
+    <span>{outlet.address.building}, {outlet.address.city} <Fact value={outlet.address.unit} pending="Unit number to be confirmed" /></span>
+  </li>
+</ul>
+
+<style>
+  .channels { display: grid; gap: var(--space-4); }
+  .channels--row { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--space-6); }
+  .channels__item { display: grid; gap: var(--space-1); align-content: start; }
+  .channels__label { font-weight: 500; }
+  .channels--dark { color: var(--komo-ivory); }
+  .channels--dark :global(.placeholder-fact) { color: var(--komo-olive); }
+</style>

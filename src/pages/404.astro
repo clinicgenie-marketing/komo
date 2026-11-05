@@ -1,0 +1,20 @@
+---
+/** Real not-found page. Contains no draft facts, so it is safe in every build. */
+import PreviewLayout from '../layouts/PreviewLayout.astro';
+import { isPreview } from '../lib/publication.ts';
+---
+<PreviewLayout title="Page not found | KOMO" description="This page could not be found.">
+  <main id="main" class="nf" tabindex="-1">
+    <div class="container nf__inner">
+      <p class="t-eyebrow">Error 404</p>
+      <h1 class="t-h1">We could not find that page.</h1>
+      <p class="t-lead">The address may be mistyped, or the page may have moved.</p>
+      {isPreview && <p><a class="komo-button" href="/concepts/">View the homepage concepts</a></p>}
+    </div>
+  </main>
+</PreviewLayout>
+
+<style>
+  .nf { min-height: 70vh; display: grid; align-items: center; }
+  .nf__inner { display: grid; gap: var(--space-6); padding-block: var(--space-24); }
+</style>

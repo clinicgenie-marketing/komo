@@ -1,0 +1,44 @@
+---
+/**
+ * Appointment guidance shown in each concept's #appointment section.
+ * With a verified destination it shows the real action. Without one, the
+ * preview explains what is missing instead of simulating a booking flow.
+ */
+import { copy, getDestination } from '../../data/records.ts';
+import { resolveDestination } from '../../lib/destinations.ts';
+import AppointmentAction from './AppointmentAction.astro';
+
+interface Props { tone?: 'light' | 'dark'; class?: string }
+const { tone = 'light', class: className } = Astro.props;
+const resolved = resolveDestination(getDestination('appointment'));
+---
+<div class:list={['appt', `appt--${tone}`, className]}>
+  {resolved.href ? (
+    <AppointmentAction placement="appointment-section" variant={tone === 'dark' ? 'on-dark' : 'primary'} />
+  ) : (
+    <div class="appt__preview" role="note">
+      <p class="appt__kicker">Preview note</p>
+      <p>No booking destination has been confirmed yet, so this page does not take requests. When KOMO confirms its booking channel, every Request an appointment button on the page will open it directly.</p>
+    </div>
+  )}
+  <p class="appt__note">{copy.requestNote.text}</p>
+</div>
+
+<style>
+  .appt { display: grid; gap: var(--space-4); justify-items: start; }
+  .appt__preview {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 40em;
+    padding: var(--space-4) var(--space-6);
+    border: 1px dashed var(--komo-text-secondary);
+    border-radius: var(--radius-card);
+    background: var(--komo-surface);
+    color: var(--komo-olive);
+    font-size: var(--text-support);
+  }
+  .appt--dark .appt__preview { border-color: var(--komo-ivory); }
+  .appt__kicker { font-size: var(--text-eyebrow); font-weight: 600; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+  .appt__note { max-width: 40em; }
+  .appt--dark .appt__note { color: var(--komo-ivory); }
+</style>

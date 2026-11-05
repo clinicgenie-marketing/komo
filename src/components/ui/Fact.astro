@@ -1,0 +1,19 @@
+---
+/**
+ * Renders a confirmed fact, or a clearly labelled preview placeholder.
+ * A missing required fact throws in a production build (Rules 4).
+ */
+import { isPreview } from '../../lib/publication.ts';
+
+interface Props {
+  value?: string | null;
+  /** What is missing, written for the reviewer, e.g. "Price to be confirmed". */
+  pending: string;
+  class?: string;
+}
+const { value = null, pending, class: className } = Astro.props;
+if (value === null && !isPreview) {
+  throw new Error(`Required fact missing in production build: ${pending}`);
+}
+---
+{value !== null ? <span class={className}>{value}</span> : <span class:list={['placeholder-fact', className]}>{pending}</span>}

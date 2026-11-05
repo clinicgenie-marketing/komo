@@ -1,0 +1,27 @@
+{
+  "name": "komo-website",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "KOMO Wellness website: private homepage concept exploration (preview only).",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "build:production": "KOMO_BUILD_TARGET=production astro build --outDir dist-production",
+    "preview": "astro build && astro preview",
+    "check": "astro check",
+    "test": "astro build && node --test tests/build.test.mjs",
+    "qa:browser": "node tests/browser-qa.mjs"
+  },
+  "dependencies": {
+    "astro": "7.4.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "axe-core": "4.11.0",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,38 @@
+---
+/**
+ * The appointment action. Resolves the verified destination from the registry.
+ * While no destination is verified, preview builds link to the on-page
+ * appointment guidance (a real in-page navigation, never a dead link or fake flow).
+ */
+import { getDestination } from '../../data/records.ts';
+import { APPOINTMENT_SECTION_ID, resolveDestination } from '../../lib/destinations.ts';
+import { isPreview } from '../../lib/publication.ts';
+
+interface Props {
+  variant?: 'primary' | 'secondary' | 'on-dark' | 'secondary-on-dark' | 'link';
+  /** Analytics placement name (tracking is disabled until D10 is resolved). */
+  placement: string;
+  /** Adds context for screen readers, e.g. a treatment name. */
+  context?: string;
+  class?: string;
+  destinationId?: string;
+}
+const { variant = 'primary', placement, context, class: className, destinationId = 'appointment' } = Astro.props;
+const resolved = resolveDestination(getDestination(destinationId));
+if (!resolved.href && !isPreview) {
+  throw new Error(`Appointment destination "${destinationId}" is not verified; production build blocked.`);
+}
+const href = resolved.href ?? `#${APPOINTMENT_SECTION_ID}`;
+const classes = variant === 'link'
+  ? ['text-link', className]
+  : ['komo-button', variant !== 'primary' && `komo-button--${variant}`, className];
+const external = resolved.href !== null && resolved.opensNewTab;
+---
+<a
+  href={href}
+  class:list={classes}
+  data-placement={placement}
+  data-destination={resolved.href ? destinationId : 'preview-guidance'}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+>{resolved.label}{context && <span class="visually-hidden">{` for ${context}`}</span>}{external && <span class="visually-hidden"> (opens in a new tab)</span>}</a>

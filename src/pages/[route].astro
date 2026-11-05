@@ -1,0 +1,30 @@
+---
+/**
+ * Private preview routes: /concepts/ and /concept-1/ to /concept-3/.
+ * getStaticPaths returns nothing in a production build, so these routes and
+ * their draft content cannot be published by accident (Task.md T14).
+ */
+import type { GetStaticPaths } from 'astro';
+import PreviewLayout from '../layouts/PreviewLayout.astro';
+import Concept1Editorial from '../components/concepts/Concept1Editorial.astro';
+import Concept2Journey from '../components/concepts/Concept2Journey.astro';
+import Concept3Immersive from '../components/concepts/Concept3Immersive.astro';
+import ConceptIndex from '../components/concepts/ConceptIndex.astro';
+import { previewRoutesEnabled } from '../lib/publication.ts';
+import { previewRoutes as routes, type PreviewRouteKey as RouteKey } from '../data/preview-routes.ts';
+
+
+export const getStaticPaths = (() => {
+  if (!previewRoutesEnabled()) return [];
+  return (Object.keys(routes) as RouteKey[]).map((route) => ({ params: { route } }));
+}) satisfies GetStaticPaths;
+
+const route = Astro.params.route as RouteKey;
+const meta = routes[route];
+---
+<PreviewLayout title={meta.title} description={meta.description} bodyClass={`route-${route}`}>
+  {route === 'concepts' && <ConceptIndex />}
+  {route === 'concept-1' && <Concept1Editorial />}
+  {route === 'concept-2' && <Concept2Journey />}
+  {route === 'concept-3' && <Concept3Immersive />}
+</PreviewLayout>

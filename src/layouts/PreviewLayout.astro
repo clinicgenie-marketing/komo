@@ -1,0 +1,32 @@
+---
+/**
+ * Base page layout for private preview routes. Every page using it is marked
+ * noindex, nofollow. Hosts must also add access protection and an
+ * X-Robots-Tag header (Architecture.md 7); robots.txt alone is not protection.
+ */
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+interface Props {
+  title: string;
+  description: string;
+  bodyClass?: string;
+}
+const { title, description, bodyClass } = Astro.props;
+---
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f4f0e7" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <slot />
+  </body>
+</html>

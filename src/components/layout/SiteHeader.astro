@@ -1,0 +1,173 @@
+---
+/**
+ * Header with responsive navigation (style guide 16; Task.md T20).
+ * Below 1024px the navigation collapses behind a disclosure button.
+ * Without JavaScript the links remain visible and usable.
+ */
+import LogoPlaceholder from '../ui/LogoPlaceholder.astro';
+import AppointmentAction from '../ui/AppointmentAction.astro';
+
+export interface NavItem { href: string; label: string }
+interface Props {
+  nav: NavItem[];
+  homeHref: string;
+  /** Sticky header. Concept 3 uses a non-sticky header because it has a sticky mobile action bar. */
+  sticky?: boolean;
+  /** Hide the header CTA on small screens when another persistent action exists. */
+  hideCtaOnMobile?: boolean;
+}
+const { nav, homeHref, sticky = true, hideCtaOnMobile = false } = Astro.props;
+---
+<header class:list={['site-header', { 'site-header--sticky': sticky }]} data-site-header>
+  <div class="container site-header__bar">
+    <a class="site-header__home" href={homeHref}>
+      <span class="visually-hidden">KOMO Wellness, back to top of homepage</span>
+      <LogoPlaceholder />
+    </a>
+
+    <button
+      class="site-header__toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-nav-toggle
+      hidden
+    >
+      <span class="site-header__toggle-icon" aria-hidden="true"></span>
+      <span data-nav-toggle-label>Menu</span>
+    </button>
+
+    <nav id="site-nav" class="site-header__nav" aria-label="Main" data-nav>
+      <ul role="list" class="site-header__list">
+        {nav.map((item) => (
+          <li><a class="site-header__link" href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+      <div class:list={['site-header__cta', { 'site-header__cta--desktop-only': hideCtaOnMobile }]}>
+        <AppointmentAction placement="header" />
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const nav = header?.querySelector<HTMLElement>('[data-nav]');
+  const label = header?.querySelector<HTMLElement>('[data-nav-toggle-label]');
+
+  if (header && toggle && nav && label) {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    header.classList.add('is-enhanced');
+    toggle.hidden = false;
+
+    const setOpen = (open: boolean, returnFocus = false) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? 'Close' : 'Menu';
+      header.classList.toggle('is-open', open);
+      if (!open && returnFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.classList.contains('is-open')) setOpen(false, true);
+    });
+
+    nav.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a') && !mq.matches) setOpen(false);
+    });
+
+    // Close when focus leaves the header on small screens.
+    header.addEventListener('focusout', (e) => {
+      const next = e.relatedTarget as Node | null;
+      if (!mq.matches && header.classList.contains('is-open') && next && !header.contains(next)) setOpen(false);
+    });
+
+    mq.addEventListener('change', () => setOpen(false));
+  }
+</script>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 50;
+    background: var(--komo-ivory);
+    border-bottom: 1px solid var(--komo-border);
+  }
+  .site-header--sticky { position: sticky; top: 0; }
+  .site-header__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    min-height: var(--header-height);
+    padding-block: var(--space-3);
+  }
+  .site-header__home { display: inline-flex; text-decoration: none; border-radius: var(--radius-control); }
+
+  .site-header__nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-8); }
+  .site-header__list { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); }
+  .site-header__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 500;
+    font-size: var(--text-button);
+    text-decoration: none;
+  }
+  .site-header__link:hover { text-decoration: underline; text-underline-offset: 0.3em; }
+
+  .site-header__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 48px;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--komo-olive);
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--komo-olive);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .site-header__toggle:hover { background: var(--komo-surface); }
+  .site-header__toggle[hidden] { display: none; }
+  .site-header__toggle-icon,
+  .site-header__toggle-icon::before,
+  .site-header__toggle-icon::after {
+    display: block; width: 18px; height: 2px; background: currentColor; border-radius: 1px;
+    transition: transform var(--duration-fast) ease, opacity var(--duration-fast) ease;
+  }
+  .site-header__toggle-icon { position: relative; }
+  .site-header__toggle-icon::before, .site-header__toggle-icon::after { content: ''; position: absolute; left: 0; }
+  .site-header__toggle-icon::before { top: -6px; }
+  .site-header__toggle-icon::after { top: 6px; }
+  .is-open .site-header__toggle-icon { background: transparent; }
+  .is-open .site-header__toggle-icon::before { transform: translateY(6px) rotate(45deg); }
+  .is-open .site-header__toggle-icon::after { transform: translateY(-6px) rotate(-45deg); }
+
+  /* Enhanced small-screen behaviour */
+  @media (max-width: 1023.98px) {
+    .is-enhanced .site-header__nav { display: none; }
+    .is-enhanced.is-open .site-header__nav {
+      display: grid;
+      width: 100%;
+      gap: var(--space-4);
+      padding-block: var(--space-2) var(--space-4);
+      max-height: calc(100dvh - var(--header-height) - var(--space-4));
+      overflow-y: auto;
+    }
+    .is-enhanced .site-header__list { display: grid; gap: 0; }
+    .is-enhanced .site-header__list li { border-bottom: 1px solid var(--komo-border); }
+    .is-enhanced .site-header__link { width: 100%; min-height: 52px; font-size: var(--text-sub); }
+    .site-header__cta :global(.komo-button) { width: 100%; }
+    .site-header__cta--desktop-only { display: none; }
+  }
+  @media (min-width: 1024px) {
+    .site-header__toggle { display: none !important; }
+    .site-header__cta :global(.komo-button) { min-height: 44px; padding-block: 10px; }
+  }
+</style>

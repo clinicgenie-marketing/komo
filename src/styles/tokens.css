@@ -1,0 +1,93 @@
+/*
+ * KOMO design tokens.
+ * Source: KOMO_Botanical_Sanctuary_Style_Guide.md sections 8, 9, 10, 17 and 23.
+ * This is the single token system. Concept layouts must use these variables
+ * rather than defining their own colours, type or spacing.
+ */
+:root {
+  /* Core palette (8.1) */
+  --komo-olive: #34463a;
+  --komo-ivory: #f4f0e7;
+  --komo-sage: #a6b29a;
+  --komo-stone: #c9bcae;
+  --komo-surface: #fffdfa;
+  --komo-text-secondary: #526055;
+  --komo-border: #d8d8cc;
+  --komo-action-hover: #28392e;
+
+  /* Functional (8.3) */
+  --komo-error: #9c3535;
+  --komo-success: #315c40;
+  --komo-warning: #775112;
+  --komo-focus: #34463a;
+
+  /* Type (9.1, 9.2, 23) */
+  --font-editorial: Georgia, 'Times New Roman', serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --text-body: 1rem;                                        /* 16 → 18 */
+  --text-support: 0.875rem;                                 /* 14 → 16 */
+  --text-eyebrow: 0.75rem;                                  /* 12 */
+  --text-button: 1rem;                                      /* 16 */
+  --text-sub: clamp(1.125rem, 1.05rem + 0.25vw, 1.25rem);   /* 18 → 20 */
+  --text-card: clamp(1.375rem, 1.33rem + 0.15vw, 1.5rem);   /* 22 → 24 */
+  --text-h2: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);       /* 30 → 40 */
+  --text-h1: clamp(2.25rem, 1.5rem + 2.5vw, 3.25rem);       /* 36 → 52 */
+  --text-display: clamp(2.5rem, 1.5rem + 3.5vw, 4rem);      /* 40 → 64 */
+
+  --leading-display: 1.1;
+  --leading-heading: 1.2;
+  --leading-card: 1.3;
+  --leading-body: 1.6;
+  --tracking-eyebrow: 0.08em;
+
+  /* Spacing (10.2) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-30: 120px; /* major story transition only */
+
+  --section-pad: clamp(var(--space-12), 3rem + 3vw, var(--space-24));
+  --gutter: 20px;
+  --grid-gap: var(--space-4);
+  --measure: 70ch;
+  --reading-max: 720px;
+  --container-max: 1200px;
+
+  /* Shape and depth (10.3) */
+  --radius-tag: 4px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --shadow-soft: 0 8px 24px rgba(52, 70, 58, 0.06);
+
+  /* Motion (17) */
+  --duration-fast: 180ms;
+  --duration-gentle: 320ms;
+  --ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  --header-height: 72px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 32px;
+    --grid-gap: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --text-body: 1.125rem;
+    --text-support: 1rem;
+    --gutter: 40px;
+    --grid-gap: var(--space-8);
+    --header-height: 80px;
+  }
+}

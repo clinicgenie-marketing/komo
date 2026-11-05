@@ -1,0 +1,71 @@
+---
+/** Simple comparison index for the three homepage concepts. Preview only. */
+const concepts = [
+  {
+    href: '/concept-1/',
+    name: 'Concept 1',
+    title: 'Editorial sanctuary',
+    hero: 'Asymmetric split: editorial headline beside a tall treatment photograph.',
+    journey: 'Brand experience and philosophy first, then treatments, first visit, the space and FAQs.',
+    cta: 'Calm, two actions in the hero, quiet text links on each treatment, one closing invitation.',
+  },
+  {
+    href: '/concept-2/',
+    name: 'Concept 2',
+    title: 'The care journey',
+    hero: 'Practical headline with a “visit at a glance” step list, then a wide arrival photograph.',
+    journey: 'Five-step visit timeline first, then a treatment comparison table, how each moment should feel, finding us and FAQs.',
+    cta: 'Most frequent: comparison rows, a “not sure yet” prompt and a three-step closing explanation.',
+  },
+  {
+    href: '/concept-3/',
+    name: 'Concept 3',
+    title: 'Immersive retreat',
+    hero: 'Full-bleed atmospheric photograph with an overlapping soft-white text panel.',
+    journey: 'Sensory imagery and philosophy first, concise treatments on olive, the space, first visit, appointment guidance, FAQs.',
+    cta: 'Most prominent: appointment leads the hero and a persistent action bar sits at the bottom on mobile and tablet.',
+  },
+];
+---
+<main id="main" class="ci" tabindex="-1">
+  <div class="container ci__inner">
+    <header class="ci__head">
+      <p class="t-eyebrow">Private preview · not for publication</p>
+      <h1 class="t-h1">KOMO homepage concepts</h1>
+      <p class="t-lead">Three compositions of the same content, palette, typography and voice, following the Botanical Sanctuary style guide. Copy is draft and every photograph, the logo and unconfirmed facts are labelled placeholders.</p>
+    </header>
+    <ol role="list" class="ci__list">
+      {concepts.map((c) => (
+        <li class="ci__item">
+          <p class="t-eyebrow">{c.name}</p>
+          <h2 class="t-h2"><a href={c.href}>{c.title}</a></h2>
+          <dl class="ci__facts">
+            <div><dt>Hero</dt><dd>{c.hero}</dd></div>
+            <div><dt>Journey</dt><dd>{c.journey}</dd></div>
+            <div><dt>Actions</dt><dd>{c.cta}</dd></div>
+          </dl>
+          <a class="komo-button komo-button--secondary" href={c.href}>Open {c.title}</a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</main>
+
+<style>
+  .ci__inner { padding-block: var(--space-16) var(--space-24); display: grid; gap: var(--space-12); }
+  .ci__head { display: grid; gap: var(--space-4); max-width: 46em; }
+  .ci__list { display: grid; gap: var(--space-8); }
+  @media (min-width: 1024px) { .ci__list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ci__item {
+    display: grid; gap: var(--space-4); align-content: start; justify-items: start;
+    padding: var(--space-8) var(--space-6);
+    background: var(--komo-surface);
+    border: 1px solid var(--komo-border);
+    border-radius: var(--radius-card);
+  }
+  .ci__item h2 a { text-decoration: none; }
+  .ci__item h2 a:hover { text-decoration: underline; }
+  .ci__facts { display: grid; gap: var(--space-3); font-size: var(--text-support); }
+  .ci__facts dt { font-weight: 600; }
+  .ci__facts dd { margin: 0; }
+</style>
