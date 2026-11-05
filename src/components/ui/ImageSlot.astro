@@ -7,6 +7,7 @@
  */
 import { getAsset } from '../../data/records.ts';
 import { isPreview, isPublishable } from '../../lib/publication.ts';
+import { responsiveImage } from '../../lib/images.ts';
 
 interface Props {
   assetId: string;
@@ -34,21 +35,27 @@ const approved = a.src !== null && isPublishable(a);
 if (!approved && !isPreview) {
   throw new Error(`Asset "${assetId}" is not approved; production build blocked.`);
 }
-const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? ratio};`;
+const img = approved ? await responsiveImage(a.src!) : null;
+const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? ratio}; --slot-position: ${a.objectPosition};`;
 ---
 <figure class:list={['slot', `slot--${tone}`, { 'slot--arch': arch, 'slot--fill': fill, 'slot--bleed': bleed }, className]} style={style}>
-  {approved ? (
-    <img
-      class="slot__media"
-      src={a.src!}
-      width={a.width!}
-      height={a.height!}
-      alt={a.decorative ? '' : a.alt}
-      loading={loading}
-      decoding="async"
-      fetchpriority={loading === 'eager' ? 'high' : undefined}
-      sizes={sizes}
-    />
+  {img ? (
+    <picture>
+      <source type="image/avif" srcset={img.avif} sizes={sizes} />
+      <source type="image/webp" srcset={img.webp} sizes={sizes} />
+      <img
+        class="slot__media slot__photo"
+        src={img.fallbackSrc}
+        srcset={img.fallbackSrcSet}
+        sizes={sizes}
+        width={img.width}
+        height={img.height}
+        alt={a.decorative ? '' : a.alt}
+        loading={loading}
+        decoding="async"
+        fetchpriority={loading === 'eager' ? 'high' : undefined}
+      />
+    </picture>
   ) : (
     <div class="slot__media slot__placeholder" role="img" aria-label={`Photograph placeholder: ${a.subject}`}>
       <span class="slot__label" aria-hidden="true">
@@ -75,6 +82,7 @@ const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? rat
     .slot--fill { height: 100%; }
     .slot--fill .slot__media { height: 100%; aspect-ratio: auto; min-height: 100%; }
   }
+  .slot__photo { display: block; height: auto; object-position: var(--slot-position, 50% 50%); background: var(--komo-stone); }
   .slot--arch .slot__media { border-radius: 999px 999px var(--radius-card) var(--radius-card); }
 
   .slot__placeholder {

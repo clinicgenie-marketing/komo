@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { assertPublishable, isPublishable, PublicationError, resolveBuildTarget } from '../src/lib/publication.ts';
@@ -86,7 +86,17 @@ for (const route of CONCEPTS) {
   test(`/${route}/ marks unconfirmed facts and placeholder imagery visibly`, () => {
     const html = read(route);
     assert.match(html, /class="placeholder-fact/, 'preview placeholders shown');
-    assert.match(html, /Photograph placeholder:/, 'image placeholders labelled');
+    // Approved photographs render as responsive pictures; anything else stays a labelled placeholder.
+    const placeholders = html.match(/Photograph placeholder:/g)?.length ?? 0;
+    const pictures = [...html.matchAll(/<picture[^>]*>([\s\S]*?)<\/picture>/g)].map((m) => m[1]);
+    assert.ok(placeholders + pictures.length > 0, 'image slots rendered');
+    for (const p of pictures) {
+      assert.match(p, /<source type="image\/avif" srcset="[^"]+"/, 'AVIF source');
+      assert.match(p, /<source type="image\/webp" srcset="[^"]+"/, 'WebP source');
+      assert.match(p, /<img[^>]+width="\d+"[^>]+height="\d+"/, 'intrinsic size reserved');
+      assert.match(p, /<img[^>]+alt="[^"]*"/, 'alt attribute present');
+    }
+    assert.doesNotMatch(html, /src="[^"]+\.png"/i, 'PNG originals are never served');
     assert.match(html, /official artwork required/, 'logo placeholder labelled');
     // Every appointment action points to the on-page guidance while no destination is verified.
     for (const [, href] of html.matchAll(/<a href="([^"]+)"[^>]*data-placement=/g)) {
@@ -116,7 +126,23 @@ test('no fact is invented in the shared records', () => {
     assert.equal(t.verificationStatus === 'verified', false);
   }
   for (const d of destinations) assert.equal(d.url, null, `${d.id} url`);
-  for (const a of assets) assert.equal(a.src, null, `${a.id} src`);
+  const registry = readFileSync('src/lib/images.ts', 'utf8');
+  for (const a of assets) {
+    if (a.src === null) continue;
+    // A photograph is only used once the owner has approved it and it is recorded.
+    assert.equal(a.publishStatus, 'approved', `${a.id} approved`);
+    assert.equal(a.verificationStatus, 'verified', `${a.id} verified`);
+    assert.ok(a.verifiedBy && a.verifiedAt && a.usageRights, `${a.id} approval recorded`);
+    assert.ok(a.decorative || a.alt.length > 10, `${a.id} has descriptive alt text`);
+    assert.ok(existsSync(`.${a.src}`), `${a.id} original exists at ${a.src}`);
+    assert.ok(registry.includes(`'${a.src}'`), `${a.id} registered in src/lib/images.ts`);
+  }
+});
+
+test('only the photographs in use are processed into the build', () => {
+  const files = readdirSync(join(DIST, '_astro'));
+  assert.equal(files.filter((f) => /\.png$/i.test(f)).length, 0, 'no PNG originals copied to dist');
+  assert.ok(files.some((f) => f.endsWith('.avif')) && files.some((f) => f.endsWith('.webp')), 'AVIF and WebP generated');
 });
 
 test('destinations only resolve when verified and on an allowlisted protocol', () => {

@@ -17,6 +17,7 @@
 import { existsSync } from 'node:fs';
 import { getAsset } from '../../data/records.ts';
 import { isPreview, isPublishable } from '../../lib/publication.ts';
+import { responsiveImage } from '../../lib/images.ts';
 
 interface Props {
   videoAssetId: string;
@@ -31,23 +32,30 @@ const posterApproved = poster.src !== null && isPublishable(poster);
 // Optional WebM alongside the MP4 (same name, .webm), served first when present.
 const webmSrc = videoApproved && video.src!.endsWith('.mp4') ? video.src!.replace(/\.mp4$/, '.webm') : null;
 const hasWebm = webmSrc !== null && existsSync(`public${webmSrc}`);
+const posterImg = posterApproved ? await responsiveImage(poster.src!, [800, 1200, 1600, 1920]) : null;
 if (!posterApproved && !isPreview) {
   throw new Error(`Hero poster "${posterAssetId}" is not approved; production build blocked.`);
 }
 ---
 <div class:list={['hero-media', className]}>
-  {posterApproved ? (
-    <img
-      class="hero-media__poster"
-      src={poster.src!}
-      width={poster.width!}
-      height={poster.height!}
-      alt=""
-      loading="eager"
-      fetchpriority="high"
-      decoding="async"
-      sizes="100vw"
-    />
+  {posterImg ? (
+    <picture>
+      <source type="image/avif" srcset={posterImg.avif} sizes="100vw" />
+      <source type="image/webp" srcset={posterImg.webp} sizes="100vw" />
+      <img
+        class="hero-media__poster"
+        src={posterImg.fallbackSrc}
+        srcset={posterImg.fallbackSrcSet}
+        sizes="100vw"
+        width={posterImg.width}
+        height={posterImg.height}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        style={`object-position: ${poster.objectPosition}`}
+      />
+    </picture>
   ) : (
     <div class="hero-media__placeholder" role="img" aria-label={`Placeholder: ${videoApproved ? poster.subject : 'hero video and poster image'}`}>
       <span class="hero-media__label" aria-hidden="true">
@@ -68,7 +76,7 @@ if (!posterApproved && !isPreview) {
       preload="none"
       aria-hidden="true"
       tabindex="-1"
-      poster={posterApproved ? poster.src! : undefined}
+      poster={posterImg ? posterImg.fallbackSrc : undefined}
     >
       {hasWebm && <source src={webmSrc!} type="video/webm" />}
       <source src={video.src!} type="video/mp4" />

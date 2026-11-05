@@ -95,6 +95,8 @@ export const asset = evidence.extend({
   mediaType: z.enum(['image', 'video']).default('image'),
   usageRights: nullableText,
   focalPoint: z.string(),
+  /** CSS object-position used when a responsive crop has to cut the frame. */
+  objectPosition: z.string().default('50% 50%'),
 });
 
 export const pillar = evidence.extend({

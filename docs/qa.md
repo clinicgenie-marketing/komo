@@ -100,3 +100,25 @@ That test showed bright frames showing through the original 94% panel, so the pa
 Not tested: real KOMO footage (none supplied), H.264 playback (Playwright's Chromium has no H.264; WebM was used), Safari autoplay rules on iOS.
 
 Preview note: the private preview banner sits above the hero, so on tablets and phones the panel starts about 100px lower than it will without the banner.
+
+## 2026-11-05 | Approved photography wired into the concepts
+
+Environment as above, plus sharp (bundled with Astro) for image processing.
+
+| Command | Result |
+|---|---|
+| `npm run check` | 0 errors, 0 warnings, 0 hints |
+| `npm run build` | 5 pages. `dist/` 8.8 MB; no PNG originals copied (was 93 MB with an eager glob, fixed by registering only used photos) |
+| `npm test` | 26 of 26 passed (new: approved assets must be verified, recorded, registered and on disk; pictures carry AVIF and WebP sources, intrinsic size and alt; no PNG served; no PNG in `dist/_astro`) |
+| `npm run qa:browser` | 82 of 82 passed, including axe WCAG 2.2 AA at 375 and 1440px with real photos |
+| Manual scroll check, all concepts at 1440 and 375px | Every image loaded, none broken |
+
+Image weight measured in headless Chrome (AVIF served):
+
+| Concept | First view at 1440px | Whole page at 1440px | First view at 375px | Whole page at 375px |
+|---|---|---|---|---|
+| Concept 1 | 47 KB | 250 KB | 10 KB | 98 KB |
+| Concept 2 | 67 KB | 164 KB | 14 KB | 110 KB |
+| Concept 3 | 86 KB | 277 KB | 37 KB | 132 KB |
+
+Every hero is well under the 250 KB hero budget. Not run: Lighthouse and real-user field data, iOS Safari, screen readers.
