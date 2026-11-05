@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execSync } from 'node:child_process';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { assertPublishable, isPublishable, PublicationError, resolveBuildTarget } from '../src/lib/publication.ts';
@@ -86,8 +86,20 @@ for (const route of CONCEPTS) {
   test(`/${route}/ marks unconfirmed facts and placeholder imagery visibly`, () => {
     const html = read(route);
     assert.match(html, /class="placeholder-fact/, 'preview placeholders shown');
-    assert.match(html, /Photograph placeholder:/, 'image placeholders labelled');
     assert.match(html, /official artwork required/, 'logo placeholder labelled');
+    // Every image is either a labelled placeholder or a supplied concept image; none is presented as approved.
+    const statuses = [...html.matchAll(/data-asset-status="([a-z]+)"/g)].map((m) => m[1]);
+    assert.ok(statuses.length > 0, 'image slots rendered');
+    for (const st of statuses) assert.ok(['concept', 'placeholder'].includes(st), `unexpected asset status ${st}`);
+    if (statuses.includes('concept')) {
+      assert.match(textOnly(html), /Photographs are supplied concept images, not confirmed records/, 'concept imagery disclosed in the preview banner');
+    }
+    // Photographs are re-encoded and responsive, never the 2 MB originals.
+    assert.doesNotMatch(html, /src="[^"]+\.png"/, 'original PNG served directly');
+    for (const [, img] of html.matchAll(/<img([^>]*class="slot__media[^>]*)>/g)) {
+      assert.match(img, /srcset="/, 'responsive srcset on every photograph');
+      assert.match(img, /width="\d+" height="\d+"|height="\d+"[^>]*width="\d+"/, 'intrinsic dimensions on every photograph');
+    }
     // Every appointment action points to the on-page guidance while no destination is verified.
     for (const [, href] of html.matchAll(/<a href="([^"]+)"[^>]*data-placement=/g)) {
       assert.equal(href, '#appointment');
@@ -116,7 +128,18 @@ test('no fact is invented in the shared records', () => {
     assert.equal(t.verificationStatus === 'verified', false);
   }
   for (const d of destinations) assert.equal(d.url, null, `${d.id} url`);
-  for (const a of assets) assert.equal(a.src, null, `${a.id} src`);
+});
+
+test('supplied photographs are recorded as unapproved concept images with existing files', () => {
+  const files = new Set(readdirSync('src/assets', { recursive: true }).map(String));
+  for (const a of assets) {
+    assert.equal(isPublishable(a), false, `${a.id} must not be approved without verification and rights`);
+    if (a.src === null) continue;
+    assert.equal(a.kind, 'concept', `${a.id} with a file is a concept image until KOMO confirms it documents the outlet`);
+    assert.equal(a.usageRights, null, `${a.id} usage rights are unrecorded`);
+    assert.ok(files.has(a.src), `${a.id} file missing: src/assets/${a.src}`);
+    assert.ok(a.decorative || a.alt.length > 0, `${a.id} needs alt text`);
+  }
 });
 
 test('destinations only resolve when verified and on an allowlisted protocol', () => {

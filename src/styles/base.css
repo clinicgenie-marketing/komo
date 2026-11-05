@@ -30,37 +30,42 @@ h1, h2, h3, h4 { margin: 0; font-weight: 400; color: var(--komo-olive); }
 p, ul, ol, dl, dd, figure { margin: 0; }
 ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 
-/* Typography roles (9.2) */
+/* Typography roles (9.2). Display roles use the geometric brand face. */
 .t-display {
-  font-family: var(--font-editorial);
+  font-family: var(--font-display);
   font-size: var(--text-display);
   line-height: var(--leading-display);
   font-weight: 400;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--tracking-display);
   text-wrap: balance;
 }
 .t-h1 {
-  font-family: var(--font-editorial);
+  font-family: var(--font-display);
   font-size: var(--text-h1);
   line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: var(--tracking-display);
   text-wrap: balance;
 }
 .t-h2 {
-  font-family: var(--font-editorial);
+  font-family: var(--font-display);
   font-size: var(--text-h2);
   line-height: var(--leading-heading);
+  font-weight: 400;
+  letter-spacing: var(--tracking-display);
   text-wrap: balance;
 }
 .t-card {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-size: var(--text-card);
   line-height: var(--leading-card);
   font-weight: 500;
 }
 .t-card-serif {
-  font-family: var(--font-editorial);
+  font-family: var(--font-display);
   font-size: var(--text-card);
   line-height: var(--leading-card);
+  font-weight: 400;
 }
 .t-sub {
   font-size: var(--text-sub);
@@ -73,6 +78,7 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
   color: var(--komo-text-secondary);
 }
 .t-eyebrow {
+  font-family: var(--font-display);
   font-size: var(--text-eyebrow);
   line-height: 1.4;
   font-weight: 500;
@@ -80,11 +86,28 @@ ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
   text-transform: uppercase;
   color: var(--komo-text-secondary);
 }
+/* Gold eyebrow, only on forest or olive surfaces (contrast 6.2:1 on forest). */
+.t-eyebrow--gold { color: var(--komo-gold); }
 .t-lead {
   font-size: var(--text-sub);
   line-height: 1.5;
   max-width: 34em;
 }
+/* A short gold or oak rule, echoing the lit edge of the timber shelves. */
+.rule-accent {
+  display: block;
+  width: 48px;
+  height: 2px;
+  border: 0;
+  margin: 0;
+  background: var(--komo-oak);
+}
+.on-forest {
+  background: var(--komo-forest);
+  color: var(--komo-ivory);
+}
+.on-forest h2, .on-forest h3 { color: var(--komo-ivory); }
+.on-forest .rule-accent { background: var(--komo-gold); }
 .measure { max-width: var(--measure); }
 
 /* Container and grid (10.1) */
@@ -153,8 +176,10 @@ a:hover { text-decoration-thickness: 2px; }
   background: var(--komo-olive);
   color: var(--komo-ivory);
   font: inherit;
+  font-family: var(--font-display);
   font-size: var(--text-button);
   font-weight: 500;
+  letter-spacing: 0.01em;
   line-height: 1.4;
   text-decoration: none;
   text-align: center;
@@ -202,8 +227,8 @@ a:hover { text-decoration-thickness: 2px; }
 /* Preview placeholder for an unconfirmed fact (Rules 4) */
 .placeholder-fact {
   display: inline-block;
-  padding: 2px var(--space-2);
-  border: 1px dashed var(--komo-text-secondary);
+  padding: 1px var(--space-2);
+  border: 1px dashed var(--komo-oak);
   border-radius: var(--radius-tag);
   font-size: var(--text-support);
   line-height: 1.5;
@@ -212,11 +237,13 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .placeholder-fact::before {
   content: 'Preview';
-  font-size: var(--text-eyebrow);
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: var(--tracking-eyebrow);
   text-transform: uppercase;
   margin-right: var(--space-2);
+  color: var(--komo-text-secondary);
 }
 
 /* Small tag (4px radius) */
@@ -232,6 +259,16 @@ a:hover { text-decoration-thickness: 2px; }
   text-transform: uppercase;
   color: var(--komo-olive);
 }
+
+/* Gold-edged secondary button for forest panels */
+.komo-button--gold-on-dark {
+  background: transparent;
+  color: var(--komo-ivory);
+  border-color: var(--komo-gold);
+}
+.komo-button--gold-on-dark:hover,
+.komo-button--gold-on-dark:active { background: rgba(207, 171, 114, 0.16); }
+.komo-button--gold-on-dark:focus-visible { outline-color: var(--komo-ivory); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

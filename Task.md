@@ -249,3 +249,20 @@ Checks not run and why: real footage and iOS Safari playback (no asset, no devic
 Blockers / owner input needed: approved hero video and poster photograph with usage rights; reversed (light) logo artwork for use over media.
 
 Next unblocked task: unchanged. Choose a concept, then refine it (T26).
+
+### 2026-11-05 | Homepage exploration: brand redesign of all three concepts (owner request)
+Status: completed for the private preview.
+
+Resulting behaviour: the three concepts keep their structure and content but now take their look from KOMO's own brand material. Headings, navigation and buttons use Jost, a geometric face that sits with the rounded KOMO wordmark. Deep green and gold from the KOMO folder anchor the contrast sections (C1 belief and space, C2 visit summary, treatment menu and close, C3 hero panel and treatments) and the footer. Images take the outlet's shapes: backlit timber arches (C1 hero and pillars, C3 first visit) and round illuminated mirrors (treatment rows, step markers, porthole details). Each concept carries the brand belief or tagline from KOMO's signage. All supplied photographs now show in preview as concept images.
+
+Files changed: `package.json`, `package-lock.json` (`@fontsource-variable/jost` 5.3.0), `src/styles/tokens.css`, `src/styles/base.css`, `src/layouts/PreviewLayout.astro`, `src/lib/images.ts` (new), `src/data/records.ts`, `src/components/ui/ImageSlot.astro`, `src/components/ui/HeroVideo.astro`, `src/components/ui/AppointmentAction.astro`, `src/components/ui/LogoPlaceholder.astro`, `src/components/layout/SiteHeader.astro`, `src/components/layout/SiteFooter.astro`, `src/components/layout/PreviewBanner.astro`, the three concept components and the index, `src/assets/photography/` (14 new files), `tests/build.test.mjs`, `docs/decisions.md`, `docs/asset-register.md`, `docs/content-register.md`, `docs/qa.md`.
+
+Decisions and evidence: see `docs/decisions.md` (three entries dated 2026-11-05 for the redesign). The new palette and font are proposals sampled from the supplied images, not approved brand values.
+
+Checks run and actual results: `npm run check` 0 errors; `npm test` 26/26; `npm run qa:browser` 82/82 (details in `docs/qa.md`).
+
+Checks not run and why: lab performance with photographs, screen reader, Safari and Firefox (not available).
+
+Blockers / owner input needed: official logo artwork (now the most visible gap, since the photographs show the real wordmark); provenance, rights and confirmation for every photograph; approval of Jost and the green and gold tokens (D13); approval of the three brand lines; whether Deep scalp care, listed on the wall display, is a current service.
+
+Next unblocked task: unchanged. Choose a concept, then refine it (T26).

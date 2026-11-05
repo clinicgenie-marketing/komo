@@ -15,8 +15,10 @@
  * the hero scrim and content. The parent must be position: relative.
  */
 import { existsSync } from 'node:fs';
+import { getImage } from 'astro:assets';
 import { getAsset } from '../../data/records.ts';
 import { isPreview, isPublishable } from '../../lib/publication.ts';
+import { resolveImage } from '../../lib/images.ts';
 
 interface Props {
   videoAssetId: string;
@@ -28,6 +30,13 @@ const video = getAsset(videoAssetId);
 const poster = getAsset(posterAssetId);
 const videoApproved = video.src !== null && isPublishable(video);
 const posterApproved = poster.src !== null && isPublishable(poster);
+// A supplied concept still may stand in for the poster in preview builds only.
+const posterShown = poster.src !== null && (posterApproved || isPreview);
+const posterFile = posterShown ? resolveImage(poster.src!) : null;
+const posterImg = posterFile
+  ? await getImage({ src: posterFile, widths: [800, 1200, 1600, 1920].filter((w) => w < posterFile.width).concat(posterFile.width), format: 'webp', quality: 78 })
+  : null;
+const posterPosition = /%/.test(poster.focalPoint) ? poster.focalPoint : '50% 50%';
 // Optional WebM alongside the MP4 (same name, .webm), served first when present.
 const webmSrc = videoApproved && video.src!.endsWith('.mp4') ? video.src!.replace(/\.mp4$/, '.webm') : null;
 const hasWebm = webmSrc !== null && existsSync(`public${webmSrc}`);
@@ -36,17 +45,20 @@ if (!posterApproved && !isPreview) {
 }
 ---
 <div class:list={['hero-media', className]}>
-  {posterApproved ? (
+  {posterImg ? (
     <img
       class="hero-media__poster"
-      src={poster.src!}
-      width={poster.width!}
-      height={poster.height!}
+      src={posterImg.src}
+      srcset={posterImg.srcSet.attribute}
+      width={posterFile!.width}
+      height={posterFile!.height}
+      style={`object-position: ${posterPosition};`}
       alt=""
       loading="eager"
       fetchpriority="high"
       decoding="async"
       sizes="100vw"
+      data-asset-status={posterApproved ? 'approved' : 'concept'}
     />
   ) : (
     <div class="hero-media__placeholder" role="img" aria-label={`Placeholder: ${videoApproved ? poster.subject : 'hero video and poster image'}`}>
@@ -68,7 +80,7 @@ if (!posterApproved && !isPreview) {
       preload="none"
       aria-hidden="true"
       tabindex="-1"
-      poster={posterApproved ? poster.src! : undefined}
+      poster={posterImg ? posterImg.src : undefined}
     >
       {hasWebm && <source src={webmSrc!} type="video/webm" />}
       <source src={video.src!} type="video/mp4" />

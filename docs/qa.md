@@ -100,3 +100,19 @@ That test showed bright frames showing through the original 94% panel, so the pa
 Not tested: real KOMO footage (none supplied), H.264 playback (Playwright's Chromium has no H.264; WebM was used), Safari autoplay rules on iOS.
 
 Preview note: the private preview banner sits above the hero, so on tablets and phones the panel starts about 100px lower than it will without the banner.
+
+## 2026-11-05 | Brand redesign of all three concepts
+
+Change: Jost display face (self-hosted), deep green and gold, oak and glow tokens, arch and round-mirror image shapes, supplied photographs wired in as preview-only concept images through Astro's image service, brand lines from KOMO's signage and print as draft copy.
+
+| Command | Result |
+|---|---|
+| `npm run check` | 0 errors, 0 warnings, 0 hints |
+| `npm test` | 26 of 26 passed. The image test now requires every image slot to be a labelled placeholder or a disclosed concept image (never approved), every photograph to have a `srcset` and intrinsic dimensions, no PNG original to be served, and every asset with a file to be an unapproved concept record whose file exists |
+| `npm run qa:browser` | 82 of 82 passed, including axe WCAG 2.2 AA with 0 violations at 375 and 1440px on all three concepts |
+
+Visual review: full-page screenshots at 1440px with all images loaded, and 375px, for each concept. Fixed during review: porthole images in C1 hero and C2 finding us were not overlapping as intended (scoped-style specificity), and the C2 media block stretched to the text height.
+
+Contrast of the new pairings (computed): gold on forest 6.2:1, ivory on forest 11.7:1, olive on oak-light 7.7:1, muted olive on oak-light 5.1:1, olive on leaf-light 7.7:1.
+
+Not checked: real devices, Safari and Firefox; lab performance with the new photographs; screen reader pass.

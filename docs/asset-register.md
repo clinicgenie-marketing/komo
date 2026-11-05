@@ -1,6 +1,39 @@
 # Asset register
 
-Status: 5 November 2026. No photography, logo or Flow artwork was supplied. Every image slot renders a labelled placeholder that reserves the final aspect ratio. No generated or stock imagery is used, so nothing on the page implies it documents real KOMO premises, staff, equipment or outcomes.
+Status: 5 November 2026, updated after the brand redesign. Photographs are now supplied, but none is approved. Each one is recorded as a **concept image** (`kind: 'concept'`): it sets the art direction, but nobody has yet confirmed that it documents KOMO's actual premises, staff, equipment or results, who made it, or the usage rights. Several look generated or composited. Preview builds show them under a banner that says so; production builds refuse to render them (`ImageSlot`, `HeroVideo`). No logo or Flow artwork was supplied.
+
+### Supplied photographs now in use (preview only)
+
+| ID | File in `src/assets/` | Shows | Used in |
+|---|---|---|---|
+| `treatment-hero` | `photography/komo_treatment_basin-rinse_3x2.webp` | Rinsing lathered hair at the basin | C2 step 4 |
+| `treatment-basin` | `photography/komo_treatment_basin-therapist_3x2.webp` | Therapist at the basin beside KOMO products | C3 hero poster |
+| `therapist-portrait` | `photography/komo_people_therapist_2x3.webp` | Therapist in uniform washing hair | C1 hero arch |
+| `health-consultation` | `photography/komo_health_consultation_3x2.webp` | Therapist and customer talking | Pillars, scalp care, C2 step 2 |
+| `joy-massage` | `photography/komo_joy_scalp-massage_3x2.webp` | Scalp massage with eye pillow | Pillars, scalp spa |
+| `beauty-mirror` | `photography/komo_beauty_mirror_2x3.webp` | Drying hair by a round mirror | Pillars, C2 step 5 |
+| `vitality-departure` | `photography/komo_vitality_departure_2x3.webp` | Customer at the lockers | Pillars |
+| `hair-texture` | `photography/komo_beauty_hair-touch_3x2.webp` | Hand in long hair | Hair care |
+| `arrival-signage` | `photography/komo_arrival_reception_3x2.webp` | Welcome at reception | C2 step 1 |
+| `assessment-detail` | `photography/komo_health_assessment_3x2.webp` | Scalp camera and screen | C2 step 3 |
+| `water-detail` | `photography/komo_sensory_water_3x2.webp` | Hand shower and hair | C3 sensory |
+| `linen-detail` | `photography/komo_sensory_linen_3x2.webp` | Rolled towels | C1 hero porthole |
+| `entrance` | `photography/komo_arrival_storefront_3x2.webp` | Storefront and sign | C2 finding us |
+| `flow-architecture` | `photography/komo_space_treatment-area_3x2.webp` | Treatment area, round mirrors | C2 hero |
+| `brand-signage` | `KOMO Integrative Scalp & Hair Care.png` | Illuminated wall sign | C1 belief |
+| `brand-cover` | `KOMO Scalp & Hair Wellness Cover.png` | Green folder, gold wordmark | C2 treatment menu |
+| `arch-display` | `KOMO Hair Wellness Display in a Spa Setting.png` | Backlit timber arch | C1 space |
+| `porthole-display` | `Warm Arched KOMO Display Through Porthole.png` | Arch seen through a round opening | C1 experience, C2 finding us |
+| `wall-display` | `KOMO Scalp Wellness Wall Display.png` | Botanical wall display | C3 belief |
+| `consultation-room` | `Modern KOMO Spa Consultation Room.png` | Consultation room | C3 first visit |
+| `treatment-area-sage` | `Sage Green Salon Spa Interior.png` | Sage chairs, round mirrors | C3 space |
+| `vanity` | `Warm Minimalist Beauty Vanity.png` | Round mirror and vanity | C3 sensory |
+| `oak-cabinet` | `Symmetrical Oak Cabinet with Spa Countertop.png` | Oak joinery | Registered, not used |
+| `product-display` | `KOMO Scalp & Hair Wellness Display.png` | Product shelves and scalp guide | Registered, not used |
+
+The 14 `photography/` files were extracted from the owner's exported concept pages (1200 or 1024 px wide WebP). Replace them with full-resolution originals before release; at 1440 px and above the full-bleed C3 images are slightly soft. To approve one, record source, rights, depicted location and alt text, then set `verificationStatus: 'verified'`, `publishStatus: 'approved'` and `kind: 'documentary'` on its record.
+
+### Original shot list
 
 | ID | Shot reference | Subject | Planned alt text | Used in | Status |
 |---|---|---|---|---|---|
@@ -25,9 +58,9 @@ For every photograph, record photographer or source, date, depicted service, loc
 
 | Asset | Status | Handling |
 |---|---|---|
-| Official KOMO master logo (vector, light and reversed) | **Missing** | Header (upper left) and footer show a dashed "KOMO logo, official artwork required" placeholder. Not reconstructed from a typeface (SG 6.1). Replace the contents of `src/components/ui/LogoPlaceholder.astro`. |
+| Official KOMO master logo (vector, light and reversed) | **Missing** | Header (upper left) and footer show a dashed "KOMO logo, official artwork required" placeholder. Not reconstructed from a typeface or traced from the signage photographs (SG 6.1). Replace the contents of `src/components/ui/LogoPlaceholder.astro`. This is now the most visible gap: the photographs show the real wordmark, the header does not. |
 | KOMO Flow master curve and variants | **Missing** | Omitted from all three concepts (SG 7, Rules 6). The C1 outlet image uses an architectural arch mask (SG 10.3), which is not the Flow motif. |
-| Final branded fonts | Not selected | Georgia and the system sans stack are used, per SG 9.1. |
+| Final branded fonts | Proposed | Jost (geometric, SIL OFL, self-hosted) for headings, navigation and buttons, chosen to sit with the rounded wordmark; system sans for body text. Change `--font-display` in `src/styles/tokens.css` to swap. |
 | Hero video | None supplied | Concept 3 hero shows the poster placeholder. The video player switches on automatically once an approved file exists (see below). |
 
 ## Implementation when assets arrive

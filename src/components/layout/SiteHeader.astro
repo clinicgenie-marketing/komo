@@ -100,7 +100,7 @@ const overlay = variant === 'overlay';
   .site-header {
     position: relative;
     z-index: 50;
-    background: var(--komo-ivory);
+    background: rgba(244, 240, 231, 0.96);
     border-bottom: 1px solid var(--komo-border);
   }
   .site-header--sticky { position: sticky; top: 0; }
@@ -151,7 +151,9 @@ const overlay = variant === 'overlay';
     display: inline-flex;
     align-items: center;
     min-height: 44px;
+    font-family: var(--font-display);
     font-weight: 500;
+    letter-spacing: 0.01em;
     font-size: var(--text-button);
     text-decoration: none;
   }
@@ -168,6 +170,7 @@ const overlay = variant === 'overlay';
     background: transparent;
     color: var(--komo-olive);
     font: inherit;
+    font-family: var(--font-display);
     font-weight: 500;
     cursor: pointer;
   }

@@ -47,6 +47,18 @@ export const copy = z.record(z.string(), copyBlock).parse({
     ...draft('copy-boundary', 'SG 1.5 brand boundaries'),
     text: 'KOMO provides scalp and hair wellness care in a spa setting. Our services do not diagnose or treat medical conditions.',
   },
+  brandTagline: {
+    ...draft('copy-brand-tagline', 'Supplied brand imagery: illuminated wall sign (src/assets/KOMO Integrative Scalp & Hair Care.png)'),
+    text: 'Integrative care for your scalp & hair',
+  },
+  brandDescriptor: {
+    ...draft('copy-brand-descriptor', 'Supplied brand imagery: folder cover and signage (src/assets/KOMO Scalp & Hair Wellness Cover.png)'),
+    text: 'Scalp & Hair Wellness',
+  },
+  belief: {
+    ...draft('copy-belief', 'Supplied brand imagery: wall display panel (src/assets/KOMO Scalp Wellness Wall Display.png)'),
+    text: 'We believe beauty and confidence start at the roots.',
+  },
   requestNote: {
     ...draft('copy-request-note', 'SG 16.2, Rules 5'),
     text: 'Sending a request does not confirm a booking. Your appointment is only confirmed when KOMO confirms it with you.',
@@ -332,6 +344,13 @@ export const faqs = z.array(faq.extend({ pendingFact: z.string().nullable() })).
 
 /* ---------------------------------------------------------------- assets */
 
+/*
+ * Image files live in src/assets/. Every photograph below is a supplied concept
+ * image (kind 'concept'): it sets the art direction but has not been confirmed
+ * as documenting KOMO's actual premises, staff, equipment or results, and its
+ * usage rights are unrecorded. Preview builds show it; the production guard in
+ * ImageSlot blocks it until the record is verified and approved (SG 13.2, 24).
+ */
 const shot = (
   id: string,
   shotRef: string,
@@ -339,10 +358,11 @@ const shot = (
   brief: string,
   alt: string,
   focalPoint = 'centre',
+  src: string | null = null,
 ) => ({
   ...draft(id, `SG ${shotRef}`),
   verificationStatus: 'pending' as const,
-  src: null,
+  src,
   width: null,
   height: null,
   alt,
@@ -350,51 +370,88 @@ const shot = (
   shotRef,
   brief,
   subject,
-  kind: 'documentary' as const,
+  kind: src ? ('concept' as const) : ('documentary' as const),
   usageRights: null,
   focalPoint,
 });
 
+const P = 'photography/';
+
 export const assets = z.array(asset).parse([
   shot('treatment-hero', '12.1 P1 Treatment hero', 'Treatment hero',
     'Reclining customer with neck supported, therapist’s hands at the scalp, real KOMO equipment. Leave negative space for text.',
-    'Therapist’s hands giving a scalp treatment to a reclining customer.', 'hands, upper third'),
+    'Therapist rinsing a reclining customer’s lathered hair at the basin.', '45% 50%', `${P}komo_treatment_basin-rinse_3x2.webp`),
+  shot('treatment-basin', '12.1 P1 Treatment hero (wide)', 'Treatment at the basin',
+    'Wider view of a therapist in KOMO uniform at the basin, with KOMO products in frame.',
+    'A KOMO therapist washing a reclining customer’s hair at the basin, beside a trolley of KOMO products.', '60% 40%', `${P}komo_treatment_basin-therapist_3x2.webp`),
   shot('health-consultation', '12.1 P1 Health', 'Consultation',
     'Therapist and customer seated together, discussing a scalp assessment. Listening, not selling.',
-    'Therapist discussing a scalp assessment with a seated customer.'),
+    'A KOMO therapist and a customer talking together in a quiet seating area.', '50% 45%', `${P}komo_health_consultation_3x2.webp`),
   shot('joy-massage', '12.1 P1 Joy', 'Relaxed massage',
     'Customer relaxed during a gentle scalp massage. Calm expression, supported posture.',
-    'Customer relaxing during a gentle scalp massage.'),
+    'Customer resting with an eye pillow while a therapist massages her scalp.', '50% 50%', `${P}komo_joy_scalp-massage_3x2.webp`),
   shot('beauty-mirror', '12.1 P1 Beauty', 'Mirror moment',
     'Natural reflection in the illuminated mirror after care. Believable hair texture, no retouched outcome.',
-    'Customer looking at their hair in an illuminated mirror after their appointment.'),
+    'Therapist drying a customer’s hair beside an illuminated round mirror.', '50% 45%', `${P}komo_beauty_mirror_2x3.webp`),
   shot('vitality-departure', '12.1 P1 Vitality', 'Departure',
     'Customer leaving with relaxed posture and natural movement through the curved space.',
-    'Customer walking out through the curved reception area.'),
+    'Customer with her bag at the timber lockers beside a curved corridor.', '55% 45%', `${P}komo_vitality_departure_2x3.webp`),
   shot('arrival-signage', '12.1 P1 Arrival', 'Arrival',
     'Customer arriving beneath the official KOMO signage at the curved reception counter.',
-    'Customer arriving at the KOMO reception counter beneath the signage.'),
+    'A therapist welcoming a customer at the curved reception counter beneath the KOMO sign.', '55% 45%', `${P}komo_arrival_reception_3x2.webp`),
   shot('flow-architecture', '12.1 P1 Flow architecture', 'The outlet',
     'Wide view of the flowing ceiling light, curved walls, cream surfaces and pale timber. No people needed.',
-    'The KOMO outlet at Wheelock Place, with a flowing ceiling light above curved cream walls.', 'ceiling light'),
+    'KOMO treatment area with cream chairs, round illuminated mirrors and pale timber counters.', '50% 55%', `${P}komo_space_treatment-area_3x2.webp`),
   shot('assessment-detail', '12.1 P2 Treatment sequence', 'Assessment',
     'Therapist showing the customer what the assessment looks at. Screen content must be real and legible.',
-    'Therapist showing a customer the result of their scalp assessment.'),
+    'Therapist examining a seated customer’s scalp with a handheld camera, the image shown on a screen.', '45% 50%', `${P}komo_health_assessment_3x2.webp`),
   shot('water-detail', '11.2 Sensory detail', 'Water and lather',
     'Close view of warm water and lather at the basin. Hands in frame, no face.',
-    'Warm water running through lathered hair at the basin.'),
+    'Water from a hand shower running through a customer’s hair at the basin.', '55% 55%', `${P}komo_sensory_water_3x2.webp`),
   shot('linen-detail', '11.2 Sensory detail', 'Linen',
     'Folded towels and linen on pale timber, soft directional light.',
-    'Folded towels on a pale timber surface.'),
+    'Rolled towels on a lit timber shelf beside the basin loungers.', '30% 40%', `${P}komo_sensory_linen_3x2.webp`),
   shot('hair-texture', '11.2 Sensory detail', 'Hair texture',
     'Natural hair texture after care, close but believable. No added shine or density.',
-    'Close view of natural hair texture after care.'),
+    'A therapist’s hand resting in a customer’s long hair during a head massage.', '45% 50%', `${P}komo_beauty_hair-touch_3x2.webp`),
   shot('entrance', '12.1 P1 Arrival (wider view)', 'Entrance',
     'The KOMO entrance at Wheelock Place as a first-time visitor sees it, with the official signage legible.',
-    'The entrance to KOMO at Wheelock Place, with its signage.'),
+    'The KOMO storefront, with its sign above an open, light reception area.', '50% 45%', `${P}komo_arrival_storefront_3x2.webp`),
   shot('therapist-portrait', '12.1 P2 Therapist portrait', 'Therapist',
     'Approachable therapist in the actual KOMO uniform, in the treatment area.',
-    'A KOMO therapist in uniform in the treatment area.'),
+    'A KOMO therapist in uniform washing a customer’s hair at the basin.', '50% 35%', `${P}komo_people_therapist_2x3.webp`),
+
+  /* Brand and interior imagery supplied with the repository (src/assets/). */
+  shot('brand-signage', '5 Architecture; 6 Identity (signage)', 'KOMO signage',
+    'The illuminated KOMO wall sign with its descriptor.',
+    'The illuminated KOMO sign on a warm wall, reading Integrative care for your scalp and hair.', '50% 50%', 'KOMO Integrative Scalp & Hair Care.png'),
+  shot('brand-cover', '21 Packaging and physical applications', 'Brand folder',
+    'Deep green KOMO folder with the gold wordmark, on a pale timber surface.',
+    'A deep green KOMO Scalp and Hair Wellness folder with a gold wordmark.', '55% 50%', 'KOMO Scalp & Hair Wellness Cover.png'),
+  shot('arch-display', '5 Architecture (arched openings)', 'Arched display',
+    'The backlit timber arch with KOMO products on its shelves.',
+    'A backlit pale timber arch with shelves of KOMO products and a small plant.', '40% 40%', 'KOMO Hair Wellness Display in a Spa Setting.png'),
+  shot('porthole-display', '5 Architecture (arched openings)', 'Porthole view',
+    'The arched display seen through a round opening in a warm wall.',
+    'The lit timber arch display seen through a round opening in the wall.', '50% 50%', 'Warm Arched KOMO Display Through Porthole.png'),
+  shot('wall-display', '14 Graphics; 4 Pillars', 'Brand wall',
+    'The botanical KOMO wall display with its service, product and science panels.',
+    'A KOMO wall display of leaf photographs and panels about scalp wellness, service and product.', '50% 50%', 'KOMO Scalp Wellness Wall Display.png'),
+  shot('consultation-room', '12.1 P1 Health (setting)', 'Consultation room',
+    'The consultation room with its oval timber table and arched display.',
+    'A consultation room with an oval timber table, a backlit arch display and a scalp care poster.', '55% 50%', 'Modern KOMO Spa Consultation Room.png'),
+  shot('treatment-area-sage', '12.1 P1 Flow architecture', 'Treatment area',
+    'Sage treatment chairs facing round illuminated mirrors.',
+    'Sage green treatment chairs facing round illuminated mirrors along a timber counter.', '50% 55%', 'Sage Green Salon Spa Interior.png'),
+  shot('oak-cabinet', '5 Architecture (pale timber)', 'Oak joinery',
+    'Symmetrical oak cabinetry with a warmly lit countertop.',
+    'Pale oak cabinets with a warmly lit countertop holding flowers and hair tools.', '50% 55%', 'Symmetrical Oak Cabinet with Spa Countertop.png'),
+  shot('vanity', '5 Architecture (illuminated mirror)', 'Vanity',
+    'A round illuminated mirror above a timber vanity and cream chair.',
+    'A round illuminated mirror above a pale timber vanity, with a cream upholstered chair.', '50% 40%', 'Warm Minimalist Beauty Vanity.png'),
+  shot('product-display', '12.1 P2 Product still life', 'Product shelves',
+    'KOMO product bottles on timber shelves with a scalp care guide.',
+    'KOMO shampoo bottles on pale timber shelves beside a scalp condition guide and white flowers.', '50% 40%', 'KOMO Scalp & Hair Wellness Display.png'),
 ]);
 
 /**

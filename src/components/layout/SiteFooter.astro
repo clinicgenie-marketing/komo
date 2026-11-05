@@ -1,16 +1,17 @@
 ---
 import LogoPlaceholder from '../ui/LogoPlaceholder.astro';
 import Fact from '../ui/Fact.astro';
-import { outlet } from '../../data/records.ts';
+import { copy, outlet } from '../../data/records.ts';
 import type { NavItem } from './SiteHeader.astro';
 
 interface Props { nav: NavItem[] }
 const { nav } = Astro.props;
 ---
-<footer class="site-footer on-dark">
+<footer class="site-footer on-dark on-forest">
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
       <LogoPlaceholder tone="dark" />
+      <p class="site-footer__descriptor">{copy.brandDescriptor.text}</p>
       <p class="site-footer__line">Personalised scalp and hair care at {outlet.address.building}, {outlet.address.city}.</p>
     </div>
     <nav aria-label="Footer">
@@ -33,14 +34,15 @@ const { nav } = Astro.props;
 </footer>
 
 <style>
-  .site-footer { background: var(--komo-olive); color: var(--komo-ivory); padding-block: var(--space-16) var(--space-8); }
+  .site-footer { background: var(--komo-forest); color: var(--komo-ivory); padding-block: var(--space-16) var(--space-8); }
   .site-footer__grid { display: grid; gap: var(--space-12); }
   @media (min-width: 768px) { .site-footer__grid { grid-template-columns: 2fr 1fr 1fr; } }
   .site-footer__brand { display: grid; gap: var(--space-4); justify-items: start; }
+  .site-footer__descriptor { font-family: var(--font-display); font-size: var(--text-sub); letter-spacing: 0.04em; color: var(--komo-gold); }
   .site-footer__line { max-width: 28em; }
-  .site-footer__heading { font-family: var(--font-body); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-ivory); margin-bottom: var(--space-4); }
+  .site-footer__heading { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-gold); margin-bottom: var(--space-4); }
   .site-footer__list { display: grid; gap: var(--space-2); }
   .site-footer__list a { display: inline-flex; min-height: 32px; align-items: center; }
   .site-footer__list :global(.placeholder-fact) { color: var(--komo-olive); }
-  .site-footer__base { margin-top: var(--space-12); padding-top: var(--space-6); border-top: 1px solid rgba(244, 240, 231, 0.3); font-size: var(--text-support); }
+  .site-footer__base { margin-top: var(--space-12); padding-top: var(--space-6); border-top: 1px solid rgba(207, 171, 114, 0.35); font-size: var(--text-support); }
 </style>

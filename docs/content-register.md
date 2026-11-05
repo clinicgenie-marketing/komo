@@ -24,6 +24,9 @@ The production build fails while any of these required records is unapproved (`a
 | `copy-experience-intro` | source-only | draft | SG 1.3, 15.1 step 2 |
 | `copy-boundary` | source-only | draft | SG 1.5 brand boundaries |
 | `copy-request-note` | source-only | draft | SG 16.2, Rules 5 |
+| `copy-brand-tagline` | source-only | draft | Supplied brand imagery: illuminated wall sign, "Integrative Care for your Scalp & Hair" |
+| `copy-brand-descriptor` | source-only | draft | Supplied brand imagery: folder cover and sign, "Scalp & Hair Wellness" |
+| `copy-belief` | source-only | draft | Supplied brand imagery: wall display panel, "We believe beauty and confidence start at the roots" |
 | `treatment-scalp-care` | source-only | draft | SG 15.1 step 3 service categories; SG 4 Health |
 | `treatment-scalp-spa` | source-only | draft | SG 15.1 step 3 service categories; SG 4 Joy |
 | `treatment-hair-care` | source-only | draft | SG 15.1 step 3 service categories; SG 4 Beauty |
@@ -65,3 +68,8 @@ The production build fails while any of these required records is unapproved (`a
 - Copy avoids: diagnosis, regrowth, guaranteed, clinically proven, permanent and medical claims (SG 18.3). The build tests check for these words.
 - No em dashes (SG 18.1). Checked by the build tests.
 - "Sending a request does not confirm a booking" is used in place of any success or confirmation state.
+
+## Observed in supplied brand imagery, not used
+
+The botanical wall display (`src/assets/KOMO Scalp Wellness Wall Display.png`) also lists services (Scalp care, Scalp spa, Hair care, Deep scalp care), product steps (Cleanse, Wash, Nourish, Care, Treat, Style, Body) and panels headed Science, Global and Refinement. Deep scalp care would be a fourth category beyond SG 15.1. None of this is used: the menu is unconfirmed (D04), and the Science and Global panels would need claim evidence (D09). Confirm with KOMO whether Deep scalp care is a current service.
+

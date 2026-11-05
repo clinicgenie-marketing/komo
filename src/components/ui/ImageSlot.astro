@@ -1,12 +1,21 @@
 ---
 /**
  * Image slot driven by the asset register.
- * Approved documentary assets render as a sized <img>. Until then a labelled
- * placeholder reserves the same aspect ratio, so the composition can be judged
- * without implying that any image documents real KOMO premises or people.
+ *
+ * - An approved documentary asset renders as a responsive <img> in every build.
+ * - A supplied concept image (src set, not yet approved) renders in preview
+ *   builds only, marked with data-asset-status="concept"; the production build
+ *   throws so it cannot be published by accident (SG 13.2, Rules 6).
+ * - With no file, a labelled placeholder reserves the same aspect ratio.
+ *
+ * Shapes follow the outlet architecture (SG 5, 10.3): 'arch' for the backlit
+ * timber niches, 'circle' for the round illuminated mirrors and porthole.
+ * Never use a shape that crops a face or the key treatment action.
  */
+import { Image } from 'astro:assets';
 import { getAsset } from '../../data/records.ts';
 import { isPreview, isPublishable } from '../../lib/publication.ts';
+import { resolveImage } from '../../lib/images.ts';
 
 interface Props {
   assetId: string;
@@ -17,7 +26,13 @@ interface Props {
   tone?: 'stone' | 'sage' | 'surface' | 'olive' | 'timber';
   loading?: 'eager' | 'lazy';
   sizes?: string;
+  /** Shorthand for shape="arch". */
   arch?: boolean;
+  shape?: 'rect' | 'arch' | 'circle';
+  /** Warm halo of the illuminated mirrors. Use sparingly. */
+  glow?: boolean;
+  /** Override the record's focal point, e.g. "40% 30%". */
+  position?: string;
   caption?: string;
   class?: string;
   /** Fill the parent's height instead of using the aspect ratio (desktop only). */
@@ -27,27 +42,38 @@ interface Props {
 }
 const {
   assetId, ratio, ratioMobile, tone = 'stone', loading = 'lazy', sizes = '100vw',
-  arch = false, caption, class: className, fill = false, bleed = false,
+  arch = false, shape: shapeProp, glow = false, position, caption, class: className,
+  fill = false, bleed = false,
 } = Astro.props;
+const shape = shapeProp ?? (arch ? 'arch' : 'rect');
 const a = getAsset(assetId);
 const approved = a.src !== null && isPublishable(a);
+const conceptImage = a.src !== null && !approved && isPreview;
 if (!approved && !isPreview) {
   throw new Error(`Asset "${assetId}" is not approved; production build blocked.`);
 }
-const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? ratio};`;
+const file = approved || conceptImage ? resolveImage(a.src!) : null;
+const widths = file ? [480, 800, 1200, 1600].filter((w) => w < file.width).concat(file.width) : [];
+const focal = position ?? (/%|px|top|bottom|left|right|center/.test(a.focalPoint) ? a.focalPoint : '50% 50%');
+const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? ratio}; --slot-position: ${focal};`;
 ---
-<figure class:list={['slot', `slot--${tone}`, { 'slot--arch': arch, 'slot--fill': fill, 'slot--bleed': bleed }, className]} style={style}>
-  {approved ? (
-    <img
-      class="slot__media"
-      src={a.src!}
-      width={a.width!}
-      height={a.height!}
+<figure
+  class:list={['slot', `slot--${tone}`, `slot--${shape}`, { 'slot--glow': glow, 'slot--fill': fill, 'slot--bleed': bleed }, className]}
+  style={style}
+  data-asset-status={file ? (approved ? 'approved' : 'concept') : 'placeholder'}
+>
+  {file ? (
+    <Image
+      class="slot__media slot__photo"
+      src={file}
+      widths={widths}
+      sizes={sizes}
+      format="webp"
+      quality={78}
       alt={a.decorative ? '' : a.alt}
       loading={loading}
       decoding="async"
       fetchpriority={loading === 'eager' ? 'high' : undefined}
-      sizes={sizes}
     />
   ) : (
     <div class="slot__media slot__placeholder" role="img" aria-label={`Photograph placeholder: ${a.subject}`}>
@@ -70,12 +96,20 @@ const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? rat
     border-radius: var(--radius-card);
     overflow: hidden;
   }
+  .slot__photo {
+    display: block;
+    height: auto;
+    object-position: var(--slot-position, 50% 50%);
+    background: var(--komo-oak-light);
+  }
   @media (min-width: 768px) {
     .slot__media { aspect-ratio: var(--slot-ratio); }
     .slot--fill { height: 100%; }
     .slot--fill .slot__media { height: 100%; aspect-ratio: auto; min-height: 100%; }
   }
-  .slot--arch .slot__media { border-radius: 999px 999px var(--radius-card) var(--radius-card); }
+  .slot--arch .slot__media { border-radius: var(--radius-arch); }
+  .slot--circle .slot__media { border-radius: 50%; aspect-ratio: 1 / 1; }
+  .slot--glow .slot__media { box-shadow: var(--glow-halo); }
 
   .slot__placeholder {
     display: flex;
@@ -86,9 +120,10 @@ const style = `--slot-ratio: ${ratio}; --slot-ratio-mobile: ${ratioMobile ?? rat
   .slot--stone .slot__placeholder { background: var(--komo-stone); }
   .slot--sage .slot__placeholder { background: var(--komo-sage); }
   .slot--surface .slot__placeholder { background: var(--komo-surface); box-shadow: inset 0 0 0 1px var(--komo-border); }
-  .slot--timber .slot__placeholder { background: #ddcfbd; }
+  .slot--timber .slot__placeholder { background: var(--komo-oak-light); }
   .slot--olive .slot__placeholder { background: var(--komo-action-hover); color: var(--komo-ivory); }
-  .slot--arch .slot__placeholder { align-items: center; justify-content: center; text-align: center; padding-inline: 18%; }
+  .slot--arch .slot__placeholder,
+  .slot--circle .slot__placeholder { align-items: center; justify-content: center; text-align: center; padding-inline: 18%; }
 
   .slot--bleed .slot__media { border-radius: 0; }
   .slot--bleed .slot__placeholder {

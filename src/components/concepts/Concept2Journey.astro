@@ -3,7 +3,10 @@
  * Concept 2: The care journey.
  * The page is organised around understanding the visit: arrival, conversation,
  * assessment where included, treatment and finish (style guide 20.3), then
- * helps a first-time visitor choose a service.
+ * helps a first-time visitor choose a service. Brand cues: the deep green
+ * folder with its gold wordmark frames the visit summary and the treatment
+ * menu; step markers glow like the round illuminated mirrors; the wide image
+ * carries the broad curve of the ceiling light.
  */
 import PreviewBanner from '../layout/PreviewBanner.astro';
 import SiteHeader from '../layout/SiteHeader.astro';
@@ -46,8 +49,8 @@ const stepNotes: Record<string, { text?: string; pending?: string }[]> = {
     { text: 'There is time to ask any questions before you leave.' },
   ],
 };
-const stepRatios = ['3 / 2', '4 / 5', '3 / 2', '4 / 5', '3 / 2'];
-const stepTones = ['timber', 'stone', 'sage', 'stone', 'timber'] as const;
+const stepRatios = ['3 / 2', '3 / 2', '3 / 2', '4 / 5', '4 / 5'];
+const stepPositions = ['55% 45%', '50% 45%', '45% 50%', '42% 50%', '50% 45%'];
 
 /** Which visit step each pillar is most associated with (from the pillar's visitMoment). */
 const pillarStep: Record<string, number> = { Health: 2, Joy: 4, Beauty: 5, Vitality: 5 };
@@ -62,7 +65,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   <section class="c2-hero" aria-labelledby="c2-hero-title">
     <div class="container grid c2-hero__grid">
       <div class="c2-hero__text">
-        <p class="t-eyebrow">Your first visit to KOMO</p>
+        <p class="t-eyebrow">{copy.brandTagline.text}</p>
         <h1 id="c2-hero-title" class="t-display">Know what happens before you arrive.</h1>
         <p class="t-lead">{copy.heroSupport.text} Here is how a visit works, from the moment you arrive to the moment you leave.</p>
         <div class="button-row">
@@ -70,7 +73,8 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
           <AppointmentAction variant="secondary" placement="hero" />
         </div>
       </div>
-      <nav class="c2-glance" aria-labelledby="c2-glance-title">
+      <nav class="c2-glance on-dark on-forest" aria-labelledby="c2-glance-title">
+        <p class="c2-glance__brand">{copy.brandDescriptor.text}</p>
         <p id="c2-glance-title" class="c2-glance__title">Your visit at a glance</p>
         <ol role="list" class="c2-glance__list">
           {visitSteps.map((s) => (
@@ -93,7 +97,6 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
         assetId="flow-architecture"
         ratio="21 / 9"
         ratioMobile="4 / 3"
-        tone="timber"
         loading="eager"
         sizes="(min-width: 1240px) 1200px, 100vw"
       />
@@ -111,7 +114,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
       <ol role="list" class="c2-steps">
         {visitSteps.map((s, i) => (
           <li id={`step-${s.order}`} class:list={['c2-step', { 'c2-step--reverse': i % 2 === 1 }]}>
-            <div class="c2-step__marker" aria-hidden="true"><span>{s.order}</span></div>
+            <div class="c2-step__marker" aria-hidden="true"><span>{String(s.order).padStart(2, '0')}</span></div>
             <div class="c2-step__content">
               <p class="c2-step__count">Step {s.order} of {visitSteps.length}</p>
               <h3 class="t-h2 c2-step__title">{s.title}</h3>
@@ -126,7 +129,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
                 </ul>
               </div>
             </div>
-            <ImageSlot class="c2-step__image" assetId={s.assetId} ratio={stepRatios[i]} ratioMobile="3 / 2" tone={stepTones[i]} sizes="(min-width: 1024px) 480px, 100vw" />
+            <ImageSlot class="c2-step__image" assetId={s.assetId} ratio={stepRatios[i]} ratioMobile="3 / 2" position={stepPositions[i]} sizes="(min-width: 1024px) 480px, 100vw" />
           </li>
         ))}
       </ol>
@@ -134,13 +137,18 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   </section>
 
   <!-- Choosing a treatment: comparison table, stacked on small screens -->
-  <section id="treatments" class="section c2-choose" aria-labelledby="c2-choose-title">
+  <section id="treatments" class="section c2-choose on-dark on-forest" aria-labelledby="c2-choose-title">
     <div class="container">
-      <div class="c2-choose__head">
-        <p class="t-eyebrow">Choosing a treatment</p>
-        <h2 id="c2-choose-title" class="t-h2">Which treatment suits you?</h2>
-        <p>Three kinds of care, each beginning with a conversation. Compare them side by side.</p>
+      <div class="c2-choose__top">
+        <div class="c2-choose__head">
+          <p class="t-eyebrow t-eyebrow--gold">The treatment menu</p>
+          <h2 id="c2-choose-title" class="t-h2">Which treatment suits you?</h2>
+          <span class="rule-accent" aria-hidden="true"></span>
+          <p>Three kinds of care, each beginning with a conversation. Compare them side by side.</p>
+        </div>
+        <ImageSlot class="c2-choose__image" assetId="brand-cover" ratio="3 / 2" ratioMobile="3 / 2" sizes="(min-width: 1024px) 420px, 100vw" />
       </div>
+      <div class="c2-menu">
       <table class="c2-table">
         <caption class="visually-hidden">Comparison of KOMO treatment options</caption>
         <thead>
@@ -176,6 +184,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
         <p><strong>Not sure yet?</strong> Mention it in your request and your therapist can talk the options through with you.</p>
         <AppointmentAction placement="compare-unsure" />
       </div>
+      </div>
     </div>
   </section>
 
@@ -190,6 +199,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
       <ul role="list" class="c2-feel__list">
         {pillars.map((p) => (
           <li class="c2-feel__item">
+            <ImageSlot class="c2-feel__image" assetId={p.assetId} shape="circle" ratio="1 / 1" sizes="120px" />
             <p class="c2-feel__moment">{p.visitMoment}</p>
             <h3 class="t-h2">{p.name}</h3>
             <p class="c2-feel__meaning">{p.meaning}</p>
@@ -204,7 +214,10 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   <!-- Finding us: the actual outlet and practical details -->
   <section id="space" class="section c2-space" aria-labelledby="c2-space-title">
     <div class="container grid c2-space__grid">
-      <ImageSlot class="c2-space__image" assetId="entrance" ratio="3 / 2" tone="stone" sizes="(min-width: 1024px) 680px, 100vw" />
+      <div class="c2-space__media">
+        <ImageSlot class="c2-space__image" assetId="entrance" ratio="3 / 2" sizes="(min-width: 1024px) 680px, 100vw" />
+        <ImageSlot class="c2-space__porthole" assetId="porthole-display" shape="circle" ratio="1 / 1" glow sizes="200px" />
+      </div>
       <div class="c2-space__text">
         <p class="t-eyebrow">Finding us</p>
         <h2 id="c2-space-title" class="t-h2">Our space at Wheelock Place</h2>
@@ -226,7 +239,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   </section>
 
   <!-- Closing: requesting an appointment, as three honest steps -->
-  <section id="appointment" class="section c2-close on-dark" aria-labelledby="c2-close-title">
+  <section id="appointment" class="section c2-close on-dark on-forest" aria-labelledby="c2-close-title">
     <div class="container">
       <h2 id="c2-close-title" class="t-h1">Ready for your first visit?</h2>
       <ol role="list" class="c2-close__steps">
@@ -245,44 +258,46 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   /* ---------- Hero ---------- */
   .c2-hero { padding-block: var(--space-12) var(--space-8); }
   .c2-hero__grid { row-gap: var(--space-8); margin-bottom: var(--space-12); align-items: start; }
-  .c2-hero__text { grid-column: 1 / -1; display: grid; gap: var(--space-6); }
+  .c2-hero__text { grid-column: 1 / -1; display: grid; gap: var(--space-6); justify-items: start; }
   .c2-glance { grid-column: 1 / -1; }
   @media (min-width: 1024px) {
     .c2-hero { padding-top: var(--space-20); }
     .c2-hero__text { grid-column: 1 / span 7; }
     .c2-glance { grid-column: 9 / -1; }
   }
+  /* The visit summary as the deep green KOMO folder, with its gold wordmark line. */
   .c2-glance {
-    padding: var(--space-6);
-    background: var(--komo-surface);
-    border: 1px solid var(--komo-border);
+    padding: var(--space-8) var(--space-6) var(--space-6);
     border-radius: var(--radius-card);
   }
-  .c2-glance__title { font-weight: 500; margin-bottom: var(--space-3); }
+  .c2-glance__brand { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-gold); }
+  .c2-glance__title { font-family: var(--font-display); font-size: var(--text-card); line-height: 1.3; margin: var(--space-2) 0 var(--space-4); }
   .c2-glance__list { display: grid; }
   .c2-glance__link {
     display: grid;
-    grid-template-columns: 2rem 1fr;
+    grid-template-columns: 2.25rem 1fr;
     gap: var(--space-3);
     align-items: baseline;
     padding-block: var(--space-3);
-    border-top: 1px solid var(--komo-border);
+    border-top: 1px solid rgba(207, 171, 114, 0.35);
     text-decoration: none;
   }
   .c2-glance__link:hover .c2-glance__step { text-decoration: underline; text-underline-offset: 0.2em; }
-  .c2-glance__num { font-family: var(--font-editorial); font-size: 1.25rem; }
+  .c2-glance__num { font-family: var(--font-display); font-size: 1.25rem; color: var(--komo-gold); }
   .c2-glance__step { display: block; font-weight: 500; }
-  .c2-glance__short { display: block; font-size: var(--text-support); color: var(--komo-text-secondary); }
+  .c2-glance__short { display: block; font-size: var(--text-support); opacity: 0.9; }
+  /* The broad curve of the flowing ceiling light, carried by the wide image. */
+  :global(.c2-hero__image .slot__media) { border-radius: 48% 48% var(--radius-card) var(--radius-card) / 28% 28% var(--radius-card) var(--radius-card); }
 
   /* ---------- Journey timeline ---------- */
-  .c2-journey__head, .c2-choose__head, .c2-feel__head { display: grid; gap: var(--space-4); max-width: 40em; }
+  .c2-journey__head, .c2-feel__head { display: grid; gap: var(--space-4); max-width: 40em; }
   .c2-steps { position: relative; margin-top: var(--space-12); display: grid; gap: var(--space-16); }
   .c2-steps::before {
     content: '';
     position: absolute;
     top: 24px; bottom: 24px; left: 23px;
     width: 2px;
-    background: var(--komo-sage);
+    background: var(--komo-oak);
   }
   .c2-step {
     position: relative;
@@ -292,42 +307,60 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
     row-gap: var(--space-6);
   }
   .c2-step__marker { grid-column: 1; grid-row: 1 / span 2; }
+  /* Markers glow like the round illuminated mirrors. */
   .c2-step__marker span {
     display: grid; place-items: center;
     width: 48px; height: 48px;
     border-radius: 50%;
-    background: var(--komo-olive);
-    color: var(--komo-ivory);
-    font-family: var(--font-editorial);
-    font-size: 1.25rem;
+    background: var(--komo-surface);
+    box-shadow: var(--glow-halo);
+    color: var(--komo-olive);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 500;
   }
   .c2-step__content { grid-column: 2; display: grid; gap: var(--space-3); align-content: start; }
   :global(.c2-step__image) { grid-column: 2; }
-  .c2-step__count { font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); }
+  .c2-step__count { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); }
   .c2-step__detail { font-size: var(--text-sub); line-height: 1.5; max-width: 34em; }
-  .c2-step__notes { margin-top: var(--space-2); padding: var(--space-4) var(--space-6); background: var(--komo-surface); border-radius: var(--radius-card); border: 1px solid var(--komo-border); }
-  .c2-step__notes-title { font-weight: 500; margin-bottom: var(--space-2); }
+  .c2-step__notes { margin-top: var(--space-2); padding: var(--space-4) var(--space-6); background: var(--komo-oak-light); border-radius: var(--radius-card); }
+  .c2-step__notes-title { font-family: var(--font-display); font-weight: 500; margin-bottom: var(--space-2); }
   .c2-step__notes ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--space-2); }
   @media (min-width: 1024px) {
     .c2-steps { gap: var(--space-24); }
     .c2-steps::before { left: 31px; }
     .c2-step { grid-template-columns: 64px repeat(11, minmax(0, 1fr)); column-gap: var(--grid-gap); align-items: center; }
     .c2-step__marker { grid-row: 1; align-self: start; }
-    .c2-step__marker span { width: 64px; height: 64px; font-size: 1.5rem; }
+    .c2-step__marker span { width: 64px; height: 64px; font-size: 1.25rem; }
     .c2-step__content { grid-column: 2 / span 5; grid-row: 1; }
     :global(.c2-step__image) { grid-column: 8 / -1; grid-row: 1; }
     .c2-step--reverse .c2-step__content { grid-column: 8 / -1; }
     .c2-step--reverse :global(.c2-step__image) { grid-column: 2 / span 5; }
   }
 
-  /* ---------- Comparison table ---------- */
-  .c2-choose { background: var(--komo-surface); }
-  .c2-table { width: 100%; margin-top: var(--space-12); border-collapse: collapse; text-align: left; font-size: var(--text-support); }
+  /* ---------- Treatment menu ---------- */
+  .c2-choose__top { display: grid; gap: var(--space-8); align-items: center; }
+  .c2-choose__head { display: grid; gap: var(--space-4); max-width: 36em; }
+  @media (min-width: 1024px) {
+    .c2-choose__top { grid-template-columns: 7fr 4fr; gap: var(--space-16); }
+  }
+  /* The menu sheet inside the folder: light surface so table text keeps full contrast. */
+  .c2-menu {
+    margin-top: var(--space-12);
+    padding: var(--space-4) var(--space-4) var(--space-6);
+    background: var(--komo-surface);
+    color: var(--komo-olive);
+    border-radius: var(--radius-card);
+    border-top: 3px solid var(--komo-gold);
+  }
+  .c2-menu :focus-visible { outline-color: var(--komo-olive); }
+  @media (min-width: 1024px) { .c2-menu { padding: var(--space-8) var(--space-8) var(--space-8); } }
+  .c2-table { width: 100%; border-collapse: collapse; text-align: left; font-size: var(--text-support); }
   .c2-table th, .c2-table td { padding: var(--space-4); vertical-align: top; }
-  .c2-table thead th { font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); border-bottom: 2px solid var(--komo-olive); }
+  .c2-table thead th { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); border-bottom: 2px solid var(--komo-olive); }
   .c2-table tbody tr { border-bottom: 1px solid var(--komo-border); }
   .c2-table tbody th { font-weight: 400; width: 30%; }
-  .c2-table__name { display: block; font-family: var(--font-editorial); font-size: var(--text-card); line-height: 1.3; margin-bottom: var(--space-2); }
+  .c2-table__name { display: block; font-family: var(--font-display); font-size: var(--text-card); line-height: 1.3; margin-bottom: var(--space-2); }
   .c2-table__summary { display: block; }
   .c2-table__terms { display: block; color: var(--komo-text-secondary); }
   .c2-table__action { white-space: nowrap; }
@@ -335,7 +368,7 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
     .c2-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .c2-table, .c2-table tbody, .c2-table tr, .c2-table th, .c2-table td { display: block; width: 100%; }
     .c2-table tbody tr {
-      margin-bottom: var(--space-6);
+      margin-bottom: var(--space-4);
       padding: var(--space-4) var(--space-2);
       background: var(--komo-ivory);
       border: 1px solid var(--komo-border);
@@ -347,25 +380,28 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
     .c2-table td.c2-table__action { display: block; white-space: normal; padding-top: var(--space-4); }
     .c2-table td.c2-table__action::before { content: none; }
   }
-  .c2-choose__unsure { margin-top: var(--space-8); display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); align-items: center; justify-content: space-between; padding: var(--space-6); border-radius: var(--radius-card); background: var(--komo-ivory); border: 1px solid var(--komo-border); }
+  .c2-choose__unsure { margin-top: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); align-items: center; justify-content: space-between; padding: var(--space-6); border-radius: var(--radius-card); background: var(--komo-oak-light); }
   .c2-choose__unsure p { max-width: 40em; }
 
   /* ---------- How it should feel ---------- */
-  .c2-feel__list { margin-top: var(--space-12); display: grid; gap: var(--space-12) var(--grid-gap); }
-  .c2-feel__item { display: grid; gap: var(--space-2); align-content: start; justify-items: start; padding: var(--space-6); background: var(--komo-surface); border-radius: var(--radius-card); border-top: 4px solid var(--komo-sage); }
+  .c2-feel__list { margin-top: var(--space-12); display: grid; gap: var(--space-6) var(--grid-gap); }
+  .c2-feel__item { display: grid; gap: var(--space-2); align-content: start; justify-items: start; padding: var(--space-6); background: var(--komo-leaf-light); border-radius: var(--radius-card); }
+  :global(.c2-feel__image) { width: 104px; margin-bottom: var(--space-3); }
   .c2-feel__meaning { color: var(--komo-text-secondary); font-size: var(--text-support); }
-  .c2-feel__moment { font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); }
+  .c2-feel__moment { font-family: var(--font-display); font-size: var(--text-eyebrow); font-weight: 500; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--komo-text-secondary); }
   @media (min-width: 768px) { .c2-feel__list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (min-width: 1024px) { .c2-feel__list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
   /* ---------- Space ---------- */
   .c2-space { background: var(--komo-surface); border-top: 1px solid var(--komo-border); }
-  .c2-space__grid { row-gap: var(--space-8); }
-  :global(.c2-space__image), .c2-space__text { grid-column: 1 / -1; }
-  .c2-space__text { display: grid; gap: var(--space-4); align-content: start; }
+  .c2-space__grid { row-gap: var(--space-12); }
+  .c2-space__media { grid-column: 1 / -1; align-self: start; position: relative; padding-bottom: var(--space-12); }
+  .c2-space__media :global(.c2-space__porthole) { position: absolute; right: var(--space-4); bottom: 0; width: clamp(110px, 30%, 200px); }
+  .c2-space__media :global(.c2-space__porthole .slot__media) { border: 6px solid var(--komo-surface); }
+  .c2-space__text { grid-column: 1 / -1; display: grid; gap: var(--space-4); align-content: start; }
   .c2-space__features { margin: 0 0 var(--space-4); padding-left: 1.1em; display: grid; gap: var(--space-1); }
   @media (min-width: 1024px) {
-    :global(.c2-space__image) { grid-column: 1 / span 7; }
+    .c2-space__media { grid-column: 1 / span 7; }
     .c2-space__text { grid-column: 9 / -1; }
   }
 
@@ -375,10 +411,9 @@ const assessmentLabel = (v: boolean | null) => (v === null ? null : v ? 'Include
   @media (min-width: 1024px) { .c2-faq__inner { margin-inline: auto; } }
 
   /* ---------- Closing ---------- */
-  .c2-close { background: var(--komo-olive); color: var(--komo-ivory); }
-  .c2-close h2 { color: var(--komo-ivory); max-width: 16em; }
+  .c2-close h2 { max-width: 16em; }
   .c2-close__steps { margin: var(--space-12) 0; display: grid; gap: var(--space-6); }
-  .c2-close__steps li { display: grid; grid-template-columns: 48px 1fr; gap: var(--space-4); align-items: start; padding-top: var(--space-4); border-top: 1px solid rgba(244, 240, 231, 0.35); }
-  .c2-close__steps span { font-family: var(--font-editorial); font-size: var(--text-h2); line-height: 1; }
+  .c2-close__steps li { display: grid; grid-template-columns: 48px 1fr; gap: var(--space-4); align-items: start; padding-top: var(--space-4); border-top: 1px solid rgba(207, 171, 114, 0.4); }
+  .c2-close__steps span { font-family: var(--font-display); font-size: var(--text-h2); line-height: 1; color: var(--komo-gold); }
   @media (min-width: 1024px) { .c2-close__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-8); } }
 </style>
