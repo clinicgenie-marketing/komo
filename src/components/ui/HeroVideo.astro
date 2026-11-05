@@ -1,0 +1,191 @@
+---
+/**
+ * Full-bleed hero media: a still poster with an optional silent background video.
+ *
+ * Requirements met (style guide 17, Architecture.md 9, WCAG 2.2.2):
+ *  - The poster is the first image painted; the video uses preload="none" and
+ *    only starts downloading after the page has loaded.
+ *  - The video never starts when the visitor prefers reduced motion or has
+ *    data saving switched on. It is muted, has no controls of its own and is
+ *    hidden from assistive technology because it is decorative.
+ *  - A visible Pause / Play button is shown whenever a video is present.
+ *  - No video element is rendered until an approved asset exists.
+ *
+ * Renders two sibling roots (media and toggle) so the toggle can sit above
+ * the hero scrim and content. The parent must be position: relative.
+ */
+import { existsSync } from 'node:fs';
+import { getAsset } from '../../data/records.ts';
+import { isPreview, isPublishable } from '../../lib/publication.ts';
+
+interface Props {
+  videoAssetId: string;
+  posterAssetId: string;
+  class?: string;
+}
+const { videoAssetId, posterAssetId, class: className } = Astro.props;
+const video = getAsset(videoAssetId);
+const poster = getAsset(posterAssetId);
+const videoApproved = video.src !== null && isPublishable(video);
+const posterApproved = poster.src !== null && isPublishable(poster);
+// Optional WebM alongside the MP4 (same name, .webm), served first when present.
+const webmSrc = videoApproved && video.src!.endsWith('.mp4') ? video.src!.replace(/\.mp4$/, '.webm') : null;
+const hasWebm = webmSrc !== null && existsSync(`public${webmSrc}`);
+if (!posterApproved && !isPreview) {
+  throw new Error(`Hero poster "${posterAssetId}" is not approved; production build blocked.`);
+}
+---
+<div class:list={['hero-media', className]}>
+  {posterApproved ? (
+    <img
+      class="hero-media__poster"
+      src={poster.src!}
+      width={poster.width!}
+      height={poster.height!}
+      alt=""
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      sizes="100vw"
+    />
+  ) : (
+    <div class="hero-media__placeholder" role="img" aria-label={`Placeholder: ${videoApproved ? poster.subject : 'hero video and poster image'}`}>
+      <span class="hero-media__label" aria-hidden="true">
+        <span class="hero-media__kicker">{videoApproved ? 'Poster image required' : 'Video and poster image required'}</span>
+        <span>{video.shotRef}</span>
+        <span>{video.brief}</span>
+        <span>Poster still: {poster.brief}</span>
+      </span>
+    </div>
+  )}
+  {videoApproved && (
+    <video
+      class="hero-media__video"
+      data-hero-video
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+      tabindex="-1"
+      poster={posterApproved ? poster.src! : undefined}
+    >
+      {hasWebm && <source src={webmSrc!} type="video/webm" />}
+      <source src={video.src!} type="video/mp4" />
+    </video>
+  )}
+</div>
+{videoApproved && (
+  <button type="button" class="hero-media__toggle" data-hero-video-toggle hidden>
+    <span class="hero-media__icon" aria-hidden="true"></span>
+    <span data-hero-video-label>Pause background video</span>
+  </button>
+)}
+
+<script>
+  const video = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-hero-video-toggle]');
+  const label = toggle?.querySelector<HTMLElement>('[data-hero-video-label]');
+
+  if (video && toggle && label) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    video.muted = true;
+
+    const show = (playing: boolean) => {
+      label.textContent = playing ? 'Pause background video' : 'Play background video';
+      toggle.classList.toggle('is-paused', !playing);
+      video.classList.toggle('is-playing', playing);
+    };
+    const play = () => {
+      video.preload = 'auto';
+      video.play().then(() => show(true)).catch(() => show(false));
+    };
+
+    toggle.hidden = false;
+    show(false);
+    toggle.addEventListener('click', () => {
+      if (video.paused) play();
+      else { video.pause(); show(false); }
+    });
+    reduce.addEventListener('change', () => { if (reduce.matches && !video.paused) { video.pause(); show(false); } });
+
+    const start = () => { if (!reduce.matches && !connection?.saveData) play(); };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+  }
+</script>
+
+<style>
+  .hero-media { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: var(--komo-stone); }
+  .hero-media__poster,
+  .hero-media__video,
+  .hero-media__placeholder { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero-media__video { opacity: 0; transition: opacity var(--duration-gentle) ease; }
+  .hero-media__video.is-playing { opacity: 1; }
+
+  .hero-media__placeholder { background: var(--komo-stone); color: var(--komo-olive); }
+  .hero-media__label {
+    position: absolute;
+    top: calc(var(--header-height) + var(--space-12));
+    left: var(--gutter);
+    right: var(--gutter);
+    display: grid;
+    gap: var(--space-1);
+    max-width: 26em;
+    font-size: var(--text-eyebrow);
+    line-height: 1.45;
+  }
+  .hero-media__kicker { font-weight: 600; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+  @media (min-width: 1024px) {
+    .hero-media__label {
+      top: 50%;
+      left: auto;
+      right: max(var(--gutter), calc((100% - var(--container-max)) / 2));
+      transform: translateY(-50%);
+    }
+  }
+
+  .hero-media__toggle {
+    position: absolute;
+    z-index: 3;
+    top: calc(var(--header-height) + var(--space-6));
+    right: var(--gutter);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: var(--space-2) var(--space-4);
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--komo-surface);
+    color: var(--komo-olive);
+    font: inherit;
+    font-size: var(--text-support);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .hero-media__toggle:hover { background: var(--komo-ivory); }
+  /* Focus ring on its own soft-white halo so it stays visible over any video frame. */
+  .hero-media__toggle:focus-visible { outline: 3px solid var(--komo-olive); outline-offset: 2px; box-shadow: 0 0 0 5px var(--komo-surface); }
+  .hero-media__toggle[hidden] { display: none; }
+  @media (min-width: 1024px) {
+    .hero-media__toggle {
+      top: auto;
+      bottom: var(--space-12);
+      right: max(var(--gutter), calc((100% - var(--container-max)) / 2));
+    }
+  }
+  /* Pause icon (two bars) and play icon (triangle) */
+  .hero-media__icon { position: relative; width: 12px; height: 14px; }
+  .hero-media__icon::before, .hero-media__icon::after {
+    content: ''; position: absolute; top: 0; width: 4px; height: 14px; background: currentColor; border-radius: 1px;
+  }
+  .hero-media__icon::before { left: 0; }
+  .hero-media__icon::after { right: 0; }
+  .is-paused .hero-media__icon::before {
+    width: 0; height: 0; background: none; border-radius: 0;
+    border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent currentColor;
+  }
+  .is-paused .hero-media__icon::after { display: none; }
+</style>

@@ -1,15 +1,17 @@
 ---
 /**
  * Concept 3: Immersive retreat.
- * A wide atmospheric hero with an adjacent text panel (no text over the photo),
- * spacious sensory imagery, concise service information and clear appointment
- * guidance. Depth comes from deliberate changes in image scale. Still imagery only.
+ * Full-screen hero media (poster, plus a silent background video once one is
+ * approved) with the logo top left, the navigation in a soft-white box top right
+ * and the description and actions in a solid panel bottom left. Then spacious
+ * sensory imagery, concise service information and clear appointment guidance.
  */
 import PreviewBanner from '../layout/PreviewBanner.astro';
 import SiteHeader from '../layout/SiteHeader.astro';
 import SiteFooter from '../layout/SiteFooter.astro';
 import ContactChannels from '../layout/ContactChannels.astro';
 import ImageSlot from '../ui/ImageSlot.astro';
+import HeroVideo from '../ui/HeroVideo.astro';
 import AppointmentAction from '../ui/AppointmentAction.astro';
 import AppointmentPanel from '../ui/AppointmentPanel.astro';
 import TreatmentFacts from '../ui/TreatmentFacts.astro';
@@ -26,29 +28,21 @@ const nav = [
 const [health, joy, beauty, vitality] = pillars;
 ---
 <PreviewBanner concept="Concept 3, Immersive retreat" />
-<SiteHeader nav={nav} homeHref="/concept-3/" sticky={false} hideCtaOnMobile />
+<div class="c3-shell">
+<SiteHeader nav={nav} homeHref="/concept-3/" sticky={false} hideCtaOnMobile variant="overlay" />
 
 <main id="main" class="c3" tabindex="-1">
-  <!-- Hero: full-bleed photograph with an adjacent soft-white text panel -->
+  <!-- Hero: full-screen media, description and actions bottom left -->
   <section class="c3-hero" aria-labelledby="c3-hero-title">
-    <ImageSlot
-      class="c3-hero__image"
-      assetId="treatment-hero"
-      ratio="16 / 9"
-      ratioMobile="4 / 5"
-      tone="stone"
-      loading="eager"
-      sizes="100vw"
-      bleed
-    />
-    <div class="container c3-hero__panel-wrap">
-      <div class="c3-hero__panel">
-        <p class="t-eyebrow">Scalp and hair wellness at Wheelock Place</p>
-        <h1 id="c3-hero-title" class="t-display">A restorative pause for your scalp and hair.</h1>
-        <p class="t-lead">{copy.heroSupport.text}</p>
+    <HeroVideo videoAssetId="hero-video" posterAssetId="treatment-hero" />
+    <div class="c3-hero__scrim" aria-hidden="true"></div>
+    <div class="container c3-hero__content">
+      <div class="c3-hero__panel on-dark">
+        <p class="c3-hero__eyebrow">KOMO scalp and hair wellness</p>
+        <h1 id="c3-hero-title" class="c3-hero__title">{copy.heroSupport.text}</h1>
         <div class="button-row">
-          <AppointmentAction placement="hero" />
-          <a class="komo-button komo-button--secondary" href="#treatments">Explore treatments</a>
+          <AppointmentAction variant="on-dark" placement="hero" />
+          <a class="komo-button komo-button--secondary-on-dark" href="#treatments">Explore treatments</a>
         </div>
       </div>
     </div>
@@ -186,6 +180,7 @@ const [health, joy, beauty, vitality] = pillars;
     </div>
   </section>
 </main>
+</div>
 
 <SiteFooter nav={nav} />
 
@@ -196,20 +191,60 @@ const [health, joy, beauty, vitality] = pillars;
 
 <style>
   /* ---------- Hero ---------- */
-  .c3-hero { position: relative; }
-  .c3-hero__panel-wrap { position: relative; margin-top: calc(-1 * var(--space-12)); }
+  .c3-shell { position: relative; }
+  .c3-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    /* Full screen on mobile, less the fixed action bar; capped on large screens. */
+    min-height: max(520px, calc(100svh - 72px));
+    background: var(--komo-stone);
+  }
+  /* Controlled scrim (style guide 8.4): keeps the reversed logo legible at the top. */
+  .c3-hero__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, rgba(40, 57, 46, 0.72) 0, rgba(40, 57, 46, 0) 30%),
+      linear-gradient(to top, rgba(40, 57, 46, 0.3) 0, rgba(40, 57, 46, 0) 45%);
+  }
+  .c3-hero__content {
+    position: relative;
+    z-index: 2;
+    padding-top: calc(var(--header-height) + var(--space-24));
+    padding-bottom: var(--space-6);
+  }
+  /* Solid panel rather than text on the moving image, so contrast holds on every frame. */
   .c3-hero__panel {
     display: grid;
     gap: var(--space-6);
+    max-width: 560px;
     padding: var(--space-8) var(--space-6);
-    background: var(--komo-surface);
+    background: var(--komo-olive);
+    color: var(--komo-ivory);
     border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
   }
-  @media (min-width: 768px) {
-    :global(.c3-hero__image .slot__media) { max-height: 78vh; min-height: 420px; }
-    .c3-hero__panel-wrap { margin-top: calc(-1 * var(--space-30)); }
-    .c3-hero__panel { max-width: 640px; padding: var(--space-12); }
+  .c3-hero__eyebrow {
+    font-size: var(--text-eyebrow);
+    font-weight: 500;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+  }
+  .c3-hero__title {
+    font-family: var(--font-editorial);
+    font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.25rem);
+    line-height: 1.2;
+    color: var(--komo-ivory);
+    text-wrap: balance;
+  }
+  @media (min-width: 1024px) {
+    .c3-hero { min-height: max(640px, min(100svh, 920px)); }
+    /* Panel sits clear of the bottom edge so its actions stay above the fold. */
+    .c3-hero__content { padding-bottom: var(--space-24); }
+    .c3-hero__panel { padding: var(--space-12); max-width: 580px; }
   }
 
   /* ---------- Sensory ---------- */

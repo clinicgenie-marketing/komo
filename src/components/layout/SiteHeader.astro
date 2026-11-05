@@ -15,16 +15,23 @@ interface Props {
   sticky?: boolean;
   /** Hide the header CTA on small screens when another persistent action exists. */
   hideCtaOnMobile?: boolean;
+  /**
+   * 'bar': solid ivory bar. 'overlay': transparent header over a full-bleed hero,
+   * reversed logo on the left and the navigation in a soft-white box on the right.
+   */
+  variant?: 'bar' | 'overlay';
 }
-const { nav, homeHref, sticky = true, hideCtaOnMobile = false } = Astro.props;
+const { nav, homeHref, sticky = true, hideCtaOnMobile = false, variant = 'bar' } = Astro.props;
+const overlay = variant === 'overlay';
 ---
-<header class:list={['site-header', { 'site-header--sticky': sticky }]} data-site-header>
+<header class:list={['site-header', { 'site-header--sticky': sticky && !overlay, 'site-header--overlay': overlay }]} data-site-header>
   <div class="container site-header__bar">
     <a class="site-header__home" href={homeHref}>
       <span class="visually-hidden">KOMO Wellness, back to top of homepage</span>
-      <LogoPlaceholder />
+      <LogoPlaceholder tone={overlay ? 'dark' : 'light'} />
     </a>
 
+    <div class="site-header__box">
     <button
       class="site-header__toggle"
       type="button"
@@ -47,6 +54,7 @@ const { nav, homeHref, sticky = true, hideCtaOnMobile = false } = Astro.props;
         <AppointmentAction placement="header" />
       </div>
     </nav>
+    </div>
   </div>
 </header>
 
@@ -96,6 +104,36 @@ const { nav, homeHref, sticky = true, hideCtaOnMobile = false } = Astro.props;
     border-bottom: 1px solid var(--komo-border);
   }
   .site-header--sticky { position: sticky; top: 0; }
+  /* In the bar variant the box does not affect layout. */
+  .site-header__box { display: contents; }
+
+  /* Overlay variant: sits over the hero media */
+  .site-header--overlay {
+    position: absolute;
+    inset: 0 0 auto 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+  .site-header--overlay .site-header__bar { align-items: flex-start; padding-block: var(--space-4); }
+  .site-header--overlay .site-header__home { padding-block: var(--space-1); }
+  /* The logo sits on the darkened top of the hero media. */
+  .site-header--overlay .site-header__home:focus-visible { outline-color: var(--komo-ivory); }
+  .site-header--overlay .site-header__box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+    padding: var(--space-1);
+    background: var(--komo-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+  .site-header--overlay .site-header__toggle { border-color: transparent; }
+  @media (min-width: 1024px) {
+    .site-header--overlay .site-header__bar { padding-block: var(--space-8); }
+    .site-header--overlay .site-header__box { padding: var(--space-2) var(--space-2) var(--space-2) var(--space-6); }
+  }
   .site-header__bar {
     display: flex;
     flex-wrap: wrap;
@@ -165,6 +203,7 @@ const { nav, homeHref, sticky = true, hideCtaOnMobile = false } = Astro.props;
     .is-enhanced .site-header__link { width: 100%; min-height: 52px; font-size: var(--text-sub); }
     .site-header__cta :global(.komo-button) { width: 100%; }
     .site-header__cta--desktop-only { display: none; }
+    .site-header--overlay.is-open .site-header__box { width: 100%; padding: var(--space-2) var(--space-4) var(--space-2); justify-content: flex-end; }
   }
   @media (min-width: 1024px) {
     .site-header__toggle { display: none !important; }

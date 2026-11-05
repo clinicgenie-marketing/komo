@@ -397,6 +397,19 @@ export const assets = z.array(asset).parse([
     'A KOMO therapist in uniform in the treatment area.'),
 ]);
 
+/**
+ * Hero video (style guide 17 Website video; 20.1 The ritual). Decorative ambience:
+ * all meaning is in the hero text, so the video has no alt text and no sound.
+ * Place the approved file at public/video/komo-hero.mp4 and set src to '/video/komo-hero.mp4'.
+ */
+assets.push(asset.parse({
+  ...shot('hero-video', '17 Website video; 20.1 The ritual', 'Hero video',
+    'Silent 10 to 20 second loop: warm water or a precise treatment action, attentive hands, then a wider view of the curved space. Quiet, stable framing.',
+    ''),
+  decorative: true,
+  mediaType: 'video',
+}));
+
 export function getAsset(id: string) {
   const found = assets.find((a) => a.id === id);
   if (!found) throw new Error(`Unknown asset id: ${id}`);

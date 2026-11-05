@@ -73,3 +73,30 @@ Screenshots reviewed at 1440 and 375px for all three concepts (written to `qa-ou
 - Real devices and Safari/Firefox: only Chromium was available.
 - Booking, WhatsApp, telephone and map destinations: none supplied, so no handoff could be tested.
 - Analytics and consent: not implemented (D10).
+
+## 2026-11-05 | Concept 3 hero: video layout
+
+Change: overlay header (logo top left, navigation in a soft-white box top right), full-screen hero media with a poster placeholder and a background video player, and a solid olive description panel bottom left. `@types/node` 22.20.5 added for the build-time WebM check.
+
+| Command | Result |
+|---|---|
+| `npm run check` | 0 errors, 0 warnings, 0 hints (29 files) |
+| `npm test` | 25 of 25 passed. The video check now forbids a `<video>` element while no approved asset exists, and any `autoplay` attribute |
+| `npm run qa:browser` | 82 of 82 passed. Two new checks: logo top left and nav box top right over the hero media; panel bottom left with its actions above the fold at 1440 x 900 |
+
+Video behaviour was tested on a throwaway copy of the repository (in the session scratchpad, not committed) with a generated 4 second test clip marked as approved. 13 of 13 passed:
+
+- Plays after page load with normal motion and fades in over the poster.
+- The video file is requested only after the window load event.
+- Pause button visible and labelled; Enter pauses and relabels to Play; Space resumes.
+- Video is muted.
+- axe WCAG 2.2 AA: 0 violations with the video present.
+- No console errors.
+- Reduced motion: video does not start, the file is not downloaded and the poster stays; the visitor can still press Play.
+- Mobile (375px): the pause button is clear of the navigation box and the panel.
+
+That test showed bright frames showing through the original 94% panel, so the panel is now solid olive. Focus rings on the logo and pause button were strengthened to stay visible over footage.
+
+Not tested: real KOMO footage (none supplied), H.264 playback (Playwright's Chromium has no H.264; WebM was used), Safari autoplay rules on iOS.
+
+Preview note: the private preview banner sits above the hero, so on tablets and phones the panel starts about 100px lower than it will without the banner.

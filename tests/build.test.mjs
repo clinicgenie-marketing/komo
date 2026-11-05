@@ -79,7 +79,8 @@ for (const route of CONCEPTS) {
     assert.doesNotMatch(text, /\b(booked|booking confirmed|appointment confirmed|thank you for your booking)\b/i, 'false confirmation state');
     assert.doesNotMatch(html, /sourceRef|verifiedBy|source-only|Task\.md|Architecture\.md/, 'internal evidence leaked');
     assert.doesNotMatch(html, /<form/i, 'no request form exists, so none should render');
-    assert.doesNotMatch(html, /<video|autoplay/i, 'still imagery only');
+    assert.doesNotMatch(html, /<video/i, 'no video element until an approved video asset exists');
+    assert.doesNotMatch(html, /\sautoplay[\s=>]/i, 'no autoplay attribute; playback is started by script only when motion is allowed');
   });
 
   test(`/${route}/ marks unconfirmed facts and placeholder imagery visibly`, () => {

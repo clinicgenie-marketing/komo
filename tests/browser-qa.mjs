@@ -133,6 +133,22 @@ try {
       const toggleHidden = !(await page.locator('[data-nav-toggle]').isVisible());
       const navVisible = await page.locator('#site-nav').isVisible();
       record(concept, 'desktop: inline navigation without menu button', toggleHidden && navVisible);
+      if (concept === 'concept-3') {
+        const geo = await page.evaluate(() => {
+          const r = (s) => document.querySelector(s).getBoundingClientRect();
+          const hero = r('.c3-hero'); const header = r('[data-site-header]'); const logo = r('.site-header__home');
+          const box = r('.site-header__box'); const panel = r('.c3-hero__panel');
+          return {
+            headerOverHero: Math.abs(header.top - hero.top) < 1,
+            logoTopLeft: logo.left < hero.width / 4,
+            navBoxRight: box.right > hero.width * 0.75 && box.left > hero.width / 3,
+            panelBottomLeft: panel.left < hero.width / 4 && panel.bottom <= hero.bottom && panel.top > hero.top + hero.height / 3,
+            ctaAboveFold: document.querySelector('.c3-hero__panel .komo-button').getBoundingClientRect().bottom <= window.innerHeight,
+          };
+        });
+        record(concept, 'hero: logo top left, nav box top right, over the hero media', geo.headerOverHero && geo.logoTopLeft && geo.navBoxRight, JSON.stringify(geo));
+        record(concept, 'hero: description and actions bottom left, actions above the fold at 1440x900', geo.panelBottomLeft && geo.ctaAboveFold, JSON.stringify(geo));
+      }
       await page.close();
     }
 

@@ -232,3 +232,20 @@ Decision register status at this date:
 Blockers / owner input needed: `PRD.md`; choice of homepage concept; actual treatment menu facts; booking and contact destinations; official logo and authentic photography; privacy and terms text.
 
 Next unblocked task: once a concept is chosen, refine it (T26) and build the inner-page templates from the same records (Phase 3), keeping facts as placeholders until D04 to D07 are answered.
+
+### 2026-11-05 | Homepage exploration: Concept 3 hero revision (owner request)
+Status: completed for the private preview.
+
+Resulting behaviour: Concept 3 now opens with full-screen hero media. The logo sits top left on a controlled scrim, the navigation and appointment action sit in a soft-white box top right, and the description and actions sit in a solid olive panel bottom left. A silent background video plays there once an approved file is added. Until then a labelled poster placeholder shows, and no video element renders.
+
+Files changed: `src/components/ui/HeroVideo.astro` (new), `src/components/layout/SiteHeader.astro` (overlay variant), `src/components/concepts/Concept3Immersive.astro`, `src/components/concepts/ConceptIndex.astro`, `src/lib/schema.ts`, `src/data/records.ts` (`hero-video` asset), `tests/build.test.mjs`, `tests/browser-qa.mjs`, `package.json`, `package-lock.json`, `docs/asset-register.md`, `docs/decisions.md`, `docs/qa.md`.
+
+Decisions and evidence: owner instruction overrides the no-hero-video baseline in Architecture.md 9, within the style guide's motion and accessibility conditions (see `docs/decisions.md`).
+
+Checks run and actual results: `npm run check` 0 errors; `npm test` 25/25; `npm run qa:browser` 82/82; video behaviour fixture test 13/13 (details in `docs/qa.md`).
+
+Checks not run and why: real footage and iOS Safari playback (no asset, no device).
+
+Blockers / owner input needed: approved hero video and poster photograph with usage rights; reversed (light) logo artwork for use over media.
+
+Next unblocked task: unchanged. Choose a concept, then refine it (T26).

@@ -91,6 +91,8 @@ export const asset = evidence.extend({
   brief: z.string().min(1),
   subject: z.string().min(1),
   kind: z.enum(['documentary', 'concept']),
+  /** 'video' assets are served from public/ and need a poster image asset. */
+  mediaType: z.enum(['image', 'video']).default('image'),
   usageRights: nullableText,
   focalPoint: z.string(),
 });
