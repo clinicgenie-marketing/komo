@@ -65,21 +65,30 @@
   z-index: 10;
 }
 
+.header-nav {
+  display: flex;
+  gap: clamp(20px, 2.4vw, 36px);
+}
+
 .header-link {
   font-size: 13px;
   width: max-content;
 }
 
+/* Logos are single-colour SVG masks filled with currentColor, so each
+   placement only needs a `color`. Sources: public/images/komo-*.svg */
 .wordmark {
-  font:
-    500 clamp(24px, 2.4vw, 36px) / 1 "Manrope",
-    sans-serif;
-  letter-spacing: 0.21em;
-  padding-left: 0.21em;
+  aspect-ratio: 4335 / 1053;
+  background: currentColor;
+  display: block;
+  -webkit-mask: url("/images/komo-wordmark.svg") center / contain no-repeat;
+  mask: url("/images/komo-wordmark.svg") center / contain no-repeat;
+  width: clamp(96px, 8.5vw, 132px);
 }
 
 .site-header .wordmark {
   grid-column: 2;
+  justify-self: center;
 }
 
 .header-cta {
@@ -118,7 +127,7 @@
 }
 
 .hero {
-  height: 460vh;
+  height: 320vh;
   position: relative;
   text-align: center;
 }
@@ -133,14 +142,30 @@
 }
 
 .hero-copy {
+  color: var(--ivory);
   left: 50%;
   max-width: 1020px;
-  padding: clamp(104px, 14vh, 132px) var(--pad) 0;
+  opacity: 0;
+  padding: 0 var(--pad);
   position: absolute;
-  top: 0;
-  transform: translateX(-50%);
+  text-shadow: 0 1px 24px rgba(20, 30, 24, 0.25);
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   z-index: 2;
+}
+
+.hero-copy .button-text {
+  border-color: rgba(244, 240, 231, 0.55);
+  text-shadow: none;
+}
+
+.hero-copy .button-text:hover {
+  background: rgba(244, 240, 231, 0.14);
+}
+
+.hero-copy .button-filled {
+  text-shadow: none;
 }
 
 .hero h1 {
@@ -236,16 +261,22 @@
 
 .hero-frame {
   background: var(--sage);
-  border-radius: 999px;
-  height: 230px;
+  border-radius: 24px;
+  height: min(calc(min(58vw, 840px) / 1.53), 60vh);
   left: 50%;
   overflow: hidden;
   position: fixed;
   top: 50%;
-  transform: translate(-50%, -50%) translateY(22vh);
-  width: min(48vw, 460px);
+  transform: translate(-50%, -50%);
+  width: min(58vw, 840px);
   will-change: width, height, border-radius, transform;
   z-index: 1;
+}
+
+.hero-frame.is-landed {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
 }
 
 .hero-frame img {
@@ -265,30 +296,36 @@
   white-space: nowrap;
 }
 
+.hero-logo {
+  aspect-ratio: 4335 / 1647;
+  background: var(--ivory);
+  left: 50%;
+  -webkit-mask: url("/images/komo-logo.svg") center / contain no-repeat;
+  mask: url("/images/komo-logo.svg") center / contain no-repeat;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  width: clamp(240px, 30vw, 440px);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+/* Darkens the photo as the hero copy arrives so the ivory text stays legible. */
+.hero-frame::after {
+  background: rgba(20, 30, 24, 0.42);
+  content: "";
+  inset: 0;
+  opacity: calc(var(--copy-reveal, 0) * (1 - var(--handoff, 0)));
+  pointer-events: none;
+  position: absolute;
+}
+
 .hero-shade {
   background: linear-gradient(0deg, rgba(25, 40, 30, 0.28), transparent 55%);
   inset: 0;
   opacity: calc(1 - var(--handoff, 0));
   pointer-events: none;
   position: absolute;
-}
-
-.hero-caption {
-  align-items: center;
-  bottom: 55px;
-  color: var(--ivory);
-  display: flex;
-  font-size: 12px;
-  gap: 14px;
-  left: var(--pad);
-  opacity: 0;
-  position: absolute;
-  text-transform: uppercase;
-  z-index: 4;
-}
-
-.hero-caption span {
-  opacity: 0.65;
 }
 
 .hero-scroll-cue {
@@ -321,22 +358,65 @@
   width: 100%;
 }
 
-.contours {
-  fill: none;
+/* Hero waves: a diagonal pair of topographic corner pieces, top-left (below
+   the nav) and bottom-right. Each frame crops its lines; sizes follow the
+   card's own size (same formula as updateHero in App.tsx). JS moves the
+   layers inside each frame for the cursor parallax. */
+.hero-waves {
+  --card-w: min(58vw, 840px);
+  --card-h: min(calc(var(--card-w) / 1.53), 60vh);
+  --gutter-x: calc((100vw - var(--card-w)) / 2);
+  --gutter-y: calc((100vh - var(--card-h)) / 2);
+  --nav-clear: 78px;
+  --wave-w: calc(var(--gutter-x) + var(--card-w) * 0.14);
+  --wave-h: calc(var(--gutter-y) - var(--nav-clear) + var(--card-h) * 0.42);
+  color: rgba(52, 70, 58, 0.3);
+  inset: 0;
   pointer-events: none;
   position: absolute;
-  stroke: currentColor;
-  stroke-width: 0.8;
 }
 
-.hero-contours {
-  color: rgba(52, 70, 58, 0.28);
-  height: 450px;
+.hero-wave {
+  height: var(--wave-h);
+  overflow: hidden;
+  position: absolute;
+  width: var(--wave-w);
+}
+
+.hero-wave-tl {
   left: 0;
-  top: 45px;
-  transform: translate(var(--pointer-x, 0), var(--pointer-y, 0));
-  transition: transform 0.35s ease-out;
+  top: var(--nav-clear);
+}
+
+.hero-wave-br {
+  bottom: 0;
+  right: 0;
+}
+
+/* Oversized so parallax never pulls the lines away from the cropped edges. */
+.hero-wave-layer {
+  inset: -48px;
+  position: absolute;
+  will-change: transform;
+}
+
+.wave-corner {
+  fill: none;
+  height: 100%;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.4;
   width: 100%;
+}
+
+.wave-corner path {
+  vector-effect: non-scaling-stroke;
+}
+
+/* Turned 180° on the SVG, so the parallax direction stays the same. */
+.hero-wave-br .wave-corner {
+  scale: -1 -1;
 }
 
 .section-pad {
@@ -349,7 +429,6 @@
 }
 
 .section-heading h2,
-.visit-copy h2,
 .location-copy h2 {
   font-size: clamp(42px, 6vw, 82px);
   line-height: 1.03;
@@ -369,60 +448,127 @@
   transform: none;
 }
 
-.choices {
+/* What brings you to KOMO? — sticky photograph + scrolling chapters */
+.services {
+  /* Starting colour; the script fades it to --sage near the section end.
+     If either colour changes, update the rgb values in ServiceChapters. */
   background: #ebe6dc;
+  /* Overlap the sage section by 1px: at fractional scroll positions the shared
+     edge is otherwise part-covered and the ivory page shows as a hairline. */
+  margin-bottom: -1px;
 }
 
-.choice-grid {
+.services-layout {
+  --media-h: min(68vh, 760px);
   display: grid;
-  gap: clamp(18px, 2.2vw, 34px);
-  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(48px, 7vw, 120px);
+  grid-template-columns: 1fr 1fr;
 }
 
-.choice-card {
+.services-stage {
+  /* Centred in the viewport while stuck; releases at the end of the section. */
+  position: sticky;
+  top: max(24px, calc((100vh - var(--media-h) - 52px) / 2));
+}
+
+.services-media {
+  background: var(--stone);
+  border-radius: 8px;
+  height: var(--media-h);
+  overflow: hidden;
+  position: relative;
+}
+
+.services-media img {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  opacity: 0;
+  position: absolute;
+  transition: opacity 0.6s ease;
+  width: 100%;
+}
+
+.services-media img.is-active {
+  opacity: 1;
+}
+
+.services-indicator {
   display: flex;
-  flex-direction: column;
+  font-size: 11px;
+  gap: 24px;
+  letter-spacing: 0.12em;
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
 }
 
-.choice-image-link {
-  display: block;
+.services-indicator li {
+  border-top: 1px solid transparent;
+  opacity: 0.4;
+  padding-top: 10px;
+  transition:
+    opacity 0.6s ease,
+    border-color 0.6s ease;
 }
 
-.choice-card .image-wrap {
-  aspect-ratio: 0.82;
+.services-indicator li.is-active {
+  border-top-color: var(--olive);
+  opacity: 1;
 }
 
-.handoff-target img {
-  object-position: 50% 48%;
+.service-chapter {
+  align-items: center;
+  display: flex;
+  min-height: 70vh;
 }
 
-.choice-copy {
+.service-chapter-media {
+  display: none;
+}
+
+.service-chapter-copy {
   border-top: 1px solid rgba(52, 70, 58, 0.28);
   display: grid;
   grid-template-columns: 35px 1fr;
-  margin-top: 20px;
-  padding-top: 20px;
+  max-width: 500px;
+  padding-top: 22px;
+  width: 100%;
+}
+
+.service-chapter-copy h3 {
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.1;
+}
+
+.service-chapter-copy p,
+.service-chapter-copy .inline-link {
+  grid-column: 2;
+}
+
+.service-chapter-copy p {
+  font-size: 16px;
+  line-height: 1.65;
+  margin-top: 18px;
+}
+
+/* Animation only once the script has run (content stays visible without it). */
+.is-enhanced .service-chapter-copy {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.is-enhanced .service-chapter.is-revealed .service-chapter-copy {
+  opacity: 1;
+  transform: none;
 }
 
 .card-number {
   font-size: 10px;
   padding-top: 8px;
-}
-
-.choice-copy h3 {
-  font-size: clamp(27px, 2.6vw, 39px);
-  line-height: 1.1;
-}
-
-.choice-copy p,
-.choice-copy .inline-link {
-  grid-column: 2;
-}
-
-.choice-copy p {
-  font-size: 15px;
-  line-height: 1.65;
-  margin-top: 18px;
 }
 
 .inline-link {
@@ -437,34 +583,84 @@
   width: fit-content;
 }
 
+/* A first visit, at your pace: static sage band, heading 40% / copy 60%. */
 .first-visit {
   background: var(--sage);
+  padding: clamp(96px, 9vw, 120px) var(--pad);
 }
 
-.visit-layout {
-  align-items: center;
+.first-visit-layout {
+  align-items: start;
   display: grid;
-  gap: clamp(45px, 8vw, 120px);
-  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(40px, 6vw, 96px);
+  grid-template-columns: 2fr 3fr;
 }
 
-.visit-layout > .image-wrap {
-  height: 75vh;
-  min-height: 580px;
+.first-visit-heading {
+  font-size: clamp(38px, 4.6vw, 64px);
+  line-height: 1.05;
+  max-width: 11ch;
 }
 
-.visit-copy > p:not(.eyebrow) {
-  font-size: 16px;
+.first-visit-copy {
+  max-width: 640px;
+}
+
+.first-visit-copy p {
+  font-size: 17px;
   line-height: 1.7;
-  margin-top: 22px;
 }
 
-.visit-links {
-  align-items: center;
+.first-visit-copy p + p {
+  margin-top: 20px;
+}
+
+.first-visit-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
-  margin-top: 12px;
+  gap: 8px 36px;
+  margin-top: 16px;
+}
+
+.first-visit .inline-link {
+  transition: border-color 0.3s ease;
+}
+
+.first-visit .inline-link .arrow {
+  transition: transform 0.3s ease;
+}
+
+.first-visit .inline-link:hover {
+  border-bottom-color: transparent;
+}
+
+.first-visit .inline-link:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* The site's default brown focus ring is too faint on sage; olive meets 3:1. */
+.first-visit :focus-visible {
+  outline-color: var(--olive);
+}
+
+/* Entrance: only once the script has run, so content shows without it. */
+.first-visit.is-enhanced .first-visit-heading,
+.first-visit.is-enhanced .first-visit-copy {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.first-visit.is-enhanced .first-visit-copy {
+  transition-delay: 0.12s;
+}
+
+.first-visit.is-revealed .first-visit-heading,
+.first-visit.is-revealed .first-visit-copy {
+  opacity: 1;
+  transform: none;
 }
 
 .locations {
@@ -480,6 +676,11 @@
   min-height: 650px;
   position: relative;
   z-index: 0;
+}
+
+/* Square storefront photo in a wide frame: keep the KOMO sign at the top. */
+.location-image img {
+  object-position: 50% 0%;
 }
 
 .location-overlay {
@@ -523,51 +724,175 @@
   border: 1px solid rgba(244, 240, 231, 0.6);
 }
 
-.location-contours {
-  bottom: -45px;
+/* Hero corner waves, cropped to the photo frame (same inset and corners as
+   the overlay) and tucked into its bottom-right corner, away from the copy. */
+.location-waves {
+  border-radius: 8px;
   color: rgba(244, 240, 231, 0.35);
-  height: 350px;
-  right: -15%;
-  transform: translate(var(--pointer-x, 0), var(--pointer-y, 0));
-  transition: transform 0.35s ease-out;
-  width: 85%;
+  inset: 60px var(--pad);
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
   z-index: 2;
 }
 
-footer {
-  align-items: end;
+.location-wave {
+  bottom: 0;
+  height: 62%;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  width: min(48%, 680px);
+}
+
+.location-wave .wave-corner {
+  scale: -1 -1;
+}
+
+/* Footer: olive band, logo + descriptor left, nav right, quieter policy row. */
+.site-footer {
   background: var(--olive);
-  border-top: 1px solid rgba(244, 240, 231, 0.2);
   color: var(--ivory);
+  overflow: hidden;
+  position: relative;
+  padding: 72px var(--pad) 36px;
+}
+
+/* Hero corner waves, cropped into the free bottom-right corner (turned 180°
+   like the hero's bottom-right piece). Faint ivory, behind the content. */
+.footer-waves {
+  color: rgba(244, 240, 231, 0.16);
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.footer-wave {
+  bottom: 0;
+  height: 82%;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  width: min(46%, 640px);
+}
+
+.footer-wave .wave-corner {
+  scale: -1 -1;
+}
+
+.footer-main,
+.footer-policy {
+  position: relative;
+}
+
+.footer-main {
+  align-items: start;
   display: grid;
-  gap: 35px;
-  grid-template-columns: auto 1fr 1fr auto;
-  padding: 40px var(--pad);
+  gap: 40px clamp(40px, 8vw, 120px);
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
-footer p {
-  font-size: 12px;
-  line-height: 1.5;
+.footer-logo {
+  display: inline-block;
 }
 
-.footer-note {
-  opacity: 0.62;
+.footer-logo img {
+  height: auto;
+  width: 168px;
 }
 
-.back-top {
-  align-items: center;
+.footer-brand p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 20px;
+  max-width: 34ch;
+  opacity: 0.85;
+}
+
+.site-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-nav ul {
+  display: grid;
+  gap: 14px 56px;
+  grid-template-columns: repeat(2, auto);
+}
+
+.footer-nav a {
+  font-size: 15px;
+}
+
+.footer-policy {
+  border-top: 1px solid rgba(244, 240, 231, 0.18);
+  margin-top: 64px;
+  padding-top: 24px;
+}
+
+.footer-policy ul {
   display: flex;
-  font-size: 11px;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 10px 32px;
 }
 
-.back-top .arrow {
-  transform: rotate(180deg);
+.footer-policy li {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+/* Underline grows in on hover and keyboard focus. */
+.footer-link {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size 0.18s ease;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* The site's brown focus ring is too faint on olive; ivory is clearly visible. */
+.site-footer :focus-visible {
+  outline-color: var(--ivory);
+}
+
+/* Entrance: opacity only, and only once the script has run. Links stay
+   clickable throughout (opacity does not block interaction). */
+.site-footer.is-enhanced .footer-brand,
+.site-footer.is-enhanced .footer-nav,
+.site-footer.is-enhanced .footer-policy {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.site-footer.is-enhanced .footer-nav,
+.site-footer.is-enhanced .footer-policy {
+  transition-delay: 0.1s;
+}
+
+.site-footer.is-revealed .footer-brand,
+.site-footer.is-revealed .footer-nav,
+.site-footer.is-revealed .footer-policy {
+  opacity: 1;
+}
+
+.site-footer.is-instant .footer-brand,
+.site-footer.is-instant .footer-nav,
+.site-footer.is-instant .footer-policy {
+  transition: none;
 }
 
 @media (max-width: 900px) {
+  /* Three links collide with the centred wordmark below this width. */
+  .header-nav {
+    display: none;
+  }
+
   .hero {
-    height: 400vh;
+    height: 280vh;
   }
 
   .section-pad {
@@ -575,41 +900,66 @@ footer p {
     padding-top: 95px;
   }
 
-  .choice-grid {
-    grid-template-columns: 1fr;
+  .services-layout {
+    display: block;
   }
 
-  .choice-card {
+  .services-stage-col {
+    display: none;
+  }
+
+  .service-chapter {
+    align-items: start;
     display: grid;
     gap: 30px;
     grid-template-columns: 1fr 1fr;
+    min-height: 0;
   }
 
-  .choice-card + .choice-card {
-    margin-top: 40px;
+  .service-chapter + .service-chapter {
+    margin-top: 56px;
   }
 
-  .choice-card .image-wrap {
+  .service-chapter-media {
     aspect-ratio: 1;
+    display: block;
   }
 
-  .choice-copy {
-    align-content: start;
-    margin-top: 0;
+  .service-chapter-media img {
+    position: static;
   }
 
-  .visit-layout {
+  /* Subtle entrance for the whole card instead of the copy alone. */
+  .is-enhanced .service-chapter-copy {
+    opacity: 1;
+    transform: none;
+  }
+
+  .is-enhanced .service-chapter {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.5s ease;
+  }
+
+  .is-enhanced .service-chapter.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stacked: heading, paragraphs and links revealed as one group. */
+  .first-visit-layout {
+    gap: 28px;
     grid-template-columns: 1fr;
   }
 
-  .visit-layout > .image-wrap {
-    height: 65vh;
-    min-height: 480px;
+  .first-visit-heading {
+    max-width: none;
   }
 
-  footer {
-    align-items: start;
-    grid-template-columns: 1fr 1fr;
+  .first-visit.is-enhanced .first-visit-copy {
+    transition-delay: 0s;
   }
 }
 
@@ -628,6 +978,8 @@ footer p {
 
   .site-header .wordmark {
     grid-column: 1;
+    justify-self: start;
+    width: 96px;
   }
 
   .header-cta {
@@ -636,12 +988,6 @@ footer p {
 
   .header-cta .arrow {
     display: none;
-  }
-
-  .hero-copy {
-    padding-top: 125px;
-    padding-left: 8px;
-    padding-right: 8px;
   }
 
   .hero h1 {
@@ -665,13 +1011,27 @@ footer p {
   }
 
   .hero-frame {
-    height: 190px;
-    width: min(72vw, 340px);
+    border-radius: 20px;
+    height: min(calc((100vw - 48px) * 1.25), 62vh);
+    width: calc(100vw - 48px);
   }
 
-  .hero-caption {
-    bottom: 62px;
-    left: 24px;
+  .hero-logo {
+    width: 210px;
+  }
+
+  /* The card fills the width on phones: the corner pieces sit in the gaps
+     above and below it, cropped clear of the header and the scroll cue. */
+  .hero-waves {
+    --card-w: calc(100vw - 48px);
+    --card-h: min(calc((100vw - 48px) * 1.25), 62vh);
+    --nav-clear: 70px;
+    --wave-w: 78vw;
+    --wave-h: calc(var(--gutter-y) - var(--nav-clear) + 40px);
+  }
+
+  .hero-wave-br {
+    bottom: 48px;
   }
 
   .hero-scroll-cue {
@@ -683,33 +1043,35 @@ footer p {
   }
 
   .section-heading h2,
-  .visit-copy h2,
   .location-copy h2 {
     font-size: 42px;
   }
 
-  .choice-card {
+  .service-chapter {
     display: block;
   }
 
-  .choice-copy {
-    margin-top: 18px;
+  .service-chapter-media {
+    aspect-ratio: 4 / 5;
+    margin-bottom: 22px;
   }
 
-  .choice-card + .choice-card {
-    margin-top: 65px;
+  .service-chapter + .service-chapter {
+    margin-top: 64px;
   }
 
-  .visit-layout > .image-wrap {
-    height: 55vh;
-    min-height: 390px;
+  .first-visit {
+    padding-bottom: 64px;
+    padding-top: 64px;
   }
 
-  .visit-links {
-    align-items: flex-start;
+  .first-visit-copy p {
+    font-size: 16px;
+  }
+
+  .first-visit-links {
     flex-direction: column;
-    gap: 12px;
-    margin-top: 25px;
+    gap: 4px;
   }
 
   .locations {
@@ -748,12 +1110,33 @@ footer p {
     width: 100%;
   }
 
-  .location-contours {
-    width: 125%;
+  /* Phones: the copy fills the lower half and the KOMO sign the top, so there
+     is no free corner for the waves; they would cross the sign. */
+  .location-waves {
+    display: none;
   }
 
-  footer {
-    grid-template-columns: 1fr;
+  /* Footer stacks: logo, descriptor, main nav, policy nav. */
+  .site-footer {
+    padding-bottom: 32px;
+    padding-top: 56px;
+  }
+
+  .footer-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .footer-logo img {
+    width: 150px;
+  }
+
+  .footer-wave {
+    height: 55%;
+    width: 80%;
+  }
+
+  .footer-policy {
+    margin-top: 48px;
   }
 }
 
@@ -767,6 +1150,12 @@ footer p {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .is-enhanced .service-chapter,
+  .is-enhanced .service-chapter-copy {
+    opacity: 1;
+    transform: none;
   }
 
   [data-reveal] {
@@ -786,10 +1175,18 @@ footer p {
   }
 
   .hero-copy {
+    color: var(--olive);
     left: auto;
+    opacity: 1;
     padding: 0;
     position: relative;
+    text-shadow: none;
+    top: auto;
     transform: none !important;
+  }
+
+  .hero-copy .button-text {
+    border-color: rgba(52, 70, 58, 0.35);
   }
 
   .hero-frame {
@@ -803,7 +1200,8 @@ footer p {
     width: 100% !important;
   }
 
-  .hero-caption,
+  .hero-logo,
+  .hero-frame::after,
   .hero-scroll-cue {
     display: none;
   }
