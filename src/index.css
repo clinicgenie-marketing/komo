@@ -128,13 +128,14 @@
   overflow: hidden;
   position: sticky;
   top: 0;
+  /* Keeps the handed-off photo above the treatment cards it travels over. */
+  z-index: 3;
 }
 
 .hero-copy {
   left: 50%;
   max-width: 1020px;
-  padding: 145px var(--pad) 0;
-  position: relative;
+  padding: clamp(104px, 14vh, 132px) var(--pad) 0;
   position: absolute;
   top: 0;
   transform: translateX(-50%);
@@ -143,13 +144,14 @@
 }
 
 .hero h1 {
-  font-size: clamp(48px, 7.7vw, 112px);
-  line-height: 0.98;
-  margin: 24px auto 30px;
+  font-size: clamp(44px, min(5.6vw, 8.5vh), 84px);
+  line-height: 1;
+  margin: 20px auto 22px;
+  max-width: 15ch;
 }
 
 .hero-lead {
-  font-size: clamp(18px, 1.7vw, 23px);
+  font-size: clamp(17px, 1.5vw, 21px);
   line-height: 1.5;
 }
 
@@ -238,7 +240,7 @@
   height: 230px;
   left: 50%;
   overflow: hidden;
-  position: absolute;
+  position: fixed;
   top: 50%;
   transform: translate(-50%, -50%) translateY(22vh);
   width: min(48vw, 460px);
@@ -256,9 +258,17 @@
   will-change: transform;
 }
 
+.hero-frame .image-note {
+  left: 50%;
+  opacity: calc(1 - var(--handoff, 0));
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
 .hero-shade {
   background: linear-gradient(0deg, rgba(25, 40, 30, 0.28), transparent 55%);
   inset: 0;
+  opacity: calc(1 - var(--handoff, 0));
   pointer-events: none;
   position: absolute;
 }
@@ -292,6 +302,7 @@
   position: absolute;
   text-transform: uppercase;
   transform: translateX(-50%);
+  white-space: nowrap;
   z-index: 5;
 }
 
@@ -379,6 +390,10 @@
 
 .choice-card .image-wrap {
   aspect-ratio: 0.82;
+}
+
+.handoff-target img {
+  object-position: 50% 48%;
 }
 
 .choice-copy {

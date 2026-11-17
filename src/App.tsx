@@ -4,8 +4,6 @@ const images = {
   hero: "https://images.unsplash.com/photo-1717160675332-1a8d1080ae3d?auto=format&fit=crop&w=1800&q=88",
   scalp:
     "https://images.unsplash.com/photo-1757066033634-bbbf874ce525?auto=format&fit=crop&w=1200&q=86",
-  relax:
-    "https://images.unsplash.com/photo-1717160675643-53a7a2ebaa9f?auto=format&fit=crop&w=1200&q=86",
   hair: "https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?auto=format&fit=crop&w=1200&q=86",
   visit:
     "https://images.unsplash.com/photo-1717160675158-fdd75b8595cf?auto=format&fit=crop&w=1400&q=86",
@@ -64,8 +62,10 @@ const choices = [
     text: "Explore the Aromatic Waterfall Relaxing Scalp Spa, with relaxation as the focus of your visit.",
     link: "Explore the Waterfall Head Spa",
     href: "/treatments/waterfall-head-spa/",
-    image: images.relax,
+    // Same photo as the hero: the hero pill lands in this card as you scroll.
+    image: images.hero,
     alt: "A relaxing hair wash treatment",
+    handoff: true,
   },
   {
     number: "03",
@@ -84,6 +84,8 @@ export default function App() {
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const heroCaptionRef = useRef<HTMLDivElement>(null);
   const heroProgressRef = useRef<HTMLDivElement>(null);
+  const handoffTargetRef = useRef<HTMLAnchorElement>(null);
+  const heroCueRef = useRef<HTMLDivElement>(null);
   const [heroBeat, setHeroBeat] = useState(0);
 
   useEffect(() => {
@@ -130,14 +132,26 @@ export default function App() {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       const gutter = viewportWidth < 640 ? 18 : 28;
-      const capsuleWidth = Math.min(viewportWidth * 0.48, 460);
-      const capsuleHeight = Math.min(viewportHeight * 0.25, 230);
+      // Place the opening pill in the space below the copy so it never sits behind the text.
+      const copy = heroCopyRef.current;
+      const copyBottom = copy ? copy.offsetTop + copy.offsetHeight : viewportHeight * 0.55;
+      const pillGap = viewportWidth < 640 ? 20 : 32;
+      const bottomReserve = viewportWidth < 640 ? 64 : 72;
+      const spaceBelowCopy = viewportHeight - copyBottom - pillGap - bottomReserve;
+      const maxCapsuleWidth =
+        viewportWidth < 640 ? Math.min(viewportWidth * 0.72, 340) : Math.min(viewportWidth * 0.48, 460);
+      const capsuleHeight = Math.max(
+        Math.min(viewportHeight * 0.25, 230, maxCapsuleWidth / 2, spaceBelowCopy),
+        96,
+      );
+      const capsuleWidth = Math.min(maxCapsuleWidth, capsuleHeight * 2.2);
+      const startCentreY = copyBottom + pillGap + capsuleHeight / 2;
 
       let width = capsuleWidth;
       let height = capsuleHeight;
       let radius = capsuleHeight / 2;
       let radiusBottom = radius;
-      let centreY = viewportHeight * 0.72;
+      let centreY = startCentreY;
       let imageScale = 1.08;
 
       if (progress <= 0.3) {
@@ -146,7 +160,7 @@ export default function App() {
         height = mix(capsuleHeight, viewportHeight - gutter * 2, amount);
         radius = mix(capsuleHeight / 2, 8, amount);
         radiusBottom = radius;
-        centreY = mix(viewportHeight * 0.72, viewportHeight / 2, amount);
+        centreY = mix(startCentreY, viewportHeight / 2, amount);
         imageScale = mix(1.08, 1, amount);
       } else if (progress <= 0.48) {
         width = viewportWidth - gutter * 2;
@@ -187,11 +201,55 @@ export default function App() {
         imageScale = mix(1.02, 1, amount);
       }
 
+      // Hand-off: once the hero ends, the photo stays centred and shrinks into the
+      // "Take time to relax" card while the treatments section scrolls up around it.
+      const overscroll = Math.max(0, viewportHeight - bounds.bottom);
+      let centreX = viewportWidth / 2;
+      centreY -= overscroll;
+      let handoff = 0;
+      const target = handoffTargetRef.current;
+      const handoffEnabled = Boolean(target) && viewportWidth >= 900;
+
+      if (target && handoffEnabled) {
+        let targetPageTop = 0;
+        let targetPageLeft = 0;
+        for (let node: HTMLElement | null = target; node; node = node.offsetParent as HTMLElement | null) {
+          targetPageTop += node.offsetTop;
+          targetPageLeft += node.offsetLeft;
+        }
+        const targetWidth = target.offsetWidth;
+        const targetHeight = target.offsetHeight;
+        const heroEndScroll = window.scrollY + bounds.top + distance;
+        const landScroll = targetPageTop + targetHeight / 2 - viewportHeight / 2;
+        const travel = landScroll - heroEndScroll;
+
+        if (travel > 0) {
+          handoff = clamp(overscroll / travel);
+          const targetCentreX = targetPageLeft - window.scrollX + targetWidth / 2;
+          const targetCentreY = targetPageTop - window.scrollY + targetHeight / 2;
+          // Position moves linearly (keeps the photo centred); size eases out so it
+          // shrinks early and clears the section heading.
+          const shrink = ease(handoff);
+          centreX = mix(centreX, targetCentreX, handoff);
+          centreY = mix(centreY, targetCentreY, handoff);
+          width = mix(width, targetWidth, shrink);
+          height = mix(height, targetHeight, shrink);
+          radius = mix(radius, 8, shrink);
+          radiusBottom = mix(radiusBottom, 8, shrink);
+          imageScale = mix(imageScale, 1, shrink);
+        }
+      }
+
+      const landed = handoffEnabled && handoff >= 1;
+      frame.style.visibility = landed ? "hidden" : "";
+      if (target) target.style.opacity = handoffEnabled && !landed ? "0" : "";
+
       frame.style.width = `${width}px`;
       frame.style.height = `${height}px`;
       frame.style.borderRadius = `${radius}px ${radius}px ${radiusBottom}px ${radiusBottom}px`;
-      frame.style.transform = `translate(-50%, -50%) translateY(${centreY - viewportHeight / 2}px)`;
+      frame.style.transform = `translate(-50%, -50%) translate(${centreX - viewportWidth / 2}px, ${centreY - viewportHeight / 2}px)`;
       frame.style.setProperty("--hero-image-scale", `${imageScale}`);
+      frame.style.setProperty("--handoff", `${handoff}`);
 
       if (heroCopyRef.current) {
         const copyFade = 1 - segment(progress, 0.02, 0.18);
@@ -208,6 +266,10 @@ export default function App() {
 
       if (heroProgressRef.current) {
         heroProgressRef.current.style.transform = `scaleX(${progress})`;
+      }
+
+      if (heroCueRef.current) {
+        heroCueRef.current.style.opacity = overscroll > 0 ? "0" : "";
       }
 
       const nextBeat = progress < 0.3 ? 0 : progress < 0.48 ? 1 : progress < 0.66 ? 2 : 3;
@@ -287,7 +349,7 @@ export default function App() {
             <span>0{heroBeat + 1}</span>
             <p>{["Care in Harmony", "Scalp care", "Hair care", "Time to unwind"][heroBeat]}</p>
           </div>
-          <div className="hero-scroll-cue">
+          <div className="hero-scroll-cue" ref={heroCueRef}>
             <span>Scroll to explore</span>
             <div className="hero-progress">
               <div ref={heroProgressRef} />
@@ -304,8 +366,17 @@ export default function App() {
         <div className="choice-grid" data-reveal>
           {choices.map((choice) => (
             <article className="choice-card" key={choice.title}>
-              <a href={choice.href} className="choice-image-link" aria-label={choice.link}>
-                <Image src={choice.image} alt={choice.alt} />
+              <a
+                href={choice.href}
+                className="choice-image-link"
+                aria-label={choice.link}
+                ref={choice.handoff ? handoffTargetRef : undefined}
+              >
+                <Image
+                  src={choice.image}
+                  alt={choice.alt}
+                  className={choice.handoff ? "handoff-target" : ""}
+                />
               </a>
               <div className="choice-copy">
                 <span className="card-number">{choice.number}</span>

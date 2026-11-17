@@ -19,3 +19,7 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+# Local tooling / OS files
+.playwright-mcp/
+.DS_Store
