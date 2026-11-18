@@ -491,7 +491,7 @@ function SiteFooter() {
   }, []);
 
   return (
-    <footer className="site-footer" ref={footerRef}>
+    <footer className="site-footer" ref={footerRef} data-header-dark>
       <div className="footer-waves" ref={wavesRef} aria-hidden="true">
         <div className="footer-wave">
           <div className="hero-wave-layer" data-depth="1">
@@ -551,6 +551,7 @@ export default function App() {
   const heroFrameRef = useRef<HTMLDivElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const heroLogoRef = useRef<HTMLSpanElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const headerWordmarkRef = useRef<HTMLAnchorElement>(null);
   const heroProgressRef = useRef<HTMLDivElement>(null);
   const handoffTargetRef = useRef<HTMLDivElement>(null);
@@ -587,11 +588,44 @@ export default function App() {
     const segment = (progress: number, start: number, end: number) =>
       ease(clamp((progress - start) / (end - start)));
 
+    // Header stays pinned and transparent; switch to light text over dark areas.
+    // Runs after the hero frame is positioned so it reads this frame's layout.
+    const updateHeader = () => {
+      const header = headerRef.current;
+      if (header) {
+        const probeY = header.offsetHeight / 2;
+        const items = [...header.children]
+          .map((child) => child.getBoundingClientRect())
+          .filter((box) => box.width > 0);
+        const contentLeft = Math.min(...items.map((box) => box.left));
+        const contentRight = Math.max(...items.map((box) => box.right));
+        const darkAreas = [
+          heroFrameRef.current,
+          ...document.querySelectorAll<HTMLElement>("[data-header-dark]"),
+        ];
+        const onDark = darkAreas.some((area) => {
+          if (!area || area.classList.contains("is-landed")) return false;
+          const box = area.getBoundingClientRect();
+          // Must sit behind every nav item, so a partly covered bar keeps dark text.
+          return (
+            box.top <= probeY &&
+            box.bottom >= probeY &&
+            box.left <= contentLeft &&
+            box.right >= contentRight
+          );
+        });
+        header.classList.toggle("on-dark", onDark);
+      }
+    };
+
     const updateHero = () => {
       frameRequest = 0;
       const hero = heroRef.current;
       const frame = heroFrameRef.current;
-      if (!hero || !frame || reducedMotion.matches) return;
+      if (!hero || !frame || reducedMotion.matches) {
+        updateHeader();
+        return;
+      }
 
       const bounds = hero.getBoundingClientRect();
       const distance = hero.offsetHeight - window.innerHeight;
@@ -702,6 +736,8 @@ export default function App() {
       if (heroCueRef.current) {
         heroCueRef.current.style.opacity = `${1 - segment(progress, 0.15, 0.3)}`;
       }
+
+      updateHeader();
     };
 
     const requestHeroUpdate = () => {
@@ -722,7 +758,7 @@ export default function App() {
 
   return (
     <main>
-      <header className="site-header">
+      <header className="site-header" ref={headerRef}>
         <nav className="header-nav desktop-only" aria-label="Main">
           <a className="header-link" href="/treatments/">
             Treatments
@@ -793,7 +829,7 @@ export default function App() {
           alt="The entrance and reception of a KOMO outlet"
           className="location-image"
         />
-        <div className="location-overlay" />
+        <div className="location-overlay" data-header-dark />
         <div className="location-copy" data-reveal>
           <p className="eyebrow">Plan your visit</p>
           <h2>Find your KOMO</h2>

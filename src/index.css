@@ -59,10 +59,22 @@
   grid-template-columns: 1fr auto 1fr;
   left: 0;
   padding: 18px var(--pad);
-  position: absolute;
+  position: fixed;
   right: 0;
   top: 0;
-  z-index: 10;
+  color: var(--olive);
+  transition: color 0.35s ease;
+  z-index: 50;
+}
+
+/* Transparent header: text and logo switch to ivory while a dark area sits under it. */
+.site-header.on-dark {
+  color: var(--ivory);
+}
+
+/* Soft shadow keeps light text legible over brighter parts of a photo. */
+.site-header.on-dark > * {
+  filter: drop-shadow(0 1px 6px rgb(20 30 24 / 0.35));
 }
 
 .header-nav {
@@ -93,7 +105,7 @@
 
 .header-cta {
   align-items: center;
-  border: 1px solid var(--olive);
+  border: 1px solid currentColor;
   border-radius: 100px;
   display: flex;
   font-size: 13px;
@@ -107,7 +119,18 @@
 
 .header-cta:hover {
   background: var(--olive);
+  border-color: var(--olive);
   color: var(--ivory);
+}
+
+.site-header.on-dark .header-cta {
+  background: rgb(31 49 38 / 0.3);
+}
+
+.site-header.on-dark .header-cta:hover {
+  background: var(--ivory);
+  border-color: var(--ivory);
+  color: var(--olive);
 }
 
 .arrow {
