@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { LogoHoverEffect } from "@/components/ui/logo-hover-effect";
 
 const images = {
   hero: "https://images.unsplash.com/photo-1717160675332-1a8d1080ae3d?auto=format&fit=crop&w=1800&q=88",
@@ -550,7 +551,7 @@ export default function App() {
   useWaveParallax(locationWavesRef, locationsRef);
   const heroFrameRef = useRef<HTMLDivElement>(null);
   const heroCopyRef = useRef<HTMLDivElement>(null);
-  const heroLogoRef = useRef<HTMLSpanElement>(null);
+  const heroLogoRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const headerWordmarkRef = useRef<HTMLAnchorElement>(null);
   const heroProgressRef = useRef<HTMLDivElement>(null);
@@ -713,6 +714,8 @@ export default function App() {
       if (heroLogoRef.current) {
         heroLogoRef.current.style.opacity = `${logoFade}`;
         heroLogoRef.current.style.transform = `translate(-50%, -50%) scale(${mix(1.06, 1, logoFade)})`;
+        // Hover only while the logo is clearly on screen.
+        heroLogoRef.current.style.pointerEvents = logoFade > 0.6 ? "auto" : "none";
       }
       // Avoid two KOMO wordmarks on landing: the header one takes over as the card logo leaves.
       if (headerWordmarkRef.current) headerWordmarkRef.current.style.opacity = `${1 - logoFade}`;
@@ -801,7 +804,7 @@ export default function App() {
           <div className="hero-frame" ref={heroFrameRef}>
             <img src={images.hero} alt="A calm hair and scalp spa treatment" />
             <div className="hero-shade" />
-            <span className="hero-logo" ref={heroLogoRef} aria-hidden="true" />
+            <LogoHoverEffect className="hero-logo" ref={heroLogoRef} />
             <span className="image-note">Illustrative imagery</span>
           </div>
           <div className="hero-scroll-cue" ref={heroCueRef}>

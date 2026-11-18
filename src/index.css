@@ -321,16 +321,59 @@
 
 .hero-logo {
   aspect-ratio: 4335 / 1647;
-  background: var(--ivory);
+  color: var(--ivory);
   left: 50%;
-  -webkit-mask: url("/images/komo-logo.svg") center / contain no-repeat;
-  mask: url("/images/komo-logo.svg") center / contain no-repeat;
   pointer-events: none;
   position: absolute;
   top: 50%;
   width: clamp(240px, 30vw, 440px);
   transform: translate(-50%, -50%);
   z-index: 3;
+}
+
+/* Hero logo hover (adapted from Aceternity TextHoverEffect): an outline draws
+   in and a sage spotlight follows the pointer across the letters. */
+.logo-hover {
+  display: block;
+  height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.logo-hover-base {
+  fill: currentColor;
+}
+
+.logo-hover-outline {
+  fill: none;
+  opacity: 0;
+  stroke: var(--sage);
+  stroke-dasharray: 9000;
+  stroke-dashoffset: 9000;
+  stroke-width: 14;
+  transition:
+    opacity 0.4s ease,
+    stroke-dashoffset 0s 0.4s;
+}
+
+.logo-hover.is-hovered .logo-hover-outline {
+  opacity: 0.9;
+  stroke-dashoffset: 0;
+  transition:
+    opacity 0.3s ease,
+    stroke-dashoffset 2.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-hover-spot {
+  fill: var(--sage);
+  opacity: 0;
+  stroke: var(--sage);
+  stroke-width: 14;
+  transition: opacity 0.35s ease;
+}
+
+.logo-hover.is-hovered .logo-hover-spot {
+  opacity: 1;
 }
 
 /* Darkens the photo as the hero copy arrives so the ivory text stays legible. */
