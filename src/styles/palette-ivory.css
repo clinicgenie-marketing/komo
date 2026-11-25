@@ -1,0 +1,217 @@
+/* ---------------------------------------------------------------------------
+ * Proposed KOMO palette (preview): ivory-led, "organic experiential luxury".
+ * Active only with ?palette=ivory (html[data-palette="ivory"]); the current
+ * dark-green-led palette stays the default.
+ *
+ *   Warm Ivory      #F4F0E7  primary background
+ *   Soft Cream      #FAF8F2  cards, secondary backgrounds, button text
+ *   Deep Olive      #34463A  headings, navigation, primary buttons
+ *   Muted Sage      #D6D7CE  section transitions and accents (sparingly)
+ *   Natural Taupe   #B8AA96  borders and decorative details
+ *   Charcoal Olive  #30372F  body text and dark surfaces
+ * ------------------------------------------------------------------------- */
+
+html[data-palette="ivory"] {
+  --ivory: #f4f0e7;
+  --olive: #34463a;
+  --sage: #d6d7ce;
+  --stone: #b8aa96;
+  --soft-cream: #faf8f2;
+  --charcoal: #30372f;
+  --taupe: #b8aa96;
+}
+
+/* Ivory is the dominant background; body text in charcoal olive. */
+html[data-palette="ivory"] body {
+  background: var(--ivory);
+  color: var(--charcoal);
+}
+
+html[data-palette="ivory"].has-footer-reveal main {
+  background: var(--ivory);
+}
+
+/* The dark sections become ivory: no role swap. */
+html[data-palette="ivory"] .tone-dark {
+  --ivory: #f4f0e7;
+  --olive: #34463a;
+  background: var(--ivory);
+  color: var(--charcoal);
+}
+
+html[data-palette="ivory"] .tone-light {
+  background: var(--ivory);
+  color: var(--charcoal);
+}
+
+/* Headings and hierarchy in deep olive. */
+html[data-palette="ivory"] main h2,
+html[data-palette="ivory"] main h3,
+html[data-palette="ivory"] .name-line {
+  color: var(--olive);
+}
+
+/* Primary buttons: deep olive with soft cream text. */
+html[data-palette="ivory"] .session-request,
+html[data-palette="ivory"] .hero-flow-copy .hero-cta {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: var(--soft-cream);
+}
+
+html[data-palette="ivory"] .session-request:hover,
+html[data-palette="ivory"] .session-request:focus-visible {
+  background: transparent;
+  color: var(--olive);
+}
+
+/* Focus ring back to the copper accent on light surfaces. */
+html[data-palette="ivory"] .tone-dark :focus-visible {
+  outline-color: #9a633c;
+}
+
+/* Intro loader and opening fields: ivory with taupe lines. */
+html[data-palette="ivory"] .intro-loader {
+  background: var(--ivory);
+  color: var(--taupe);
+}
+
+html[data-palette="ivory"] .hero-stage,
+html[data-palette="ivory"] .hero-bleed,
+html[data-palette="ivory"] .sessions-stage,
+html[data-palette="ivory"] .sessions.is-pinned .sessions-stage::before {
+  background: var(--ivory);
+}
+
+html[data-palette="ivory"] .stage-contour,
+html[data-palette="ivory"] .product-contour,
+html[data-palette="ivory"] .reviews-contour {
+  color: var(--taupe);
+}
+
+html[data-palette="ivory"] .hero-flow-copy .hero-lead,
+html[data-palette="ivory"] .hero-flow-copy .hero-support {
+  color: var(--charcoal);
+}
+
+/* Sessions: details panel on soft cream. */
+html[data-palette="ivory"] .sessions-left {
+  background: rgb(250 248 242 / 0.94);
+}
+
+/* First visit: arc captions on soft cream. */
+html[data-palette="ivory"] .arc-card figcaption {
+  background: rgb(250 248 242 / 0.94);
+  color: var(--charcoal);
+}
+
+/* Product: softer shadows suited to a light ground. */
+html[data-palette="ivory"] .ingredient img {
+  filter: drop-shadow(0 12px 18px rgb(48 55 47 / 0.18));
+}
+
+/* Visit KOMO: ivory behind the panels; address field on soft cream. */
+html[data-palette="ivory"] .outlets-view {
+  background: var(--ivory);
+}
+
+html[data-palette="ivory"] .outlet-field,
+html[data-palette="ivory"] .outlets-heading {
+  background: var(--soft-cream);
+  color: var(--charcoal);
+}
+
+html[data-palette="ivory"] .outlet-panel--orchard {
+  background: var(--sage);
+}
+
+html[data-palette="ivory"] .outlet-panel--greatWorld {
+  background: var(--taupe);
+}
+
+html[data-palette="ivory"] .outlet-contour {
+  color: rgb(250 248 242 / 0.55);
+}
+
+/* Reviews: portrait cards in muted sage with taupe figures. */
+html[data-palette="ivory"] .review-portrait {
+  background: var(--sage);
+}
+
+html[data-palette="ivory"] .review-portrait--google {
+  background: var(--soft-cream);
+  border: 1px solid var(--taupe);
+  color: var(--charcoal);
+}
+
+html[data-palette="ivory"] .review-initial {
+  background: var(--olive);
+  color: var(--soft-cream);
+}
+
+html[data-palette="ivory"] .review-silhouette {
+  fill: var(--taupe);
+}
+
+html[data-palette="ivory"] .reviews-controls .arc-button {
+  background: var(--soft-cream);
+}
+
+/* Arrange your visit: the one muted sage section (a transition before the
+   questions), with the photograph veiled in sage and a soft cream panel. */
+html[data-palette="ivory"] .arrange {
+  background: var(--sage);
+  color: var(--charcoal);
+}
+
+html[data-palette="ivory"] .arrange-veil {
+  background: rgb(214 215 206 / 0.8);
+}
+
+html[data-palette="ivory"] .arrange-contour {
+  color: rgb(250 248 242 / 0.8);
+}
+
+html[data-palette="ivory"] .arrange-side {
+  background: var(--soft-cream);
+}
+
+html[data-palette="ivory"] .arrange-draft textarea {
+  background: var(--ivory);
+  border-color: var(--taupe);
+}
+
+html[data-palette="ivory"] .arrange-sessions label {
+  border-color: var(--olive);
+}
+
+/* Questions: ivory panel, soft cream rows with taupe borders. */
+html[data-palette="ivory"] .faq {
+  background: var(--ivory);
+  color: var(--charcoal);
+}
+
+html[data-palette="ivory"] .faq-item {
+  background: var(--soft-cream);
+  border-color: var(--taupe);
+}
+
+/* Footer: the one dark surface, in charcoal olive. */
+html[data-palette="ivory"] .site-footer {
+  background: var(--charcoal);
+  color: var(--soft-cream);
+}
+
+html[data-palette="ivory"] .footer-contour {
+  color: var(--taupe);
+}
+
+html[data-palette="ivory"] .footer-legal {
+  border-top-color: rgb(184 170 150 / 0.4);
+}
+
+/* Header: open menu on ivory; menu edge in muted sage. */
+html[data-palette="ivory"] .menu-contour {
+  background: var(--sage);
+  color: var(--taupe);
+}
