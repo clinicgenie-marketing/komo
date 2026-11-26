@@ -1,3 +1,10 @@
+/* PRESERVED for the individual Scalp Oil Balancing Essence page (a later
+ * build). Not mounted on the homepage since Section 05 became the product
+ * range still (src/sections/ProductRange.tsx). Its styles stay in index.css
+ * (".product…", ".bottle…", ".name-line…", ".ingredient…"), its assets in
+ * public/images/product and public/images/ingredients, its copy in
+ * src/content/product.ts. BottleHandover.tsx (beside this file) is the
+ * card-06 → bottle close-up transition that led into it. */
 /* ---------------------------------------------------------------------------
  * 06 A closer look at the bottle (storyboard frames 10–12)
  *
@@ -404,7 +411,7 @@ function ProductScene() {
 
 /* --------------------------------- Section -------------------------------- */
 
-export function Product() {
+export function SingleBottleProduct() {
   const [scene, setScene] = useState(() => window.matchMedia(SCENE_QUERY).matches);
   const id = useId();
 
@@ -418,7 +425,7 @@ export function Product() {
   return (
     <section
       id="product"
-      className={`product tone-dark ${scene ? "is-scene" : "is-flow"}`}
+      className={`product tone-light ${scene ? "is-scene" : "is-flow"}`}
       aria-labelledby={`${id}-heading`}
       style={
         bottle.kind === "image"

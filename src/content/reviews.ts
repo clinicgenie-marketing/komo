@@ -1,110 +1,67 @@
 /**
- * 08 Reviews — editorial slots from docs/content/KOMO_Homepage_Content.md
- * (Section 08). Two kinds share one carousel, each with its own card:
+ * 07 Google reviews — verified Orchard Google reviews, curated by hand, each
+ * short enough to show in full: star rating, exact review text, the
+ * reviewer's public display name, and the Google attribution.
  *
- *   testimonial  an approved guest testimonial: approved display name, exact
- *                quotation, and a portrait only when that guest–portrait
- *                pairing is supplied and approved (otherwise a silhouette).
- *   google       a verified Orchard Google review, curated by hand: public
- *                display name, exact review text, star rating, date and the
- *                link to that review on Google, so visitors can verify it.
- *
- * Order: approved testimonials first, then Google reviews.
+ * MISSING: no approved reviews and no verified Google listing URL are in the
+ * project yet (the content file has empty slots only). Until they are
+ * supplied, development builds show three labelled preview cards so the
+ * layout can be reviewed; production builds never show them, and the
+ * section is left out entirely while no published review exists.
  */
 
-export const REVIEWS_HEADING = "Reviews";
+export const REVIEWS_HEADING = "Google reviews";
 
-/**
- * Orchard's Google reviews page ("See all reviews on Google"). UNCONFIRMED:
- * not in the project yet; the link is hidden while this is null.
- */
+export const GOOGLE_LINK_LABEL = "Read more reviews on Google";
+
+/** The verified Orchard Google listing. UNCONFIRMED: not supplied yet. */
 export const ORCHARD_GOOGLE_REVIEWS_URL: string | null = null;
 
-type ReviewBase = {
+export type GoogleReview = {
   id: string;
-  /** Approved display name (Google: the public display name). */
+  /** The reviewer's public display name on Google. */
   name: string;
-  /** Exact approved / verified quotation. */
+  /** Exact review text, shown in full. */
   quote: string;
+  /** Star rating as shown on Google, 1–5. */
+  rating: 1 | 2 | 3 | 4 | 5;
+  /** The reviewer's Google profile photo, only if supplied with the review;
+      otherwise the card shows their initial. */
+  photo?: string;
   /** Preview-only entry: never shown in a production build. */
   preview?: true;
 };
 
-export type Testimonial = ReviewBase & {
-  kind: "testimonial";
-  portrait: { src: string; alt: string } | null;
-};
+/** Approved, genuine Google reviews go here (three, short enough in full). */
+const publishedReviews: GoogleReview[] = [];
 
-export type GoogleReview = ReviewBase & {
-  kind: "google";
-  /** Star rating as shown on Google, 1–5. */
-  rating: 1 | 2 | 3 | 4 | 5;
-  /** When it was posted, as a fixed month and year (e.g. "March 2026"). */
-  date: string;
-  /** Link to this review on Google; `null` hides "View on Google". */
-  url: string | null;
-};
-
-export type Review = Testimonial | GoogleReview;
-
-export const sourceLabel = (review: Review) =>
-  review.kind === "google" ? "Google review" : "Guest testimonial";
-
-/** Publishable entries. The content file has only placeholders so far. */
-const publishedReviews: Review[] = [];
-
-/**
- * Preview-only entries used to build and test the interaction while the
- * editorial slots are empty. They are labelled on screen and dropped from
- * production builds (import.meta.env.DEV).
- */
-const previewReviews: Review[] = [
+const previewReviews: GoogleReview[] = [
   {
-    id: "preview-testimonial",
-    kind: "testimonial",
-    name: "Preview guest A",
-    quote: "Preview only. The approved guest testimonial goes here.",
-    portrait: null,
-    preview: true,
-  },
-  {
-    id: "preview-google-1",
-    kind: "google",
-    name: "Preview reviewer B",
+    id: "preview-1",
+    name: "Preview reviewer A",
     quote:
-      "Preview only. A long verified Orchard Google review goes here, to check that a longer quotation stays readable: it wraps over several lines, keeps its natural height on mobile and stays beside the arrows on desktop without covering the portraits.",
+      "Preview only. An approved Orchard Google review goes here, shown in full. This one runs a little longer to check that three or four lines still sit comfortably in the card.",
     rating: 5,
-    date: "Month 2026",
-    url: null,
     preview: true,
   },
   {
-    id: "preview-google-2",
-    kind: "google",
+    id: "preview-2",
+    name: "Preview reviewer B",
+    quote: "Preview only. A shorter approved Orchard Google review goes here.",
+    rating: 5,
+    preview: true,
+  },
+  {
+    id: "preview-3",
     name: "Preview reviewer C",
-    quote: "Preview only. A verified Orchard Google review goes here.",
+    quote: "Preview only. A third approved Orchard Google review goes here, at a medium length.",
     rating: 5,
-    date: "Month 2026",
-    url: null,
-    preview: true,
-  },
-  {
-    id: "preview-google-3",
-    kind: "google",
-    name: "Preview reviewer D",
-    quote: "Preview only. A verified Orchard Google review goes here.",
-    rating: 4,
-    date: "Month 2026",
-    url: null,
     preview: true,
   },
 ];
 
-const byKind = (a: Review, b: Review) =>
-  (a.kind === "testimonial" ? 0 : 1) - (b.kind === "testimonial" ? 0 : 1);
-
-export const reviews: Review[] = (
-  publishedReviews.length ? publishedReviews : import.meta.env.DEV ? previewReviews : []
-)
-  .slice()
-  .sort(byKind);
+export const reviews: GoogleReview[] = publishedReviews.length
+  ? publishedReviews
+  : import.meta.env.DEV
+    ? previewReviews
+    : [];

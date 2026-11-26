@@ -1,5 +1,5 @@
 /**
- * 07 Visit KOMO — copy from docs/content/KOMO_Homepage_Content.md (Section 07).
+ * 06 Visit KOMO — copy from docs/content/KOMO_Homepage_Content.md (Section 07).
  * Orchard is the booking route in this edition; Great World and Holland
  * Village offer an opening-details enquiry carrying the outlet's name.
  */
@@ -33,14 +33,12 @@ const ORCHARD_ADDRESS = "501 Orchard Road, Level 3, unit 03‑03A, Singapore 238
 // Unconfirmed destinations (see the baseline brief):
 // - No map link exists in the project; this is a Google Maps search for the
 //   address until the confirmed map pin is supplied.
-// - Reviews (Section 08) will sit on this page at #reviews.
 // - No WhatsApp number exists yet. When it is supplied, opening enquiries open
 //   WhatsApp with the message; until then they go to the visit-request route
 //   with the outlet and message as parameters.
 const ORCHARD_MAP_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
   "KOMO Wellness, 501 Orchard Road, Singapore 238880",
 )}`;
-const ORCHARD_REVIEWS_HREF = "#reviews";
 // Separate from Orchard booking (Section 09): opening updates for Great World
 // and Holland Village have their own destination.
 const WHATSAPP_NUMBER: string | null = null;
@@ -66,7 +64,7 @@ export const outlets: Outlet[] = [
     photo: images.outlets.orchard,
     actions: [
       { label: "Get Directions", href: ORCHARD_MAP_URL, external: true },
-      { label: "Read Orchard Guest Reviews", href: ORCHARD_REVIEWS_HREF },
+      // To Section 08, Arrange your visit.
       { label: "Request a Visit", href: VISIT_HREF, primary: true },
     ],
   },
@@ -74,7 +72,8 @@ export const outlets: Outlet[] = [
     id: "greatWorld",
     name: "Great World",
     text: "Interested in visiting Great World?",
-    // No approved Great World photograph yet.
+    // MISSING ASSET: no approved Great World interior or neighbourhood
+    // photograph yet; the frame shows the outlet's warm field until then.
     photo: null,
     actions: [
       {
@@ -89,7 +88,8 @@ export const outlets: Outlet[] = [
     id: "hollandVillage",
     name: "Holland Village",
     text: "For opening news and first booking updates,",
-    // No approved Holland Village photograph yet.
+    // MISSING ASSET: no approved Holland Village interior or neighbourhood
+    // photograph yet; the frame shows the outlet's warm field until then.
     photo: null,
     actions: [
       {

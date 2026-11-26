@@ -4,6 +4,25 @@
    scoped to html[data-palette="ivory"], so order does not matter). */
 @import "./styles/palette-ivory.css";
 
+/* shadcn-style colour tokens for ui components (the review swiper etc.), mapped
+   to KOMO's palette so bg-card, text-muted-foreground etc. work. */
+@theme inline {
+  --color-card: #f7f1e8;
+  --color-card-foreground: #34463a;
+  --color-muted: #e3d8c7;
+  --color-muted-foreground: #5d6b60;
+  --color-border: rgb(52 70 58 / 0.18);
+  --color-primary: #34463a;
+  --color-secondary: #e3d8c7;
+  --color-secondary-foreground: #34463a;
+  --color-popover: #fbf7f0;
+  --color-popover-foreground: #34463a;
+  --color-accent: #e8eddf;
+  --color-accent-foreground: #34463a;
+  --color-input: rgb(52 70 58 / 0.3);
+  --color-ring: #34463a;
+}
+
 :root {
   --ivory: #f4f0e7;
   --olive: #34463a;
@@ -88,21 +107,25 @@
   }
 
   /* On dark green the copper ring is too faint; use cream. */
-  .tone-dark :focus-visible,
-  .hero :focus-visible {
+  .tone-dark :focus-visible {
     outline-color: var(--cream);
   }
 }
 
-/* 01 Header: slim sticky ivory bar. Fixed so the page scrolls beneath it;
-   --header-h is the offset for anchors (scroll-padding) and sections below. */
+/* 00 Header: full-width fixed bar in three zones. Fixed so the page scrolls
+   beneath it; --header-h is the offset for anchors (scroll-padding) and
+   sections below. The lower edge is always straight. */
 .site-header {
   align-items: center;
-  /* Transparent: the page shows through. Each control takes ivory or olive
-     from what lies beneath it (data-tone, set in SiteHeader). */
+  /* Clear over photography: each control takes ivory or olive from what lies
+     beneath it (data-tone). Over text-led sections data-surface turns the bar
+     solid (both set in SiteHeader). */
   background: transparent;
+  box-shadow: inset 0 -1px 0 transparent;
   color: var(--olive);
-  transition: background 0.3s;
+  transition:
+    background 0.35s,
+    box-shadow 0.35s;
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: var(--header-h);
@@ -209,7 +232,7 @@
   transition: text-decoration-color 0.25s ease;
 }
 
-.menu-link:hover,
+.menu-link[href]:hover,
 .menu-link:focus-visible {
   text-decoration-color: currentColor;
 }
@@ -269,17 +292,173 @@
 
 .header-cta:hover,
 .header-cta:focus-visible {
-  background: var(--olive);
+  --sweep: var(--olive);
   border-color: var(--olive);
   color: var(--ivory);
 }
 
 .site-header .menu-toggle,
 .site-header .wordmark,
+.site-header .header-lang,
 .site-header .header-cta {
   transition:
     background 0.3s,
     color 0.3s;
+}
+
+/* Right zone: language and booking pill. Its width never moves the wordmark,
+   which is positioned against the full viewport. */
+.header-actions {
+  align-items: center;
+  display: flex;
+  gap: 22px;
+  grid-column: 2;
+  justify-self: end;
+  position: relative;
+}
+
+.lang-switch {
+  align-items: center;
+  display: flex;
+  font-size: 13px;
+}
+
+.lang-switch button + button::before {
+  content: "/";
+  opacity: 0.5;
+  padding-right: 6px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.lang-switch button {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  min-width: 24px;
+  justify-content: center;
+  opacity: 0.72;
+  padding: 0 4px;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 5px;
+  transition:
+    opacity 0.25s,
+    text-decoration-color 0.25s;
+}
+
+.lang-switch button[aria-pressed="true"],
+.lang-switch button:hover,
+.lang-switch button:focus-visible {
+  opacity: 1;
+}
+
+.lang-switch button[aria-pressed="true"] {
+  text-decoration-color: currentColor;
+}
+
+/* Menu items without a destination yet: plain text, no link affordance. */
+.menu-link:not([href]) {
+  cursor: default;
+}
+
+/* Inside the menu (narrow screens only). */
+.menu-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.menu-lang {
+  display: none;
+  font-size: 15px;
+  /* The first link's inner padding lines EN up with the menu links. */
+  padding: 0 24px clamp(24px, 5vh, 40px) calc(var(--pad) - 4px);
+}
+
+.header-cta {
+  cursor: pointer;
+}
+
+.header-cta .arrow {
+  rotate: 90deg;
+  transition: rotate 0.3s ease;
+}
+
+.header-cta[aria-expanded="true"] .arrow {
+  rotate: -90deg;
+}
+
+/* Booking choices drop from the pill, right-aligned under it. */
+.booking-choices {
+  background: var(--cream);
+  border: 1px solid rgb(52 70 58 / 0.14);
+  color: var(--green);
+  min-width: 248px;
+  padding: 18px 0 10px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + (var(--header-h) - 40px) / 2);
+  visibility: hidden;
+}
+
+.booking-choices-label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
+  opacity: 0.7;
+  padding: 0 20px;
+}
+
+.booking-choices ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.booking-choice {
+  align-items: center;
+  display: flex;
+  font-family: "Manrope", sans-serif;
+  font-size: 19px;
+  font-weight: 300;
+  gap: 16px;
+  justify-content: space-between;
+  letter-spacing: -0.02em;
+  min-height: 48px;
+  padding: 0 20px;
+  transition: background 0.25s;
+}
+
+.booking-choices li:last-child {
+  border-top: 1px solid rgb(52 70 58 / 0.14);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.booking-choice .arrow {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+
+.booking-choice:hover,
+.booking-choice:focus-visible {
+  background: rgb(166 178 154 / 0.28);
+}
+
+.booking-choice:hover .arrow,
+.booking-choice:focus-visible .arrow {
+  opacity: 1;
+  transform: none;
+}
+
+.site-header .booking-choice:focus-visible {
+  outline-offset: -4px;
 }
 
 /* Over photographs and dark fields. */
@@ -296,19 +475,77 @@
 
 .site-header .header-cta[data-tone="light"]:hover,
 .site-header .header-cta[data-tone="light"]:focus-visible {
-  background: var(--ivory);
+  --sweep: var(--ivory);
   border-color: var(--ivory);
   color: var(--olive);
+}
+
+/* Solid surfaces over text-led sections: every control takes the
+   surface's ink, whatever its own sample said. */
+.site-header[data-surface="ivory"] {
+  background: var(--cream);
+  box-shadow: inset 0 -1px 0 rgb(52 70 58 / 0.14);
+}
+
+.site-header[data-surface="green"] {
+  background: var(--green);
+  box-shadow: inset 0 -1px 0 rgb(244 240 231 / 0.16);
+}
+
+.site-header[data-surface="ivory"] [data-tone] {
+  color: var(--green);
+  filter: none;
+}
+
+.site-header[data-surface="green"] [data-tone] {
+  color: var(--cream);
+  filter: none;
+}
+
+.site-header[data-surface="ivory"] .header-cta:hover,
+.site-header[data-surface="ivory"] .header-cta:focus-visible {
+  --sweep: var(--green);
+  border-color: var(--green);
+  color: var(--cream);
+}
+
+.site-header[data-surface="green"] .header-cta:hover,
+.site-header[data-surface="green"] .header-cta:focus-visible {
+  --sweep: var(--cream);
+  border-color: var(--cream);
+  color: var(--green);
+}
+
+/* Visible focus on every surface: the ring follows each control's ink. */
+.site-header :is(a, button):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.site-header .header-cta:focus-visible {
+  outline-color: var(--sage);
 }
 
 /* With the menu open the bar joins the ivory panel. */
 .site-header[data-menu-open] {
   background: var(--ivory);
+  box-shadow: inset 0 -1px 0 rgb(52 70 58 / 0.14);
 }
 
 .site-header[data-menu-open] [data-tone] {
   color: var(--olive);
   filter: none;
+}
+
+/* The language switch moves into the menu where the bar runs out of room. */
+@media (max-width: 900px) {
+  .header-lang {
+    display: none;
+  }
+
+  .menu-lang {
+    display: flex;
+  }
 }
 
 .arrow {
@@ -363,6 +600,10 @@
     display: none;
   }
 
+  .booking-choices {
+    min-width: min(280px, calc(100vw - 2 * var(--pad)));
+  }
+
   /* Full-width panel; the contour moves to the lower edge. */
   .menu-panel {
     grid-template-columns: 1fr;
@@ -379,260 +620,860 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Intro loader: the contour draws in, then the panel lifts off the hero.
+ * 01 Hero: two photographs, then mist. Sticky stage over a scroll track; the
+ * sequence itself is one scrubbed timeline in src/sections/Hero.tsx.
  * ------------------------------------------------------------------------- */
-.intro-loader {
-  background: var(--green);
-  color: rgb(244 240 231 / 0.55);
-  inset: 0;
-  position: fixed;
-  z-index: 100;
+:root {
+  /* Scroll distance of the sequence, and how much of it Section 02 overlaps
+     so its heading is already in place when it is revealed. */
+  --hero-scroll: 320svh;
+  --hero-reveal: 90svh;
+  /* Lower edge of the hero copy; Section 02's heading settles on the same line. */
+  --hero-copy-bottom: clamp(56px, 13svh, 150px);
 }
 
-.intro-loader svg {
-  fill: none;
-  height: 100%;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-width: 0.7;
-  width: 100%;
-}
-
-/* ---------------------------------------------------------------------------
- * 02 Hero
- * ------------------------------------------------------------------------- */
 .hero {
+  /* Full bleed behind the transparent header. */
+  margin-top: calc(-1 * var(--header-h));
   position: relative;
-  /* Above 03, whose intro frame it overlaps during the hand-over. */
-  z-index: 2;
+  z-index: 1;
 }
 
-/* Overlap 03's intro frame so the photo square cross-fades into the counter
-   square in place (both stages are one viewport below the header). */
-.hero.is-pinned:has(+ .sessions.is-pinned) {
-  margin-bottom: calc(-1 * (100svh - var(--header-h)));
+.hero.is-scrubbed {
+  height: calc(100svh + var(--hero-scroll));
 }
 
 .hero-stage {
-  background: var(--cream);
-  height: calc(100svh - var(--header-h));
+  background: var(--green);
+  height: 100svh;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+}
+
+.hero.is-still .hero-stage {
+  position: relative;
+}
+
+/* The photograph's own proportions, sized and placed like object-fit: cover
+   with object-position (--fx, --fy). Overlays positioned in it
+   so they stay on the hairline and basin for every crop. */
+.hero-scene {
+  --ratio: 2752 / 1536;
+  --fx: 30%;
+  --fy: 50%;
+  aspect-ratio: var(--ratio);
+  left: var(--fx);
+  position: absolute;
+  top: var(--fy);
+  translate: calc(-1 * var(--fx)) calc(-1 * var(--fy));
+  width: max(100%, calc(100svh * 2752 / 1536));
+}
+
+.hero-photo {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  /* The scroll zoom moves towards the guest's face. */
+  transform-origin: 66% 42%;
+  width: 100%;
+}
+
+/* Only with a dry frame: the wet frame is revealed top-down from the fixture. */
+.hero-photo-wet {
+  --water: 0%;
+  mask-image: linear-gradient(#000 calc(var(--water) - 30%), transparent var(--water));
+}
+
+/* hero-2 morphs in over hero-1: revealed through a soft edge rising from the
+   bottom as the timeline raises --morph. Hidden until the timeline takes it
+   over. */
+.hero.is-scrubbed .hero-second {
+  --morph: 0%;
+  inset: 0;
+  mask-image: linear-gradient(to top, #000 calc(var(--morph) - 40%), transparent var(--morph));
+  overflow: hidden;
+  position: absolute;
+  visibility: hidden;
+  z-index: 1;
+}
+
+/* Reduced motion: the second photograph follows in normal flow. */
+.hero.is-still .hero-second {
+  height: 100svh;
   overflow: hidden;
   position: relative;
 }
 
-/* The photographs extend up behind the transparent header; the stage clips
-   everything else as before. Pin positions are unchanged. */
-.hero.is-pinned .hero-stage {
-  clip-path: inset(calc(-1 * var(--header-h)) 0 0 0);
-  overflow: visible;
-}
-
-.hero.is-pinned .hero-first,
-.hero.is-pinned .hero-second {
-  top: calc(-1 * var(--header-h));
-}
-
-.hero-bleed {
-  background: var(--cream);
-  height: var(--header-h);
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: calc(-1 * var(--header-h));
-}
-
-.hero-field {
+/* Warm ivory mist, rising from the basin into Section 02. Solid along the
+   bottom, so the stage's lower edge runs straight on into the ivory
+   section. The shadcn.io Fog background replaces this gradient once it is
+   installed. */
+.hero-fog {
+  background: linear-gradient(
+    to top,
+    var(--cream) 0%,
+    var(--cream) 40%,
+    rgb(244 240 231 / 0.86) 54%,
+    rgb(244 240 231 / 0.45) 70%,
+    rgb(244 240 231 / 0) 92%
+  );
   inset: 0;
-  position: absolute;
-}
-
-.hero-first,
-.hero-second {
-  inset: 0;
-  overflow: hidden;
-  position: absolute;
-}
-
-.hero-first-photo,
-.hero-second-photo {
-  height: 100%;
-  object-fit: cover;
-  width: 100%;
-}
-
-/* Focal point (the guest's face) sits right of centre, so narrow screens
-   crop towards it. */
-.hero-first-photo {
-  object-position: 78% 50%;
-}
-
-.hero-first-shade {
-  background: linear-gradient(90deg, rgb(20 30 24 / 0.55), rgb(20 30 24 / 0.1) 60%);
-  inset: 0;
-  position: absolute;
-}
-
-.hero-second-shade {
-  background:
-    linear-gradient(180deg, rgb(20 30 24 / 0.5), rgb(20 30 24 / 0) 38%),
-    linear-gradient(0deg, rgb(20 30 24 / 0.6), rgb(20 30 24 / 0) 45%);
-  inset: 0;
-  position: absolute;
-}
-
-/* Frame 01: the sweep enters from the corner opposite the headline. */
-.hero-corner {
-  color: rgb(244 240 231 / 0.55);
-  height: 46%;
-  overflow: hidden;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 42%;
-}
-
-.hero-corner .wave-corner {
-  scale: -1 1;
-}
-
-.hero-h1 {
-  bottom: clamp(48px, 12vh, 140px);
-  color: var(--ivory);
-  font-size: clamp(44px, 5.6vw, 88px);
-  left: var(--pad);
-  line-height: 1.02;
-  max-width: 11ch;
-  position: absolute;
-}
-
-/* Frame 03: lead upper left, support lower right, CTA lower left; the
-   centre stays clear for the photograph. */
-.hero-copy {
-  color: var(--ivory);
-  inset: 0;
+  opacity: 0;
   pointer-events: none;
   position: absolute;
   z-index: 3;
 }
 
-.hero-copy > * {
-  pointer-events: auto;
+/* Keeps the copy readable over the left of the photograph. */
+.hero-shade {
+  background:
+    linear-gradient(90deg, rgb(20 30 24 / 0.62), rgb(20 30 24 / 0.34) 30%, rgb(20 30 24 / 0) 55%),
+    linear-gradient(0deg, rgb(20 30 24 / 0.32), rgb(20 30 24 / 0) 42%);
+  inset: 0;
+  pointer-events: none;
   position: absolute;
 }
 
-.hero-lead {
-  font-family: "Manrope", sans-serif;
-  font-size: clamp(28px, 3.1vw, 48px);
-  font-weight: 300;
-  left: var(--pad);
-  letter-spacing: -0.035em;
-  line-height: 1.12;
-  max-width: 20ch;
-  top: clamp(32px, 7vh, 80px);
-}
-
-.hero-support {
-  bottom: clamp(32px, 7vh, 72px);
-  font-size: 16px;
-  line-height: 1.6;
-  max-width: 34ch;
-  right: var(--pad);
-}
-
-.hero-cta {
-  align-items: center;
-  background: var(--olive);
-  border-radius: 100px;
-  bottom: clamp(32px, 7vh, 72px);
-  color: var(--ivory);
-  display: inline-flex;
-  font-size: 14px;
-  gap: 14px;
-  left: var(--pad);
-  min-height: 48px;
-  padding: 0 22px;
-  transition:
-    background 0.3s,
-    color 0.3s;
-}
-
-.hero-cta:hover,
-.hero-cta:focus-visible {
-  background: var(--ivory);
-  color: var(--olive);
-}
-
-/* Flow layout: photo 1 with the H1, then photo 2 with the copy. */
-.hero.is-flow .hero-first {
-  height: 100svh;
-  margin-top: calc(-1 * var(--header-h));
-  position: relative;
-}
-
-.hero-flow-second {
-  display: grid;
-  gap: 24px;
-  padding: clamp(40px, 8vw, 80px) var(--pad) 0;
-}
-
-.hero-flow-photo {
-  aspect-ratio: 4 / 5;
-  border-radius: 16px;
-  object-fit: cover;
-  width: 100%;
-}
-
-.hero-flow-copy {
-  display: grid;
-  gap: 20px;
-  justify-items: start;
-}
-
-.hero-flow-copy > * {
-  position: static;
-}
-
-.hero-flow-copy .hero-lead,
-.hero-flow-copy .hero-support {
+/* In the open space beside the guest: left of the water and her face. */
+.hero-copy {
+  bottom: var(--hero-copy-bottom);
   color: var(--cream);
+  left: var(--pad);
+  max-width: min(600px, 42vw);
+  position: absolute;
+  z-index: 2;
 }
 
-/* On the dark page (flow layout) the CTA takes the light fill. */
-.hero-flow-copy .hero-cta {
-  background: var(--cream);
-  border-color: var(--cream);
-  color: var(--green);
+.hero-h1 {
+  font-size: clamp(40px, 5.2vw, 84px);
+  line-height: 1.02;
+  max-width: 11ch;
 }
 
-@media (min-width: 720px) {
-  .hero-flow-second {
-    align-items: end;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+.hero-lead,
+.concerns-heading {
+  text-wrap: pretty;
+}
+
+.hero-lead {
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.55;
+  margin-top: clamp(18px, 2.6vh, 28px);
+  max-width: 32ch;
+}
+
+/* Waterfall ambience toggle: a small glass pill, lower right of the hero. */
+.hero-sound {
+  align-items: center;
+  backdrop-filter: blur(8px);
+  background: rgb(20 30 24 / 0.28);
+  border: 1px solid rgb(244 240 231 / 0.45);
+  border-radius: 100px;
+  bottom: var(--hero-copy-bottom);
+  color: var(--cream);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px 0 12px;
+  position: absolute;
+  right: var(--pad);
+  transition: background 0.3s ease;
+  z-index: 4;
+}
+
+.hero-sound:hover,
+.hero-sound:focus-visible {
+  background: rgb(20 30 24 / 0.5);
+}
+
+.hero-sound:focus-visible {
+  outline: 2px solid var(--cream);
+  outline-offset: 3px;
+}
+
+.hero-sound svg {
+  height: 17px;
+  width: 17px;
+}
+
+/* Phones: the copy spans the foot, so the toggle sits top right. */
+@media (max-width: 720px) {
+  .hero-sound {
+    bottom: auto;
+    top: calc(var(--header-h) + 14px);
+  }
+}
+
+/* Phones and portrait tablets: crop to the face and the water's contact
+   point; the copy sits low, over the basin and towel. */
+@media (max-width: 720px) {
+  :root {
+    --hero-copy-bottom: clamp(28px, 5svh, 44px);
+  }
+
+  .hero-scene {
+    --fx: 78%;
+  }
+
+  .hero-shade {
+    background:
+      linear-gradient(0deg, rgb(20 30 24 / 0.74), rgb(20 30 24 / 0.46) 34%, rgb(20 30 24 / 0) 58%),
+      linear-gradient(180deg, rgb(20 30 24 / 0.22), rgb(20 30 24 / 0) 18%);
+  }
+
+  .hero-copy {
+    max-width: none;
+    right: var(--pad);
+  }
+
+  .hero-h1 {
+    font-size: clamp(32px, 10vw, 46px);
+  }
+
+  .hero-lead {
+    font-size: 16px;
   }
 }
 
 /* ---------------------------------------------------------------------------
- * 03 Choose your session
+ * 02 What brings you in? (heading; the mirror cards come in Prompt 02)
+ * ------------------------------------------------------------------------- */
+/* One screen: the heading and mirrors centred in 100svh (below the header).
+   The scroll stops here until an option is chosen (Concerns.tsx). */
+.concerns {
+  --concerns-gap: clamp(20px, 4vh, 44px);
+  color: var(--green);
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  padding: 0 var(--pad) clamp(24px, 5vh, 56px);
+  position: relative;
+  z-index: 2;
+}
+
+/* In the hero's sequence the section also holds the overlap above it. */
+.hero.is-scrubbed + .concerns {
+  min-height: calc(100svh + 100svh + var(--hero-reveal));
+}
+
+/* The warm ivory field. A real element (not a gradient), so the header can
+   read it as a solid surface. */
+.concerns-ivory {
+  background: var(--cream);
+  /* 2px past the bottom: no sub-pixel seam above Section 03. */
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  top: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.concerns-overlap {
+  display: none;
+}
+
+/* One line at every width: the size is capped by the line's own width
+   (about 11.8 em for "What brings you in?"). */
+.concerns-heading {
+  font-size: min(clamp(32px, 3.2vw, 48px), calc((100vw - 2 * var(--pad)) / 11.8));
+  line-height: 1.05;
+  margin: auto auto 0;
+  padding-top: calc(var(--header-h) + var(--concerns-gap));
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* After the hero's sequence: overlap its last viewport, hold the heading on
+   the hero copy's line while the mist runs on into the ivory section, then
+   let it settle in flow. */
+.hero.is-scrubbed + .concerns {
+  margin-top: calc(-1 * (100svh + var(--hero-reveal)));
+  pointer-events: none;
+}
+
+/* The ivory field takes pointer events too, so the header's surface check
+   (document.elementsFromPoint) can see it. */
+.hero.is-scrubbed + .concerns > :not(.concerns-overlap) {
+  pointer-events: auto;
+}
+
+.hero.is-scrubbed + .concerns .concerns-overlap {
+  display: block;
+  height: calc(100svh + var(--hero-reveal));
+}
+
+.hero.is-scrubbed + .concerns .concerns-ivory {
+  top: calc(100svh + var(--hero-reveal));
+}
+
+.hero.is-scrubbed + .concerns .concerns-heading {
+  bottom: var(--hero-copy-bottom);
+  position: sticky;
+}
+
+/* Three upright salon mirrors: equal widths, one baseline, an arched top. */
+.mirrors {
+  display: grid;
+  gap: clamp(24px, 3vw, 56px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  /* Narrower on shorter screens, so the arch above the icon stays tall
+     enough for the photograph (about 0.75 × the mirror's width once ~300px
+     of icon, headline, copy and links are taken off). */
+  /* Twice the section gap between the heading and the mirrors. */
+  margin: calc(2 * var(--concerns-gap)) auto auto;
+  max-width: calc(
+    3 * (100svh - var(--header-h) - 4 * var(--concerns-gap) - 1.05 * 48px - 300px) / 0.75 + 2 *
+      clamp(24px, 3vw, 56px)
+  );
+  /* The section's --pad, plus the same again each side: double side space. */
+  width: calc(100% - 2 * var(--pad));
+  padding: 0;
+}
+
+.mirror {
+  /* cqw below: the arch radius is half the mirror's own width. */
+  --radius: 50cqw 50cqw 24px 24px;
+  /* Where the icon starts: the same height in every mirror, below the arch
+     (the cards share one height, so this is ~half-way down on desktop). */
+  --icon-top: 92cqw;
+  container-type: inline-size;
+  position: relative;
+}
+
+/* The glass: fills the mirror behind its content. Arched by --radius and
+   clipped to it; the notch (after NotchedProjectCard) is a mask biting a
+   rounded block out of the bottom-right corner, concentric with the 48px
+   expand button and filleted where it meets the edges. Every hover effect
+   lives on layers inside it, never on the <li> the handover zoom moves. */
+.mirror-card {
+  inset: 0;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 88 88'%3E%3Cpath d='M0 88A24 24 0 0 0 24 64A40 40 0 0 1 64 24A24 24 0 0 0 88 0V88Z'/%3E%3C/svg%3E")
+      right bottom / 88px 88px no-repeat,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  overflow: hidden;
+  position: absolute;
+}
+
+.mirror-face {
+  background:
+    radial-gradient(120% 70% at 30% 8%, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0) 60%),
+    linear-gradient(170deg, #ecebe3 0%, #dfe3d8 52%, #d3dacb 100%);
+  border: 1px solid rgb(52 70 58 / 0.18);
+  border-radius: var(--radius);
+}
+
+/* The reflection: the session photograph this mirror leads to. */
+.mirror-reflection {
+  border-radius: inherit;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+/* Warm ivory gathered behind the lower text; the upper arch stays mostly
+   photograph. The ramp is tied to the icon's height (--icon-top), so the
+   text always sits on it, on every screen size. */
+.mirror-veil {
+  background: linear-gradient(
+    180deg,
+    rgb(244 240 231 / 0.12) 0,
+    rgb(244 240 231 / 0.22) calc(var(--icon-top) - 140px),
+    rgb(244 240 231 / 0.8) calc(var(--icon-top) - 16px),
+    rgb(244 240 231 / 0.9) calc(var(--icon-top) + 60px),
+    rgb(244 240 231 / 0.94) 100%
+  );
+  border-radius: inherit;
+  inset: 0;
+  position: absolute;
+}
+
+/* Hover: one broad, soft highlight drifts slowly across the glass (~900 ms),
+   clipped to the arch and behind the text. */
+.mirror-sweep {
+  background: linear-gradient(
+    105deg,
+    rgb(255 255 255 / 0) 30%,
+    rgb(255 255 255 / 0.28) 50%,
+    rgb(255 255 255 / 0) 70%
+  );
+  background-position: 130% 0;
+  background-repeat: no-repeat;
+  background-size: 260% 100%;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.mirror[data-hover] .mirror-sweep {
+  animation: mirror-sweep 0.9s ease-in-out;
+}
+
+@keyframes mirror-sweep {
+  0% {
+    background-position: 130% 0;
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    background-position: -30% 0;
+    opacity: 0;
+  }
+}
+
+/* The frame's inner line, following the same arch. */
+.mirror-face::before {
+  border: 1px solid rgb(52 70 58 / 0.12);
+  border-radius: calc(50cqw - 12px) calc(50cqw - 12px) 14px 14px;
+  content: "";
+  inset: 12px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+/* Reading order down the lower half: icon, headline, copy, links. The
+   content sets the mirror's height (the tallest sets the row's), and the
+   revealed parts always keep their space, so nothing moves on reveal. The
+   foot padding keeps the copy clear of the cut-out. */
+.mirror-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: var(--icon-top) clamp(20px, 8cqw, 36px) 76px;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.mirror-icon {
+  display: block;
+  flex: none;
+  height: 36px;
+  width: 36px;
+}
+
+.mirror-label {
+  font-size: clamp(21px, 7.2cqw, 27px);
+  line-height: 1.15;
+  margin-top: 12px;
+  text-wrap: balance;
+}
+
+.mirror-copy {
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin-top: 14px;
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+
+.mirror-details-inner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Closing: the copy and links fade out first, quickly. */
+.mirror-copy,
+.mirror-actions {
+  opacity: 0;
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+  visibility: hidden;
+}
+
+/* Opening: copy from ~150 ms, links from ~300 ms, each a slow, soft fade. */
+.mirror[data-open] .mirror-copy {
+  opacity: 1;
+  transition:
+    opacity 0.6s ease 0.15s,
+    visibility 0s;
+  visibility: visible;
+}
+
+.mirror[data-open] .mirror-actions {
+  opacity: 1;
+  transition:
+    opacity 0.6s ease 0.3s,
+    visibility 0s;
+  visibility: visible;
+}
+
+.mirror[data-still] :is(.mirror-copy, .mirror-actions) {
+  transition: none;
+}
+
+/* Desktop: the section is exactly one screen tall, and each mirror is 54% of
+   the screen's height. At rest the icon and headline sit in the lower part
+   of the glass; opening the mirror slowly deepens the veil, lets them glide
+   up and fades in the copy and links beneath, all inside the mirror. */
+@media (min-width: 721px) {
+  .concerns-heading {
+    margin-top: 0;
+  }
+
+  .mirrors {
+    margin: auto;
+    max-width: 1120px;
+  }
+
+  .mirror {
+    --radius: 50% 50% 24px 24px / 34% 34% 24px 24px;
+    /* 54% of the screen; only if the open copy cannot fit (the shortest
+       screens) does the mirror grow, rather than cut the text. */
+    display: flex;
+    min-height: 58svh;
+  }
+
+  .mirror-face::before {
+    border-radius: 50% 50% 14px 14px / 34% 34% 14px 14px;
+  }
+
+  /* At rest: clear photograph at the top, gathering into ivory behind the
+     icon and headline in the lower part so they read clearly. Open: an even
+     ivory layer fades in over the whole glass for the copy. */
+  .mirror-veil {
+    background: linear-gradient(
+      180deg,
+      rgb(244 240 231 / 0.1) 0%,
+      rgb(244 240 231 / 0.25) 35%,
+      rgb(244 240 231 / 0.82) 62%,
+      rgb(244 240 231 / 0.92) 100%
+    );
+  }
+
+  .mirror-veil::after {
+    background: rgb(244 240 231 / 0.92);
+    border-radius: inherit;
+    content: "";
+    inset: 0;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 0.6s ease;
+  }
+
+  .mirror[data-open] .mirror-veil::after {
+    opacity: 1;
+  }
+
+  /* The original sizes and spacing. The content sits in the lower part of
+     the mirror, its foot padding keeping the links clear of the expand
+     button in the cut-out. */
+  .mirror-content {
+    flex: 1;
+    justify-content: flex-end;
+    min-height: 0;
+    padding: 24px clamp(20px, 8cqw, 36px) 76px;
+  }
+
+  /* Opening: the space for the copy and links grows smoothly (0fr → 1fr),
+     so the icon and headline glide up rather than jump, and the copy and
+     links fade in as it settles. */
+  .mirror-details {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .mirror-details-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .mirror[data-open] .mirror-details {
+    grid-template-rows: 1fr;
+  }
+
+  /* Reduced motion: everything is shown, so the mirror grows to fit it. */
+  .mirror[data-still] .mirror-details {
+    transition: none;
+  }
+}
+
+/* Both links together; they wrap onto a second line only when they must. */
+.mirror-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.mirror-action {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+  min-height: 40px;
+  text-decoration: underline 1px;
+  text-underline-offset: 6px;
+}
+
+.mirror-action:not([href]):not(button) {
+  cursor: default;
+}
+
+.mirror-action:is(button, [href]):hover,
+.mirror-action:focus-visible {
+  text-decoration-thickness: 2px;
+}
+
+/* The expand button, nested in the lower-right cut-out. */
+.mirror-toggle {
+  align-items: center;
+  background: var(--green);
+  border-radius: 50%;
+  bottom: 0;
+  color: var(--cream);
+  cursor: pointer;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+  position: absolute;
+  right: 0;
+  transition: background 0.3s ease;
+  width: 48px;
+}
+
+.mirror-toggle:hover {
+  background: color-mix(in srgb, var(--green) 84%, white);
+}
+
+.mirror-toggle:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+.mirror-toggle-icon {
+  height: 20px;
+  transition: rotate 0.3s ease;
+  width: 20px;
+}
+
+.mirror-toggle[aria-expanded="true"] .mirror-toggle-icon {
+  rotate: 45deg;
+}
+
+/* Reduced motion: everything is shown, so the button has nothing to do. */
+.mirror[data-still] .mirror-toggle {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .concerns-heading {
+    font-size: min(32px, calc((100vw - 2 * var(--pad)) / 11.8));
+  }
+
+  /* Stacked in normal flow. */
+  .mirrors {
+    gap: 28px;
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: auto;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  /* A lower, elliptical arch on the wider stacked mirrors; the content sets
+     each mirror's height. */
+  .mirror {
+    --icon-top: 58cqw;
+    --radius: 50cqw 50cqw 22px 22px / 34cqw 34cqw 22px 22px;
+  }
+
+  .mirror-face::before {
+    border-radius: calc(50cqw - 12px) calc(50cqw - 12px) 12px 12px / calc(34cqw - 12px)
+      calc(34cqw - 12px) 12px 12px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 03 Choose your session: an edge-to-edge strip of four photograph panels
  * ------------------------------------------------------------------------- */
 .sessions {
+  background: var(--cream);
+  color: var(--green);
+  padding: clamp(56px, 9vh, 112px) 0 clamp(64px, 10vh, 128px);
   position: relative;
   z-index: 1;
 }
 
-.sessions,
-.hero {
-  --session-square: min(22vmin, 220px);
-  --session-square-radius: clamp(20px, 2.6vmin, 32px);
-}
-
-.sessions h2 {
+.sessions-heading {
   font-size: clamp(32px, 3.2vw, 48px);
   line-height: 1.05;
+  text-align: center;
+  margin-bottom: clamp(28px, 5vh, 56px);
+  padding-inline: var(--pad);
 }
 
-.sessions h3 {
-  font-size: clamp(26px, 2.5vw, 36px);
-  line-height: 1.1;
+.sessions-heading:focus {
+  outline: none;
+}
+
+.sessions-strip {
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.session-panel {
+  /* The content sits at the foot of the panel, in flow, so the title's
+     stretched button (::after) covers the whole panel. */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* The edge-to-edge strip fills the viewport; tall enough for the open
+     state, so opening never changes the size. */
+  height: max(100svh, 560px);
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+  transition: filter 0.6s ease;
+}
+
+/* Section 02's choice: a panel that doesn't match is greyscale throughout
+   (photograph, text and links) but stays readable and usable. */
+.session-panel[data-muted] {
+  filter: grayscale(1);
+}
+
+.session-photo {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+  z-index: -2;
+}
+
+/* Soft at rest, deeper over the lower part when the panel opens. */
+.session-shade {
+  background: linear-gradient(
+    to top,
+    rgb(20 30 24 / 0.8) 0%,
+    rgb(20 30 24 / 0.44) 28%,
+    rgb(20 30 24 / 0) 52%
+  );
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+.session-shade::after {
+  background: linear-gradient(
+    to top,
+    rgb(20 30 24 / 0.9) 0%,
+    rgb(20 30 24 / 0.78) 42%,
+    rgb(20 30 24 / 0.3) 72%,
+    rgb(20 30 24 / 0) 90%
+  );
+  content: "";
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  transition: opacity 0.45s ease;
+}
+
+.session-panel[data-open] .session-shade::after {
+  opacity: 1;
+}
+
+/* Title lower left; the reveal grows beneath it (0fr → 1fr), lifting it. */
+.session-content {
+  color: var(--cream);
+  padding: clamp(18px, 2vw, 32px);
+}
+
+.session-name {
+  font-size: clamp(22px, 1.9vw, 30px);
+  line-height: 1.12;
+  overflow-wrap: break-word;
+}
+
+.session-name button {
+  cursor: pointer;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+/* The title's button covers the whole panel: the first tap opens it. */
+.session-name button::after {
+  content: "";
+  inset: 0;
+  position: absolute;
+}
+
+.session-name button:focus-visible {
+  outline-color: var(--cream);
+  outline-offset: 6px;
+}
+
+.session-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  position: relative;
+  transition: grid-template-rows 0.45s cubic-bezier(0.3, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.session-panel[data-open] .session-reveal {
+  grid-template-rows: 1fr;
+}
+
+.session-reveal-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding-top: 0;
+  transition:
+    opacity 0.25s ease,
+    padding-top 0.45s ease,
+    visibility 0s linear 0.45s;
+  visibility: hidden;
+}
+
+.session-panel[data-open] .session-reveal-inner {
+  opacity: 1;
+  padding-top: 16px;
+  transition:
+    opacity 0.4s ease 0.15s,
+    padding-top 0.45s ease,
+    visibility 0s;
+  visibility: visible;
+}
+
+.session-summary {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.session-body {
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .session-time {
@@ -641,11 +1482,74 @@
   letter-spacing: 0.02em;
 }
 
+/* Secondary to the description. */
+.session-award {
+  border-top: 1px solid rgb(244 240 231 / 0.25);
+  font-size: 12.5px;
+  line-height: 1.5;
+  opacity: 0.85;
+  padding-top: 10px;
+}
+
+.session-award a {
+  text-decoration: underline 1px;
+  text-underline-offset: 4px;
+}
+
+/* The request button and the explore link side by side (wrapping onto a
+   second line only when the panel is too narrow for both). */
 .session-actions {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 24px;
+  gap: 4px 20px;
+  padding-top: 4px;
+}
+
+/* On the dark gradient: the light fill. */
+.session-actions .session-request {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--green);
+  justify-content: center;
+  line-height: 1.25;
+  padding-block: 10px;
+  text-align: center;
+}
+
+.session-actions .session-request:hover,
+.session-actions .session-request:focus-visible {
+  --sweep: var(--green);
+  color: var(--cream);
+}
+
+.session-panel :focus-visible {
+  outline-color: var(--cream);
+}
+
+.session-actions .session-detail-link {
+  color: var(--cream);
+}
+
+.session-actions .session-detail-link:not([href]) {
+  cursor: default;
+}
+
+/* Reduced motion: states switch at once. */
+.sessions-strip[data-still] *,
+.sessions-strip[data-still] *::after {
+  transition: none !important;
+}
+
+.session-request {
+  justify-content: center;
+  line-height: 1.25;
+  padding-block: 10px;
+  text-align: center;
+}
+
+.session-actions .session-detail-link:not([href]) {
+  cursor: default;
 }
 
 .session-request {
@@ -666,7 +1570,7 @@
 
 .session-request:hover,
 .session-request:focus-visible {
-  background: transparent;
+  --sweep: var(--warm-ivory, var(--ivory));
   color: var(--olive);
 }
 
@@ -685,297 +1589,191 @@
   text-decoration-thickness: 2px;
 }
 
-/* Pinned stage: one viewport beneath the header. */
-.sessions-stage {
-  background: var(--cream);
-  container-type: size;
-  height: calc(100svh - var(--header-h));
+/* Section 02 → 03 handover (MirrorHandover.tsx): one fixed frame that
+   carries the chosen mirror's photograph to its session panel. Its box,
+   arch and the photograph's size and position are set on every update. */
+.handover {
   overflow: hidden;
-  position: relative;
-}
-
-/* Cream behind the transparent header too, matching the hero's band at the
-   hand-over. Clipped like overflow: hidden except for that band on top, and
-   drawn above the stage's own content so nothing shows through it. */
-.sessions.is-pinned .sessions-stage {
-  clip-path: inset(calc(-1 * var(--header-h)) 0 0 0);
-  overflow: visible;
-}
-
-.sessions.is-pinned .sessions-stage::before {
-  background: var(--cream);
-  content: "";
-  height: var(--header-h);
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: calc(-1 * var(--header-h));
-  z-index: 10;
-}
-
-/* Shared by 02 (frame 04 field) and 03 (intro), so the crop matches exactly.
-   The contour never moves; the panels cover and uncover it. */
-.stage-contour {
-  color: var(--sage);
-  inset: 0;
-  position: absolute;
-}
-
-.stage-contour .wave-corner {
-  height: 115%;
-  left: -6%;
-  position: absolute;
-  top: -12%;
-  width: 82%;
-}
-
-/* Left half. A light veil (not opaque) keeps the contour faintly present
-   behind the copy as a still background detail. */
-.sessions-left {
-  background: rgb(244 240 231 / 0.94);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(20px, 3.2vh, 36px);
-  inset: 0 50% 0 0;
-  overflow: hidden;
-  padding: clamp(32px, 6vh, 72px) clamp(64px, 7vw, 112px) clamp(28px, 5vh, 56px) var(--pad);
-  position: absolute;
-  z-index: 2;
-}
-
-.sessions-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 22px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.sessions-list button {
-  align-items: baseline;
-  border-bottom: 1px solid transparent;
-  cursor: pointer;
-  display: inline-flex;
-  font-size: 13px;
-  gap: 8px;
-  min-height: 36px;
-  opacity: 0.6;
-  transition:
-    opacity 0.3s,
-    border-color 0.3s;
-}
-
-.sessions-list button span {
-  font-size: 11px;
-}
-
-.sessions-list button:hover,
-.sessions-list button[aria-current] {
-  opacity: 1;
-}
-
-.sessions-list button[aria-current] {
-  border-bottom-color: currentColor;
-}
-
-/* All four details share one cell, so the block is sized by the longest
-   description and the heading above never shifts between sessions. */
-.sessions-details {
-  display: grid;
-  margin-top: auto;
-}
-
-.session-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  grid-area: 1 / 1;
-  max-width: 46ch;
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 0.35s ease,
-    transform 0.45s ease,
-    visibility 0s linear 0.35s;
+  position: fixed;
   visibility: hidden;
+  z-index: 40;
 }
 
-.session-detail.is-active {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 0.45s ease 0.1s,
-    transform 0.55s ease 0.1s,
-    visibility 0s;
-  visibility: visible;
-}
-
-.session-detail p {
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-/* Right half: the stacked photographs share one frame. */
-.sessions-right {
-  inset: 0 0 0 50%;
-  overflow: hidden;
-  position: absolute;
-  z-index: 1;
-}
-
-.sessions-photo {
-  height: 100%;
-  inset: 0;
-  object-fit: cover;
-  position: absolute;
-  width: 100%;
-}
-
-/* Frame 04 square; the timeline turns it into the counter on the divide. */
-.sessions-counter {
-  align-items: center;
-  background: var(--stone);
-  border-radius: var(--session-square-radius);
-  color: var(--green);
-  display: flex;
-  font-size: clamp(22px, 2.6vmin, 30px);
-  font-variant-numeric: tabular-nums;
-  height: var(--session-square);
-  justify-content: center;
-  left: 50%;
-  letter-spacing: 0.02em;
-  position: absolute;
-  top: 50%;
-  translate: -50% -50%;
-  width: var(--session-square);
-  z-index: 3;
-}
-
-/* Sized and centred like the hero's full-stage photo, so inside the square it
-   shows exactly the crop the hero's clip-path showed. */
-.sessions-counter {
-  overflow: hidden;
-}
-
-.sessions-counter-photo {
-  /* Container units: exactly the hero photo's size (the stage plus the band
-     behind the header), centred where the hero photo is. */
-  height: calc(100cqh + var(--header-h));
-  left: 50%;
+.handover img {
   max-width: none;
-  object-fit: cover;
-  pointer-events: none;
   position: absolute;
-  top: calc(50% - var(--header-h) / 2);
-  translate: -50% -50%;
-  width: 100cqw;
 }
 
-/* Flow layout: narrow, short, reduced motion or enlarged text. */
-.sessions-flow {
-  padding: clamp(40px, 8vw, 96px) var(--pad);
+/* Scroll room for the zoom; the frame covers the screen meanwhile. */
+.handover-spacer {
+  height: 170svh;
 }
 
-.sessions-flow-list {
+/* 03.6 Single visit quote: a soft outer container holding one separated
+   white panel, with the heading, line and action in one row (stacked on
+   narrow screens). */
+.sessions-quote {
+  background: #ebe3d6;
+  border-radius: 24px;
+  margin: clamp(24px, 4vh, 40px) var(--pad) 0;
+  padding: 6px;
+}
+
+.quote-row {
+  align-items: center;
+  background: #fdfbf7;
+  border: 1px solid rgb(52 70 58 / 0.1);
+  border-radius: 18px;
+  box-shadow: 0 1px 3px rgb(52 70 58 / 0.08);
   display: grid;
-  gap: clamp(48px, 8vw, 80px);
-  list-style: none;
-  margin: clamp(28px, 5vw, 48px) 0 0;
-  padding: 0;
+  gap: 8px 32px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: clamp(18px, 2.4vw, 26px) clamp(20px, 2.6vw, 32px);
 }
 
-.session-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 640px;
+.quote-row h3 {
+  font-size: clamp(20px, 1.8vw, 26px);
+  line-height: 1.15;
 }
 
-.session-card-photo {
-  aspect-ratio: 4 / 3;
-  border-radius: 16px;
-  object-fit: cover;
-  width: 100%;
+.quote-row p {
+  color: var(--color-muted-foreground);
+  font-size: 15px;
+  line-height: 1.55;
 }
 
-.session-card p {
-  font-size: 16px;
-  line-height: 1.6;
+@media (max-width: 900px) {
+  .quote-row {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .quote-row .arrange-button {
+    justify-self: start;
+  }
 }
 
-.sessions-counter-pill {
-  align-self: flex-start;
-  background: var(--olive);
-  border-radius: 100px;
-  color: var(--ivory);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  padding: 7px 14px;
+@media (max-width: 600px) {
+  .sessions-quote {
+    border-radius: 20px;
+  }
+
+  .quote-row {
+    border-radius: 15px;
+  }
+
+  .quote-row .arrange-button {
+    justify-self: stretch;
+    width: 100%;
+  }
 }
 
-@media (min-width: 720px) {
-  .sessions-flow-list {
+/* Phones and narrow tablets: the same edge-to-edge panels, 2 × 2. */
+@media (max-width: 900px) {
+  .sessions-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .session-panel {
+    height: clamp(500px, 120vw, 760px);
+  }
+}
+
+@media (max-width: 480px) {
+  .session-panel {
+    height: 560px;
+  }
+
+  .session-content {
+    padding: 14px 12px;
+  }
+
+  .session-name {
+    font-size: 18px;
+  }
+
+  .session-reveal-inner {
+    gap: 9px;
+  }
+
+  .session-summary {
+    font-size: 13.5px;
+  }
+
+  .session-body {
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  .session-award {
+    font-size: 11.5px;
+  }
+
+  .session-actions .session-request {
+    border-radius: 18px;
+    font-size: 12px;
+    gap: 0;
+    min-height: 40px;
+    padding: 8px 10px;
+    width: 100%;
+  }
+
+  .session-actions .session-detail-link {
+    font-size: 12.5px;
+    min-height: 40px;
   }
 }
 
 /* ---------------------------------------------------------------------------
- * 05 What happens on a first visit?
+ * 04 What happens on a first visit? One six-card timeline, two chapters.
  * ------------------------------------------------------------------------- */
 .first-visit {
   overflow: hidden;
   padding: clamp(56px, 7vw, 96px) 0 clamp(56px, 7vw, 96px);
+  position: relative;
 }
 
-.first-visit-intro {
-  align-items: end;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px 32px;
-  justify-content: space-between;
+/* A copy of Section 05's basin-rim curve at this section's foot, shown while
+   the carousel is pinned (the pin pushes the real one off screen). Same
+   shape and depth as .range.has-rim::before; --fv-rim and --fv-rim-bg are
+   set in FirstVisit.tsx. Hidden once the real rim takes over. */
+.first-visit::after {
+  --rim-depth: clamp(36px, 6vw, 84px);
+  background: var(--fv-rim-bg, var(--cream));
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  bottom: calc(var(--fv-rim, 0) * var(--rim-depth) * -1);
+  content: "";
+  height: calc(var(--fv-rim, 0) * var(--rim-depth) * 2);
+  left: -12%;
+  pointer-events: none;
+  position: absolute;
+  right: -12%;
+}
+
+.first-visit[data-rim-handed-over]::after {
+  display: none;
+}
+
+.first-visit-head {
   padding: 0 var(--pad);
 }
 
 .first-visit h2 {
   font-size: clamp(32px, 3.2vw, 48px);
   line-height: 1.05;
-}
-
-/* Mirror / Basin: the selected setting is filled. */
-.visit-toggle {
-  border: 1px solid rgb(52 70 58 / 0.25);
-  border-radius: 100px;
-  display: inline-flex;
-  gap: 4px;
-  padding: 4px;
-}
-
-.visit-toggle button {
-  border-radius: 100px;
-  cursor: pointer;
-  font-size: 14px;
-  min-height: 40px;
-  min-width: 96px;
-  padding: 0 20px;
-  transition:
-    background 0.3s,
-    color 0.3s;
-}
-
-.visit-toggle button[aria-selected="true"] {
-  background: var(--olive);
-  color: var(--ivory);
+  text-align: center;
 }
 
 .first-visit-panel {
   margin-top: clamp(20px, 3vw, 36px);
 }
 
-/* Both settings' copy share one cell: switching never shifts the carousel. */
+/* The chapter heading, centred above the carousel. Both headings share one
+   cell, so a change never moves the carousel. */
 .first-visit-copy {
   display: grid;
-  padding: 0 var(--pad);
+  margin: 0 auto;
+  text-align: center;
 }
 
 .visit-copy {
@@ -995,41 +1793,43 @@
   visibility: visible;
 }
 
-.visit-copy p {
-  font-size: 17px;
-  line-height: 1.6;
-  max-width: 56ch;
+h3.visit-copy {
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.15;
 }
 
-.visit-copy strong {
-  font-weight: 500;
+@media (prefers-reduced-motion: reduce) {
+  .visit-copy,
+  .visit-copy.is-active {
+    transition: none;
+  }
 }
 
-.visit-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 28px;
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
-}
-
-/* Shallow arc: the centre photograph sits lowest and upright; neighbours lift
-   and tilt along the curve (see layoutArc in FirstVisit.tsx). */
+/* Dome fan: the cards sit side by side on a circle. The centre card is
+   upright and highest; each neighbour drops and turns outward by
+   the slope of the cream rim curve below the section, so the fan runs
+   parallel to it (--arc-drop and --arc-rot come from layoutArc in
+   FirstVisit.tsx). */
 .arc {
   margin-top: clamp(8px, 2vw, 24px);
 }
 
 .arc-scroller {
   --slide-w: clamp(220px, 21vw, 320px);
-  --arc-lift: clamp(12px, 1.6vw, 24px);
-  --arc-tilt: 5deg;
-  column-gap: clamp(20px, 3vw, 44px);
+  --arc-gap: 14px;
+  column-gap: var(--arc-gap);
   cursor: grab;
   display: flex;
+  /* Fade out towards both edges. */
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   overflow-x: auto;
+  /* Never a vertical scroll of its own: vertical scrolling is the page's. */
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
-  padding: calc(var(--arc-lift) * 4.2) calc(50% - var(--slide-w) / 2) 28px;
+  /* Room above for the turned corners, below for the dropped outer cards
+     (overflow-x: auto clips vertically too). */
+  padding: calc(var(--slide-w) * 0.1) calc(50% - var(--slide-w) / 2)
+    calc(var(--slide-w) * 0.12 + 120px);
   position: relative;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -1057,38 +1857,140 @@
   }
 }
 
+/* One card: the photograph alone (with its step number); the step title
+   and description sit over its foot, shown on the centred card only. */
+.arc-slide {
+  display: flex;
+}
+
 .arc-card {
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgb(10 16 12 / 0.35);
+  color: var(--cream);
   margin: 0;
+  overflow: hidden;
   position: relative;
-  transform: translateY(calc(var(--d2, 0) * var(--arc-lift) * -1))
-    rotate(calc(var(--d, 0) * var(--arc-tilt) * -1));
+  transform-origin: 50% 50%;
+  width: 100%;
+  transform: translateY(var(--arc-drop, 0px)) rotate(var(--arc-rot, 0deg));
   will-change: transform;
 }
 
-.arc-card img {
-  aspect-ratio: 4 / 5;
-  border-radius: 14px;
+.arc-photo {
+  position: relative;
+}
+
+.arc-photo img {
+  aspect-ratio: 3 / 4;
+  display: block;
   object-fit: cover;
   user-select: none;
   width: 100%;
 }
 
-.arc-card figcaption {
-  background: rgb(244 240 231 / 0.92);
-  color: var(--green);
-  border-radius: 4px;
-  bottom: 12px;
-  font-size: 12px;
-  left: 12px;
-  padding: 4px 10px;
+.arc-text {
+  background: linear-gradient(180deg, rgb(20 30 24 / 0) 0%, rgb(20 30 24 / 0.85) 38%);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  left: 0;
+  opacity: 0;
+  padding: 56px 18px 18px;
   position: absolute;
+  right: 0;
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+  visibility: hidden;
 }
 
+.arc-slide.is-active .arc-text {
+  opacity: 1;
+  transition:
+    opacity 0.4s ease 0.05s,
+    visibility 0s;
+  visibility: visible;
+}
+
+.arc-links .session-detail-link {
+  color: var(--cream);
+}
+
+.arc-text h4 {
+  font-size: 19px;
+  line-height: 1.2;
+}
+
+.arc-text p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.arc-links {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+.arc-links .session-detail-link {
+  font-size: 13px;
+  line-height: 1.3;
+  min-height: 36px;
+}
+
+.arc-links .session-detail-link:not([href]) {
+  cursor: default;
+}
+
+/* Step number, top left of each card. */
+/* Step number in a solid circle, top left of the photograph: reads on
+   light and dark photographs alike. */
+.arc-step {
+  align-items: center;
+  background: var(--green);
+  border: 1.5px solid var(--cream);
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgb(20 30 24 / 0.3);
+  color: var(--cream);
+  display: flex;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  height: 44px;
+  justify-content: center;
+  left: 12px;
+  letter-spacing: 0.02em;
+  position: absolute;
+  top: 12px;
+  width: 44px;
+}
+
+@media (max-width: 600px) {
+  .arc-step {
+    font-size: 13px;
+    height: 36px;
+    left: 10px;
+    top: 10px;
+    width: 36px;
+  }
+}
+
+/* Beside the carousel: the hint on the left, arrows and count on the right. */
 .arc-controls {
   align-items: center;
   display: flex;
   gap: 12px;
   padding: 0 var(--pad);
+}
+
+.arc-hint {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  margin-right: auto;
+  opacity: 0.8;
 }
 
 .arc-button {
@@ -1112,7 +2014,7 @@
 
 .arc-button:hover:not([aria-disabled="true"]),
 .arc-button:focus-visible {
-  background: var(--olive);
+  --sweep: var(--olive);
   color: var(--ivory);
 }
 
@@ -1125,13 +2027,39 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
   margin-left: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+  .arc-controls {
+    gap: 8px;
+  }
+
+  .arc-hint {
+    font-size: 12px;
+  }
+
+  .arc-counter {
+    margin-left: 2px;
+  }
 }
 
 @media (max-width: 600px) {
+  .arc-text {
+    padding: 12px 12px 14px;
+  }
+
+  .arc-text h4 {
+    font-size: 17px;
+  }
+
+  .arc-text p {
+    font-size: 13.5px;
+  }
+
   .arc-scroller {
     --slide-w: 68vw;
-    --arc-lift: 12px;
-    --arc-tilt: 4deg;
+    --arc-gap: 10px;
   }
 }
 
@@ -1139,9 +2067,81 @@
   .arc-slide {
     animation: none;
   }
+
+  .arc-text,
+  .arc-slide.is-active .arc-text {
+    transition: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------
+ * 05 A closer look at the products: the KOMO range as one still
+ * ------------------------------------------------------------------------- */
+.range {
+  /* Rim depth while the section enters; Section 04's bottom padding is
+     deeper than this, so the dome only ever overlaps empty olive. */
+  --rim: 0;
+  --rim-depth: clamp(36px, 6vw, 84px);
+  background: var(--range-bg, var(--cream));
+  color: var(--green);
+  /* Clip sideways only: the rim's wide dome rises above the section. */
+  overflow-x: clip;
+  padding: clamp(48px, 9vh, 104px) 0 clamp(16px, 3vh, 40px);
+  position: relative;
+  z-index: 1;
+}
+
+/* The basin rim: an ivory dome above the section's top edge, flattening to a
+   straight line as --rim falls to 0 (Sections/ProductRange.tsx). */
+.range.has-rim::before {
+  background: var(--range-bg, var(--cream));
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  content: "";
+  height: calc(var(--rim) * var(--rim-depth) * 2);
+  left: -12%;
+  pointer-events: none;
+  position: absolute;
+  right: -12%;
+  top: calc(var(--rim) * var(--rim-depth) * -1);
+}
+
+.range-head {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 var(--pad);
+  position: relative;
+  text-align: center;
+}
+
+.range-head h2 {
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1.05;
+}
+
+/* Full width at its own ratio: never cropped at the sides. The frame
+   feathers the top and bottom edges into the matching section ivory and
+   clips the photograph's parallax drift (ProductRange.tsx). */
+.range-photo-frame {
+  margin-top: clamp(8px, 2vh, 24px);
+  mask-image: linear-gradient(transparent 0, #000 16%, #000 92%, transparent 100%);
+  overflow: hidden;
+  position: relative;
+}
+
+.range-photo {
+  display: block;
+  height: auto;
+  width: 100%;
+  will-change: transform;
+}
+
+/* ---------------------------------------------------------------------------
+ * PRESERVED, not on the homepage: the single-bottle scene for the individual
+ * Scalp Oil Balancing Essence page (src/sections/product-detail/), and its
+ * bottle handover (.bottle-handover…, below).
+ *
  * 06 A closer look at the bottle
  * ------------------------------------------------------------------------- */
 .product {
@@ -1152,6 +2152,7 @@
 .product-heading {
   font-size: clamp(32px, 3.2vw, 48px);
   line-height: 1.05;
+  text-align: center;
   padding: 0 var(--pad) clamp(24px, 4vw, 40px);
 }
 
@@ -1413,122 +2414,203 @@
 }
 
 /* ---------------------------------------------------------------------------
- * 07 Visit KOMO (frame 13)
+ * 06 Visit KOMO: one outlet photograph, the selector row beneath it
  * ------------------------------------------------------------------------- */
-.outlets-stage {
-  display: grid;
-  grid-template-areas: "view tabs";
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-height: calc(100svh - var(--header-h));
-  position: relative;
+:root {
+  /* The warm ivory shared by Sections 05–07 (Section 05's photo backdrop). */
+  --warm-ivory: #f0e5d6;
 }
 
-/* The tabs come first in the source (reading order) but sit at the right. */
-.outlet-tabs {
-  grid-area: tabs;
+.outlets {
+  --rim-h: clamp(22px, 3vw, 44px);
+  background: var(--warm-ivory);
+  color: var(--green);
+  /* One screen tall: the photograph takes whatever height the heading,
+     selector and details leave. */
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  padding: calc(var(--header-h) + clamp(16px, 4vh, 40px)) 0 clamp(24px, 5vh, 56px);
+  position: relative;
+  z-index: 1;
 }
 
-/* Panels share one grid cell, so the scene grows with the tallest panel when
-   text is enlarged or the screen is short. */
-.outlets-view {
-  background: var(--green);
-  display: grid;
-  grid-area: view;
-  overflow: hidden;
-  position: relative;
+/* Too short a screen for everything in one view: let it grow instead. */
+@media (max-height: 560px) {
+  .outlets {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .outlets .outlet-frame {
+    flex: none;
+    height: 60svh;
+  }
 }
 
 .outlets-heading {
-  background: var(--ivory);
-  color: var(--olive);
-  font-family: "Manrope", sans-serif;
-  font-size: clamp(18px, 1.6vw, 24px);
-  left: var(--pad);
-  letter-spacing: -0.01em;
-  padding: 10px 16px;
-  position: absolute;
-  top: clamp(20px, 4vh, 44px);
-  z-index: 5;
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1.05;
+  margin-bottom: clamp(20px, 4vh, 40px);
+  padding: 0 var(--pad);
+  text-align: center;
 }
 
-.outlet-panel {
-  align-items: flex-start;
-  /* The leading edge's shadow reads as one panel moving over another. */
-  box-shadow: -28px 0 56px rgb(30 38 32 / 0.22);
-  display: flex;
-  flex-direction: column;
-  grid-area: 1 / 1;
-  justify-content: flex-end;
-  padding: var(--pad);
-  padding-top: calc(clamp(20px, 4vh, 44px) + 72px);
+/* Fills the screen's remaining height; switching outlets never changes its
+   size (the details below share one cell, sized by the tallest). */
+.outlet-frame {
+  flex: 1 1 0;
+  min-height: 200px;
+  overflow: hidden;
   position: relative;
 }
 
-.outlet-panel--orchard {
-  background: var(--sage);
-}
-
-.outlet-panel--greatWorld {
-  background: var(--stone);
-}
-
-.outlet-panel--hollandVillage {
-  background: var(--olive);
-}
-
-.outlet-visual {
+.outlet-view {
   inset: 0;
-  overflow: hidden;
+  opacity: 0;
   position: absolute;
+  transition: opacity 0.6s ease;
 }
 
-.outlet-photo {
+.outlet-view[data-active] {
+  opacity: 1;
+}
+
+.outlet-view img {
   height: 100%;
   object-fit: cover;
+  /* Weighted towards the top (0% = top edge, 50% = centred): more of the
+     ceiling and sign, less floor, with the reception desk still in view. */
+  object-position: 50% 45%;
+  /* Shown slightly larger within the frame, about the same point. */
+  scale: 1.05;
+  transform-origin: 50% 40%;
   width: 100%;
 }
 
-/* One wide composition; each panel's crop is set by its offset. */
-.outlet-contour {
-  color: rgb(244 240 231 / 0.6);
-  inset: 0;
-  position: absolute;
+/* Until an approved photograph is supplied: the outlet's warm field. */
+.outlet-view--greatWorld {
+  background: linear-gradient(160deg, #cdbfae, #b8aa96);
 }
 
-.outlet-panel--orchard .outlet-contour {
-  color: rgb(244 240 231 / 0.32);
+.outlet-view--hollandVillage {
+  background: linear-gradient(160deg, #b9c2ad, #98a58d);
 }
 
-.outlet-panel--hollandVillage .outlet-contour {
-  color: rgb(166 178 154 / 0.55);
-}
-
-.outlet-contour svg {
-  height: 120%;
-  position: absolute;
-  top: -8%;
-  width: 180%;
-}
-
-.outlet-field {
-  background: var(--ivory);
-  color: var(--olive);
-  max-width: 580px;
-  padding: clamp(22px, 2.6vw, 38px);
-  position: relative;
-}
-
-.outlet-field h3 {
+.outlet-view-name {
+  bottom: calc(var(--rim-h) + 24px);
+  color: var(--cream);
   font-family: "Manrope", sans-serif;
-  font-size: clamp(30px, 3.2vw, 46px);
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  font-size: clamp(28px, 4vw, 56px);
+  font-weight: 300;
+  left: 0;
+  letter-spacing: -0.03em;
+  opacity: 0.85;
+  position: absolute;
+  right: 0;
+  text-align: center;
 }
 
-.outlet-field p {
+/* The shallow curve: an ivory dome rising from the selector into the
+   photograph, centred over the active outlet's column. */
+.outlet-rim {
+  background: var(--warm-ivory);
+  bottom: -1px;
+  height: calc(var(--rim-h) + 1px);
+  left: calc((var(--active) + 0.5) / var(--count) * 100%);
+  /* A soft bell, not a half-ellipse: the curve leaves the edge flat at each
+     foot, swells gently and rounds over the top, so it melts into the frame's
+     edge like the basin-rim curves elsewhere on the page. */
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpath d='M0 10C18 10 24 0 50 0S82 10 100 10Z'/%3E%3C/svg%3E")
+    0 0 / 100% 100% no-repeat;
+  position: absolute;
+  transition: left 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  translate: -50% 0;
+  /* Wider than its column: the flat feet reach into the neighbours. */
+  width: calc(100% / var(--count) * 1.2);
+  z-index: 1;
+}
+
+/* One row of three equal columns, flush beneath the frame. */
+.outlet-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0;
+}
+
+.outlet-tab {
+  color: var(--green);
+  cursor: pointer;
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(16px, 1.8vw, 26px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  min-height: 56px;
+  opacity: 0.55;
+  padding: 6px 8px 10px;
+  position: relative;
+  text-align: center;
+  transition: opacity 0.3s ease;
+}
+
+.outlet-tab:hover {
+  opacity: 0.85;
+}
+
+/* Active: full strength, with a short rule beneath the name. */
+.outlet-tab[aria-selected="true"] {
+  opacity: 1;
+}
+
+.outlet-tab::after {
+  background: currentColor;
+  bottom: 4px;
+  content: "";
+  height: 1.5px;
+  left: 50%;
+  position: absolute;
+  transition: width 0.4s ease;
+  translate: -50% 0;
+  width: 0;
+}
+
+.outlet-tab[aria-selected="true"]::after {
+  width: 28px;
+}
+
+.outlet-tab:focus-visible {
+  outline-offset: -4px;
+}
+
+/* All three share one cell, sized by the tallest. */
+.outlet-details {
+  display: grid;
+  margin: clamp(16px, 3vh, 28px) auto 0;
+  max-width: min(680px, calc(100% - 2 * var(--pad)));
+  text-align: center;
+}
+
+.outlet-detail {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition:
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+  visibility: hidden;
+}
+
+.outlet-detail[data-active] {
+  opacity: 1;
+  transition:
+    opacity 0.45s ease 0.1s,
+    visibility 0s;
+  visibility: visible;
+}
+
+.outlet-detail p {
   font-size: 16px;
   line-height: 1.55;
-  margin-top: 12px;
 }
 
 .outlet-actions {
@@ -1536,687 +2618,475 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px 24px;
-  margin-top: 18px;
-}
-
-.outlet-actions .session-request {
-  padding-block: 10px;
-}
-
-/* Right-hand rail: full-height tabs on solid fields, names read upwards. */
-.outlet-tabs {
-  display: flex;
-}
-
-.outlet-tab {
-  align-items: center;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  font-family: "Manrope", sans-serif;
-  font-size: clamp(18px, 1.6vw, 24px);
-  justify-content: flex-end;
-  letter-spacing: -0.01em;
-  padding: 56px 0 28px;
-  position: relative;
-  width: clamp(56px, 5.4vw, 86px);
-}
-
-.outlet-tab span {
-  rotate: 180deg;
-  white-space: nowrap;
-  writing-mode: vertical-rl;
-}
-
-.outlet-tab--orchard {
-  background: var(--sage);
-  color: var(--olive);
-}
-
-.outlet-tab--greatWorld {
-  background: var(--stone);
-  color: var(--olive);
-}
-
-.outlet-tab--hollandVillage {
-  background: var(--olive);
-  color: var(--ivory);
-}
-
-/* Selected: a marker at the top of the tab and heavier name. */
-.outlet-tab::before {
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-  content: "";
-  height: 10px;
-  opacity: 0;
-  position: absolute;
-  top: 28px;
-  transition: opacity 0.2s;
-  width: 10px;
-}
-
-.outlet-tab:hover::before {
-  opacity: 0.6;
-}
-
-.outlet-tab[aria-selected="true"] {
-  font-weight: 600;
-}
-
-.outlet-tab[aria-selected="true"]::before {
-  background: currentColor;
-  opacity: 1;
-}
-
-.outlet-tab:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: -6px;
-}
-
-@media (max-width: 700px) {
-  .outlet-tab {
-    font-size: 17px;
-    padding: 48px 0 20px;
-    width: 48px;
-  }
-
-  .outlet-tab::before {
-    top: 22px;
-  }
-
-  .outlets-heading {
-    left: 16px;
-    top: 16px;
-  }
-
-  /* The photograph (or the outlet's field) sits above the copy; the panel
-     grows downwards to fit the text. */
-  .outlet-panel {
-    align-items: stretch;
-    padding: 0;
-  }
-
-  .outlet-visual {
-    flex: 1 0 auto;
-    min-height: 40svh;
-    position: relative;
-  }
-
-  .outlet-field {
-    max-width: none;
-    padding: 20px 16px 24px;
-  }
-
-  .outlet-field h3 {
-    font-size: 28px;
-  }
-
-  .outlet-actions {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 380px) {
-  .outlet-tab {
-    font-size: 16px;
-    width: 44px;
-  }
-}
-
-.outlet-actions .arrow {
-  flex-shrink: 0;
-}
-
-@media (max-width: 700px) {
-  /* Wrapped labels keep their arrow beside the text. */
-  .outlet-actions .session-detail-link {
-    justify-content: flex-start;
-    text-wrap: balance;
-  }
-}
-
-/* ---------------------------------------------------------------------------
- * 08 Reviews (frame 14)
- * ------------------------------------------------------------------------- */
-.reviews {
-  --card-h: clamp(240px, 42svh, 400px);
-  --card-w: calc(var(--card-h) * 0.74);
-  column-gap: 40px;
-  display: grid;
-  grid-template-areas:
-    "heading ."
-    "track track"
-    "controls text";
-  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
-  grid-template-rows: auto 1fr auto;
-  min-height: calc(100svh - var(--header-h));
-  overflow: hidden;
-  padding: clamp(28px, 5vh, 56px) var(--pad) clamp(32px, 6vh, 64px);
-  position: relative;
-}
-
-/* Faint and still behind the whole scene. */
-.reviews-contour {
-  color: var(--sage);
-  inset: 0;
-  opacity: 0.2;
-  pointer-events: none;
-  position: absolute;
-}
-
-.reviews-contour svg {
-  height: 100%;
-  width: 100%;
-}
-
-.reviews-heading {
-  font-size: clamp(32px, 3.2vw, 48px);
-  grid-area: heading;
-  line-height: 1.05;
-  position: relative;
-  z-index: 2;
-}
-
-/* Full-bleed band for the arc; vertical scrolling passes through. */
-.reviews-track {
-  grid-area: track;
-  margin-inline: calc(-1 * var(--pad));
-  min-height: calc(var(--card-h) * 1.32);
-  position: relative;
-  touch-action: pan-y;
-  user-select: none;
-}
-
-.reviews-track.is-draggable {
-  cursor: grab;
-}
-
-.review-portrait {
-  background: var(--stone);
-  border-radius: 14px;
-  height: var(--card-h);
-  left: 50%;
-  overflow: hidden;
-  position: absolute;
-  /* Slightly below centre: the arc dips at the active portrait. */
-  top: 56%;
-  width: var(--card-w);
-  will-change: transform;
-}
-
-.review-portrait img {
-  height: 100%;
-  object-fit: cover;
-  width: 100%;
-}
-
-/* Google review card: same size and place on the arc as a portrait, but a
-   light card with the rating, an excerpt and the reviewer's initial. */
-.review-portrait--google {
-  background: var(--cream);
-  color: var(--green);
-}
-
-.review-google-card {
-  display: grid;
-  gap: clamp(10px, 1.6vh, 16px);
-  grid-template-rows: auto 1fr auto;
-  height: 100%;
-  padding: clamp(18px, 2.4vh, 26px);
-}
-
-.review-google-excerpt {
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7;
-  display: -webkit-box;
-  font-family: "Manrope", sans-serif;
-  font-size: clamp(15px, 1.25vw, 19px);
-  letter-spacing: -0.01em;
-  line-height: 1.35;
-  overflow: hidden;
-}
-
-.review-google-excerpt::before {
-  content: "\201C";
-}
-
-.review-google-excerpt::after {
-  content: "\201D";
-}
-
-.review-google-foot {
-  align-items: center;
-  display: flex;
-  font-size: 12px;
-  gap: 10px;
-  line-height: 1.3;
-}
-
-.review-google-foot > span:last-child {
-  display: grid;
-}
-
-.review-google-name {
-  font-weight: 500;
-}
-
-.review-google-label {
-  opacity: 0.75;
-}
-
-.review-initial {
-  align-items: center;
-  background: var(--green);
-  border-radius: 50%;
-  color: var(--cream);
-  display: flex;
-  flex-shrink: 0;
-  font-family: "Manrope", sans-serif;
-  height: 32px;
   justify-content: center;
-  width: 32px;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
 }
 
-.review-stars {
-  display: inline-flex;
-  gap: 2px;
-  vertical-align: -2px;
-}
+@media (max-width: 720px) {
+  .outlet-tab {
+    font-size: 15px;
+    min-height: 52px;
+    padding-inline: 4px;
+  }
 
-.review-stars svg {
-  fill: none;
-  height: 15px;
-  stroke: currentColor;
-  stroke-linejoin: round;
-  stroke-width: 1.4;
-  width: 15px;
-}
-
-.review-stars svg.is-on {
-  fill: currentColor;
-}
-
-.review-source .review-stars {
-  margin-right: 10px;
-}
-
-.reviews-all {
-  align-self: center;
-  grid-column: 2;
-  grid-row: 1;
-  justify-self: end;
-  position: relative;
-  z-index: 2;
-}
-
-.review-silhouette {
-  fill: var(--sage);
-  height: 100%;
-  width: 100%;
-}
-
-.reviews-controls {
-  align-self: end;
-  display: flex;
-  gap: 12px;
-  grid-area: controls;
-  position: relative;
-  z-index: 2;
-}
-
-.reviews-controls .arc-button {
-  background: var(--ivory);
-}
-
-.review-text {
-  align-self: end;
-  animation: review-in 0.45s ease both;
-  color: var(--olive);
-  grid-area: text;
-  position: relative;
-  z-index: 2;
-}
-
-@keyframes review-in {
-  from {
-    opacity: 0;
-    translate: 0 6px;
+  .outlet-actions .session-request {
+    justify-content: center;
+    line-height: 1.25;
+    padding-block: 10px;
+    text-align: center;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .review-text {
-    animation: none;
-  }
-}
-
-.review-preview {
-  border: 1px dashed currentColor;
-  display: inline-block;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  margin-bottom: 14px;
-  padding: 4px 10px;
-  text-transform: uppercase;
-}
-
-.review-name {
-  font-family: "Manrope", sans-serif;
-  font-size: clamp(22px, 1.9vw, 28px);
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-
-.review-text blockquote {
-  font-size: 17px;
-  line-height: 1.55;
-  margin-top: 10px;
-}
-
-.review-source {
-  font-size: 13px;
-  margin-top: 12px;
-}
-
-.review-source a {
-  text-decoration: underline 1px;
-  text-underline-offset: 4px;
-}
-
-@media (max-width: 700px) {
-  .reviews {
-    --card-h: clamp(240px, 46svh, 340px);
-    grid-template-areas:
-      "heading"
-      "track"
-      "controls"
-      "text";
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto;
-    row-gap: 20px;
-  }
-
-  .reviews-controls {
-    justify-content: center;
+  .outlet-view,
+  .outlet-rim,
+  .outlet-tab,
+  .outlet-tab::after,
+  .outlet-detail,
+  .outlet-detail[data-active] {
+    transition: none;
   }
 }
 
 /* ---------------------------------------------------------------------------
- * 09 Arrange your visit (frame 15)
- * At most one viewport below the header on desktop: the selector and CTA on
- * the left, the message and the other paths on one clear field to the right.
+ * 07 Google reviews: three cards on warm ivory, mirror glare on hover
  * ------------------------------------------------------------------------- */
-.arrange {
-  background: var(--sage);
-  color: var(--olive);
-  overflow: hidden;
+.reviews {
+  background: var(--warm-ivory);
+  /* Covers the fractional-pixel seam above Arrange your visit, where the
+     page's green beneath would otherwise show. */
+  box-shadow: 0 2px 0 var(--warm-ivory);
+  color: var(--green);
+  padding: clamp(40px, 7vh, 80px) var(--pad) clamp(48px, 8vh, 96px);
+  position: relative;
+  z-index: 1;
+}
+
+.reviews-heading {
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1.05;
+  margin-bottom: clamp(20px, 4vh, 36px);
+  text-align: left;
+}
+
+/* The glass card stack (src/components/ui/glass-testimonial-swiper.tsx).
+   All cards share one grid cell, so the stack is as tall as its tallest
+   card; the cards behind rise from the top. */
+.reviews-stack {
+  margin: clamp(28px, 5vh, 48px) auto 0;
+  max-width: 720px;
+}
+
+.testimonials-stack {
+  display: grid;
+  padding-top: 4rem;
+}
+
+.testimonial-card {
+  border-radius: 1rem;
+  grid-area: 1 / 1;
+  transform-origin: top center;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease;
+  user-select: none;
+}
+
+.testimonial-card[data-active] {
+  cursor: grab;
+}
+
+.testimonial-card.is-dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+/* Frosted glass on warm ivory. */
+.glass-effect {
+  background: rgb(255 252 247 / 0.62);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.8) inset,
+    0 18px 40px -18px rgb(52 70 58 / 0.28),
+    0 0 0 1px rgb(52 70 58 / 0.08);
+}
+
+.pagination-dot {
+  background: rgb(52 70 58 / 0.25);
+  border-radius: 100px;
+  cursor: pointer;
+  height: 8px;
+  transition:
+    background 0.3s ease,
+    width 0.3s ease;
+  width: 8px;
+}
+
+/* A 44px tap target around each small dot. */
+.pagination-dot {
   position: relative;
 }
 
-/* Ivory contour across the photo half, rotated so the bend opens towards
-   the CTA on the left. Still; the controls keep a clear field. */
-.arrange-contour {
-  bottom: 0;
-  color: rgb(244 240 231 / 0.55);
-  container-type: size;
+.pagination-dot::after {
+  content: "";
+  inset: -18px -6px;
+  position: absolute;
+}
+
+.pagination-dot.active {
+  background: var(--green);
+  width: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-card,
+  .pagination-dot {
+    transition: none;
+  }
+}
+
+.reviews-google {
+  margin-top: clamp(18px, 3vh, 28px);
+}
+
+.reviews-google:not([href]) {
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------------------
+ * 08 Arrange your visit: invitation left, booking controls right
+ * ------------------------------------------------------------------------- */
+.arrange {
+  align-items: start;
+  background: var(--warm-ivory);
+  /* Covers the fractional-pixel seam above the footer. */
+  box-shadow: 0 2px 0 var(--warm-ivory);
+  color: var(--green);
+  column-gap: clamp(32px, 6vw, 112px);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  /* Left: the heading, then the quote link and legal links at the foot.
+     Right: the form, spanning both rows. */
+  grid-template-rows: auto 1fr;
+  /* Clip sideways only: the rim's wide curve hangs below the section. */
+  overflow-x: clip;
+  padding: clamp(40px, 7vh, 80px) var(--pad) clamp(56px, 10vh, 112px);
+  position: relative;
+  z-index: 1;
+}
+
+/* Section 04's basin-rim curve, flipped: the ivory hangs down into the
+   footer as an upside-down dome. Same shape and depth as .range.has-rim. */
+.arrange::after {
+  --rim-depth: clamp(36px, 6vw, 84px);
+  background: var(--warm-ivory);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  bottom: calc(var(--rim-depth) * -1);
+  content: "";
+  height: calc(var(--rim-depth) * 2);
+  left: -12%;
   pointer-events: none;
   position: absolute;
-  right: 0;
-  top: 0;
-  width: 100%;
+  right: -12%;
 }
 
-.arrange-contour svg {
-  height: 100cqw;
-  left: 50%;
-  position: absolute;
-  rotate: -90deg;
-  top: 50%;
-  translate: -50% -50%;
-  width: 100cqh;
+.arrange-heading {
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1.05;
+  text-align: left;
 }
 
-/* Split in half: selector and CTA on solid sage (left), the photo half
-   with the message panel (right). One viewport below the header. */
-.arrange-inner {
+.arrange-intro {
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.55;
+  margin-top: 16px;
+  max-width: 34ch;
+}
+
+.arrange-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  min-height: calc(100svh - var(--header-h));
+  gap: 22px;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.arrange-aside {
+  align-self: end;
+  display: grid;
+  gap: 16px;
+  grid-column: 1;
+  grid-row: 2;
+  justify-items: start;
 }
 
 .arrange-field {
-  align-content: center;
   display: grid;
-  gap: clamp(14px, 2.2vh, 22px);
-  padding: clamp(28px, 5vh, 64px) clamp(32px, 4vw, 64px) clamp(28px, 5vh, 64px) var(--pad);
-}
-
-.arrange-media {
-  align-items: center;
-  display: grid;
-  justify-items: center;
-  overflow: hidden;
-  padding: clamp(28px, 5vh, 64px) var(--pad) clamp(28px, 5vh, 64px) clamp(32px, 4vw, 64px);
-  position: relative;
-}
-
-.arrange-photo {
-  height: 100%;
-  inset: 0;
-  object-fit: cover;
-  position: absolute;
-  width: 100%;
-}
-
-/* 80% sage over the photograph: a hint of the procedure, not a picture. */
-.arrange-veil {
-  background: rgb(166 178 154 / 0.8);
-  inset: 0;
-  position: absolute;
-}
-
-.arrange-field h2 {
-  font-size: clamp(32px, 3.2vw, 48px);
-  line-height: 1.05;
-}
-
-.arrange-lead,
-.arrange-deciding p {
-  font-size: 15px;
-  line-height: 1.55;
-  max-width: 58ch;
-}
-
-.arrange-sessions {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
-.arrange-sessions legend {
-  font-family: "Manrope", sans-serif;
-  font-size: 19px;
-  margin-bottom: 10px;
-}
-
-.arrange-sessions label {
-  align-items: center;
-  border: 1px solid var(--olive);
-  border-radius: 100px;
-  cursor: pointer;
-  display: inline-flex;
+.arrange-field label,
+.arrange-outlet h3 {
   font-size: 14px;
-  gap: 9px;
-  line-height: 1.3;
-  min-height: 42px;
-  padding: 8px 16px 8px 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* One form style: the dropdown trigger and the message box share the
+   surface, border, radius and focus ring. */
+.arrange-control {
+  background: rgb(255 255 255 / 0.6);
+  border: 1px solid var(--color-input);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgb(52 70 58 / 0.06);
+  color: var(--green);
+  font-size: 16px;
   transition:
-    background 0.2s,
-    color 0.2s;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+  width: 100%;
 }
 
-.arrange-sessions label.is-deciding {
-  border-style: dashed;
+.arrange-control:hover {
+  background: rgb(255 255 255 / 0.8);
+  border-color: rgb(52 70 58 / 0.45);
 }
 
-.arrange-sessions input {
-  appearance: none;
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-  flex-shrink: 0;
-  height: 14px;
-  margin: 0;
-  width: 14px;
-}
-
-.arrange-sessions input:checked {
-  background: currentColor;
-  box-shadow: inset 0 0 0 2.5px var(--olive);
-}
-
-.arrange-sessions label:has(input:checked) {
-  background: var(--olive);
-  color: var(--ivory);
-}
-
-/* The whole pill carries the focus ring. */
-.arrange-sessions input:focus-visible {
+.arrange-control:focus-visible,
+.arrange-trigger[data-state="open"] {
+  background: #fff;
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px rgb(52 70 58 / 0.14);
   outline: none;
 }
 
-.arrange-sessions label:has(input:focus-visible) {
-  outline: 2px solid var(--olive);
-  outline-offset: 3px;
-}
-
-.arrange-sessions label:hover:not(:has(input:checked)) {
-  background: rgb(244 240 231 / 0.35);
-}
-
-.arrange-request {
-  justify-self: start;
-  padding-block: 10px;
-}
-
-.arrange-request:hover,
-.arrange-request:focus-visible {
-  border-color: var(--olive);
-}
-
-/* One solid, clear field for the message and the other two paths; the
-   contour shows around it, never behind its controls. */
-.arrange-side {
-  background: color-mix(in srgb, var(--sage) 45%, var(--ivory));
-  display: grid;
-  gap: 18px;
-  max-width: 520px;
-  padding: clamp(20px, 2.4vw, 32px);
-  position: relative;
-  width: 100%;
-}
-
-.arrange-draft {
-  display: grid;
-  gap: 8px;
-}
-
-.arrange-draft > label {
-  font-size: 14px;
-}
-
-.arrange-draft textarea {
-  background: rgb(244 240 231 / 0.75);
-  border: 1px solid var(--olive);
-  border-radius: 10px;
-  color: var(--olive);
-  display: block;
-  font-size: 14px;
-  line-height: 1.5;
-  padding: 10px 12px;
-  resize: vertical;
-  width: 100%;
-}
-
-.arrange-draft textarea:focus-visible {
-  outline: 2px solid var(--olive);
-  outline-offset: 2px;
-}
-
-.arrange-draft-toggle {
-  align-items: center;
+/* The dropdown trigger (shadcn SelectTrigger); placeholder in muted ink. */
+.arrange-trigger {
   cursor: pointer;
-  display: flex;
+  height: 54px;
+  padding: 0 18px;
+}
+
+.arrange-trigger[data-placeholder] {
+  color: var(--color-muted-foreground);
+}
+
+.arrange-trigger svg {
+  color: var(--green);
+  height: 18px;
+  opacity: 0.8;
+  transition: rotate 0.2s ease;
+  width: 18px;
+}
+
+.arrange-trigger[data-state="open"] svg {
+  rotate: 180deg;
+}
+
+/* The open list (shadcn SelectContent, portalled to <body>). */
+.arrange-menu {
+  /* Exactly the trigger's width. */
+  width: var(--radix-select-trigger-width);
+  border: 1px solid rgb(52 70 58 / 0.14);
+  border-radius: 14px;
+  box-shadow:
+    0 18px 40px -16px rgb(52 70 58 / 0.35),
+    0 2px 6px rgb(52 70 58 / 0.08);
+  padding: 6px;
+}
+
+.arrange-option {
+  border-radius: 10px;
+  cursor: pointer;
   font-size: 15px;
-  justify-content: space-between;
   min-height: 44px;
-  width: 100%;
+  padding-left: 14px;
 }
 
-.arrange-draft-toggle[aria-expanded="true"] .faq-icon::after {
-  rotate: 0deg;
+.arrange-option[data-state="checked"] {
+  font-weight: 500;
 }
 
-.arrange-meta,
-.arrange-paths {
+.arrange-option svg {
+  color: var(--green);
+}
+
+.arrange-field textarea.arrange-control {
+  font-size: 15px;
+  line-height: 1.55;
+  min-height: 120px;
+  padding: 14px 18px;
+  resize: vertical;
+}
+
+.arrange-draft-meta {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 0 22px;
+  gap: 6px 14px;
 }
 
-.arrange-meta button {
+/* Small outline pill: Copy Message. */
+.arrange-chip {
+  align-items: center;
+  border: 1px solid rgb(52 70 58 / 0.3);
+  border-radius: 100px;
   cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.arrange-chip svg {
+  height: 15px;
+  width: 15px;
+}
+
+.arrange-chip:hover {
+  --sweep: rgb(255 255 255 / 0.7);
+  border-color: var(--green);
 }
 
 .arrange-status {
   font-size: 13px;
-  min-height: 1.4em;
 }
 
-.arrange-status:empty {
-  display: none;
+/* Buttons: filled (primary) and outline (secondary), one size. */
+.arrange-button {
+  align-items: center;
+  background: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 100px;
+  color: var(--cream);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 15px;
+  font-weight: 500;
+  gap: 10px;
+  justify-content: center;
+  line-height: 1.25;
+  min-height: 52px;
+  padding: 12px 24px;
+  text-align: center;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }
 
-.arrange-deciding {
-  border-top: 1px solid rgb(52 70 58 / 0.25);
+.arrange-button svg {
+  flex-shrink: 0;
+  height: 18px;
+  width: 18px;
+}
+
+.arrange-button:hover,
+.arrange-button:focus-visible {
+  --sweep: #23312a;
+}
+
+.arrange-button--outline {
+  background: transparent;
+  color: var(--green);
+}
+
+.arrange-button--outline:hover,
+.arrange-button--outline:focus-visible {
+  --sweep: var(--green);
+  color: var(--cream);
+}
+
+.arrange-button:focus-visible,
+.arrange-chip:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+.arrange-primary {
   display: grid;
-  gap: 6px;
-  padding-top: 16px;
+  gap: 10px;
+  justify-items: start;
 }
 
-@media (max-width: 900px) {
-  .arrange-inner {
+.arrange-confirm {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.arrange-legal {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.arrange-legal a {
+  text-decoration: underline 1px;
+  text-underline-offset: 4px;
+}
+
+.arrange-legal a:hover {
+  opacity: 1;
+  text-decoration-thickness: 2px;
+}
+
+.arrange-controls > .arrange-button--outline {
+  justify-self: start;
+}
+
+.arrange-outlet {
+  display: grid;
+  gap: 10px;
+}
+
+.arrange-outlet p {
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.arrange-actions {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+/* Phones: the invitation above the controls. */
+@media (max-width: 800px) {
+  .arrange {
     grid-template-columns: minmax(0, 1fr);
-    min-height: 0;
+    grid-template-rows: none;
+    row-gap: 28px;
   }
 
-  .arrange-field {
-    padding: 32px var(--pad) 28px;
+  .arrange-controls,
+  .arrange-aside {
+    grid-column: auto;
+    grid-row: auto;
   }
 
-  .arrange-media {
-    padding: 28px var(--pad);
+  .arrange-aside {
+    justify-items: stretch;
   }
 
-  .arrange-side {
-    max-width: none;
+  .arrange-button {
+    width: 100%;
   }
 
-  /* Two sessions per row; long names wrap inside their option. */
-  .arrange-sessions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .arrange-sessions legend {
-    grid-column: 1 / -1;
-  }
-
-  .arrange-sessions label {
-    border-radius: 22px;
-    font-size: 13.5px;
-    padding: 7px 10px;
+  .arrange-primary,
+  .arrange-actions,
+  .arrange-controls > .arrange-button--outline {
+    justify-items: stretch;
+    justify-self: stretch;
   }
 }
 
@@ -2236,10 +3106,17 @@
 
 .faq h2 {
   font-size: clamp(32px, 3.2vw, 48px);
+  grid-column: 1 / -1;
   line-height: 1.05;
-  max-width: 10ch;
-  /* Cap height meets the top edge of the first row. */
-  text-box: trim-start cap alphabetic;
+  margin: 0 auto clamp(28px, 5vh, 48px);
+  text-align: center;
+}
+
+.faq .faq-list {
+  grid-column: 1 / -1;
+  margin-inline: auto;
+  max-width: 880px;
+  width: 100%;
 }
 
 .faq-list {
@@ -2347,10 +3224,6 @@
     row-gap: 28px;
   }
 
-  .faq h2 {
-    max-width: none;
-  }
-
   .faq-item button {
     padding: 16px;
   }
@@ -2361,81 +3234,46 @@
 }
 
 /* ---------------------------------------------------------------------------
- * 11 Footer (frames 17–18)
+ * 09 Footer: static, straight top edge, four top-aligned columns
  * ------------------------------------------------------------------------- */
 .site-footer {
-  background: var(--olive);
-  color: var(--ivory);
+  background: var(--green);
+  color: var(--cream);
   overflow: hidden;
   position: relative;
 }
 
-/* Frame 17: still at the viewport's foot, beneath the page's ivory <main>
-   (its own layer above), so it shows only where <main> has ended: the FAQ
-   panel's lower edge uncovers it as it scrolls up. Applied only when the
-   footer fits. */
-.site-footer.is-reveal {
-  bottom: 0;
-  position: sticky;
-  z-index: 0;
-}
-
-.has-footer-reveal main {
-  background: var(--green);
-  position: relative;
-  z-index: 1;
-}
-
-/* The hero's sweep returns, still, at the opposite (lower-right) edge. */
-.footer-contour {
-  bottom: 0;
-  color: var(--sage);
-  height: 28%;
-  opacity: 0.4;
-  pointer-events: none;
-  position: absolute;
-  right: 0;
-  width: 36%;
-}
-
-.footer-contour .wave-corner {
-  rotate: 180deg;
-}
-
 .footer-inner {
-  column-gap: clamp(40px, 6vw, 120px);
+  align-items: start;
+  column-gap: clamp(32px, 5vw, 96px);
   display: grid;
   grid-template-areas:
-    "identity nav"
+    "brand nav"
     "legal legal";
-  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-  padding: clamp(56px, 9vh, 104px) var(--pad) 28px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  /* Extra top room for the ivory curve hanging over the footer. */
+  padding: calc(clamp(56px, 9vh, 104px) + clamp(36px, 6vw, 84px)) var(--pad) 28px;
   position: relative;
 }
 
-.footer-identity {
-  grid-area: identity;
+/* Brand: the wordmark with "Singapore" beneath it. */
+.footer-brand {
+  align-items: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 10px;
+  grid-area: brand;
+  justify-self: start;
 }
 
-.footer-logo {
-  display: inline-block;
+.footer-wordmark {
+  width: clamp(140px, 12vw, 190px);
 }
 
-.footer-logo-mark {
-  aspect-ratio: 4335 / 1647;
-  background: currentColor;
-  display: block;
-  -webkit-mask: url("/images/komo-logo.svg") center / contain no-repeat;
-  mask: url("/images/komo-logo.svg") center / contain no-repeat;
-  width: clamp(150px, 14vw, 210px);
-}
-
-.footer-identity p {
-  font-size: 16px;
-  line-height: 1.55;
-  margin-top: 22px;
-  max-width: 30ch;
-  opacity: 0.88;
+.footer-place {
+  font-size: 14px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
 }
 
 .footer-nav {
@@ -2448,7 +3286,8 @@
 .footer-group h2 {
   font-size: 20px;
   letter-spacing: -0.01em;
-  margin-bottom: 16px;
+  line-height: 1.2;
+  margin-bottom: 12px;
 }
 
 .footer-group ul,
@@ -2458,16 +3297,14 @@
   padding: 0;
 }
 
-.footer-group li + li {
-  margin-top: 10px;
-}
-
+/* Every link at least 40px tall, so the lists are easy to tap. */
 .footer-group a,
 .footer-legal a {
-  display: inline-block;
+  align-items: center;
+  display: inline-flex;
   font-size: 15px;
-  line-height: 1.4;
-  padding-block: 2px;
+  line-height: 1.35;
+  min-height: 40px;
   text-decoration: underline transparent 1px;
   text-underline-offset: 5px;
   transition: text-decoration-color 0.2s;
@@ -2479,84 +3316,181 @@
 }
 
 .site-footer :focus-visible {
-  outline: 2px solid var(--ivory);
+  border-radius: 2px;
+  outline: 2px solid var(--cream);
   outline-offset: 4px;
 }
 
+/* Legal links: one row beneath the groups, wrapping when space runs out. */
 .footer-legal {
   border-top: 1px solid rgb(244 240 231 / 0.25);
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 28px;
+  gap: 0 28px;
   grid-area: legal;
-  margin-top: clamp(48px, 8vh, 88px);
-  padding-top: 20px;
+  margin-top: clamp(40px, 7vh, 80px);
+  padding-top: 14px;
 }
 
 .footer-legal a {
   font-size: 13px;
 }
 
-/* Mobile: identity, then the groups as expandable rows, then legal links. */
+/* Mobile: the wordmark above the groups; each group stays open. */
 @media (max-width: 760px) {
   .footer-inner {
     grid-template-areas:
-      "identity"
+      "brand"
       "nav"
       "legal";
     grid-template-columns: minmax(0, 1fr);
-    padding-bottom: 130px;
+    padding-bottom: 120px;
   }
 
   .footer-nav {
-    gap: 0;
-    grid-template-columns: minmax(0, 1fr);
+    gap: 28px 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-top: 40px;
   }
 
-  .footer-group {
-    border-top: 1px solid rgb(244 240 231 / 0.25);
-  }
-
-  .footer-group:last-child {
-    border-bottom: 1px solid rgb(244 240 231 / 0.25);
-  }
-
-  .footer-group h2 {
-    margin: 0;
-  }
-
-  .footer-group button {
-    align-items: center;
-    cursor: pointer;
-    display: flex;
-    font: inherit;
-    justify-content: space-between;
-    min-height: 56px;
-    width: 100%;
-  }
-
-  .footer-group button[aria-expanded="true"] .faq-icon::after {
-    rotate: 0deg;
-  }
-
-  .footer-group ul {
-    padding-bottom: 18px;
-  }
-
   .footer-group a {
-    padding-block: 6px;
+    min-height: 44px;
   }
 
   .footer-legal {
-    border-top: 0;
-    margin-top: 28px;
-    padding-top: 0;
+    gap: 0 20px;
+    margin-top: 32px;
+  }
+}
+
+/* Smallest phones: one group per row. */
+@media (max-width: 360px) {
+  .footer-nav {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * PRESERVED, not on the homepage: the card-06 → bottle close-up handover
+ * (src/sections/product-detail/BottleHandover.tsx). A fixed overlay; the
+ * wide still, the ivory panel and the close-up are placed on every update.
+ * ------------------------------------------------------------------------- */
+.bottle-handover-spacer {
+  background: var(--green);
+  height: 60svh;
+}
+
+.bottle-handover {
+  inset: 0;
+  overflow: hidden;
+  position: fixed;
+  visibility: hidden;
+  z-index: 40;
+}
+
+.bottle-handover-wide,
+.bottle-handover-close {
+  max-width: none;
+  position: absolute;
+}
+
+.bottle-handover-ivory {
+  background: var(--cream);
+  inset: 0;
+  position: absolute;
+  visibility: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+ * Button animation, shared by every pill and circle button: on hover or
+ * keyboard focus a fill (each button's --sweep, set by its hover rule)
+ * sweeps in from the left behind the label while the text colour follows;
+ * on leaving it sweeps out to the right. The arrow nudges in its own
+ * direction and the button presses in slightly on click.
+ * Reduced motion: the colours change at once, nothing moves.
+ * ------------------------------------------------------------------------- */
+:is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button) {
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+  /* The text colour runs on the fill's own curve, so they cross together. */
+  transition:
+    color 0.45s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.45s cubic-bezier(0.65, 0, 0.35, 1),
+    scale 0.15s ease,
+    opacity 0.3s ease;
+}
+
+/* The header's own rule sets its transitions; give it the same curve. */
+.site-header .header-cta {
+  transition:
+    color 0.45s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.45s cubic-bezier(0.65, 0, 0.35, 1),
+    scale 0.15s ease;
+}
+
+:is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button)::before {
+  background: var(--sweep, transparent);
+  border-radius: inherit;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  scale: 0 1;
+  transform-origin: right center;
+  transition: scale 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: -1;
+}
+
+:is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button):is(
+    :hover,
+    :focus-visible
+  ):not([aria-disabled="true"])::before {
+  scale: 1 1;
+  transform-origin: left center;
+}
+
+:is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button):active:not(
+    [aria-disabled="true"]
+  ) {
+  scale: 0.97;
+}
+
+/* The arrow leads: forward buttons nudge right, the header's ↓ nudges down,
+   Previous nudges left. */
+:is(.session-request, .arrange-button, .arc-button) .arrow {
+  transition: translate 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:is(.session-request, .arrange-button, .arc-button):is(:hover, :focus-visible):not(
+    [aria-disabled="true"]
+  )
+  .arrow {
+  translate: 4px 0;
+}
+
+.arc-prev:is(:hover, :focus-visible):not([aria-disabled="true"]) .arrow {
+  translate: -4px 0;
+}
+
+.header-cta .arrow {
+  transition:
+    rotate 0.3s ease,
+    translate 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.header-cta:is(:hover, :focus-visible) .arrow {
+  translate: 0 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button),
+  :is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button)::before,
+  :is(.session-request, .arrange-button, .arc-button, .header-cta) .arrow {
+    transition: none;
   }
 
-  /* Below the legal links, clear of every link. */
-  .footer-contour {
-    height: 110px;
-    width: 60%;
+  :is(.session-request, .arrange-button, .arrange-chip, .header-cta, .arc-button):active {
+    scale: none;
   }
 }

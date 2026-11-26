@@ -1,331 +1,249 @@
 /* ---------------------------------------------------------------------------
- * 02 Hero (storyboard frames 01–04), preceded by the intro loader.
+ * 01 Hero: two photographs, then mist into Section 02 (storyboard frames 01–03)
  *
- * Intro (owner's direction): an ivory panel covers the page while the KOMO
- * contour draws in and photo 1 decodes; the panel then lifts away (the drawn
- * lines ride with it, still) to uncover the hero. Reduced motion skips it.
+ * Arrival: hero-1 shows at once, full screen. The H1 rises a short way as it
+ * fades in, then P1 beneath it. No idle motion: while the visitor pauses,
+ * the scene rests.
  *
- * Pinned scene, one scrubbed GSAP timeline:
- *   first    frame 01: photo 1 full-screen, the page's only H1, still contour
- *   rise     frame 02: photo 2 rises into view in a rounded box
- *   copy     frame 03: photo 2 fills the screen; lead upper left, support
- *            lower right, Compare the Sessions lower left
- *   square   frame 04: photo 2 contracts to the session square, centred, with
- *            the sage field and contour around it
- * When 03 is pinned too, the hero overlaps its intro frame (negative margin)
- * and hides at release; 03's intro starts with the same photo in the same
- * square and cross-fades it into the stone "01/04" square in place.
+ * One scrubbed GSAP timeline over a CSS-sticky stage, tied to natural
+ * scroll (reverses cleanly; the visitor can scroll on at any time):
+ *   0.00–0.10  hold on hero-1 (water reaches the hairline here once a dry
+ *              frame, `images.hero.dry`, is supplied)
+ *   0.10–0.50  hero-1 morphs into hero-2. They are the same frame, hero-2
+ *              with steam, so both share one slow zoom towards her face and
+ *              stay registered while hero-2 is revealed through a soft edge
+ *              rising from the basin: the steam forms and climbs through the
+ *              scene. H1 and P1 fade as it passes
+ *   0.52–0.60  hold on hero-2
+ *   0.58–0.82  warm ivory mist rises from the basin and thickens (.hero-fog)
+ *   0.70–0.84  Section 02's own heading appears in the mist, in the copy space
+ *   0.84–1.00  hold; the stage releases and the mist runs straight on into
+ *              the ivory section, where the heading settles
+ * Each photograph sits in a `.hero-scene` box with its own proportions, sized
+ * like object-fit: cover, so any overlay keeps to the same crop.
  *
- * Flow layout (narrow, short, reduced motion): photo 1 with the H1, then
- * photo 2 with the copy and CTA, in reading order.
+ * Reduced motion: hero-1 with the H1 and P1, then hero-2, in normal flow;
+ * Section 02's heading follows.
  * ------------------------------------------------------------------------- */
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Arrow } from "@/components/Arrow";
-import { WaveCorner } from "@/components/WaveCorner";
+import { CONCERNS_HEADING_ID } from "@/content/concerns";
 import { hero } from "@/content/hero";
 import { images } from "@/content/images";
-import { PIN_QUERY, STAGE_CHANGE_EVENT, headerHeight, squareMetrics } from "@/lib/stage";
+import { Volume2, VolumeX } from "lucide-react";
+import { setWaterfallLevel, startWaterfall, stopWaterfall } from "@/lib/waterfallSound";
+
+/**
+ * Opt-in waterfall ambience (src/lib/waterfallSound.ts). Off until the
+ * visitor turns it on; once on, it is loudest in the hero and fades out as
+ * the hero scrolls away (and back in on return).
+ */
+function SoundToggle({ sectionRef }: { sectionRef: React.RefObject<HTMLElement | null> }) {
+  const [on, setOn] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      // Full while the hero fills the screen; fades over its last screen.
+      const bottom = section.getBoundingClientRect().bottom;
+      setWaterfallLevel((bottom - window.innerHeight * 0.15) / window.innerHeight);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      stopWaterfall();
+    };
+  }, [sectionRef]);
+
+  return (
+    <button
+      type="button"
+      className="hero-sound"
+      aria-pressed={on}
+      onClick={() => {
+        if (on) stopWaterfall();
+        else startWaterfall();
+        setOn(!on);
+      }}
+    >
+      {on ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+      <span>{on ? "Sound on" : "Sound off"}</span>
+      <span className="visually-hidden">: waterfall ambience</span>
+    </button>
+  );
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CONTOUR_FILE = "/images/komo-contour.svg";
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
-const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-/* ------------------------------ Intro loader ----------------------------- */
-
-function IntroLoader({ onDone }: { onDone: () => void }) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [paths, setPaths] = useState<string[] | null>(null);
-
-  // Lock scrolling for the length of the intro.
+function useReducedMotionQuery() {
+  const [reduced, setReduced] = useState(() => window.matchMedia(REDUCED_MOTION).matches);
   useEffect(() => {
-    const root = document.documentElement;
-    const previous = root.style.overflow;
-    root.style.overflow = "hidden";
-    return () => {
-      root.style.overflow = previous;
-    };
-  }, []);
-
-  // The contour paths come from the same asset as every other placement.
-  useEffect(() => {
-    let cancelled = false;
-    fetch(CONTOUR_FILE)
-      .then((response) => response.text())
-      .then((svg) => {
-        if (!cancelled) setPaths([...svg.matchAll(/ d="([^"]+)"/g)].map((match) => match[1]));
-      })
-      .catch(() => !cancelled && onDone());
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useLayoutEffect(() => {
-    const root = rootRef.current;
-    if (!root || !paths) return;
-
-    // Photo 1 must be decoded before it is uncovered; never wait more than 4s.
-    const photo = new Image();
-    photo.src = images.hero.first.src;
-    const photoReady = Promise.race([
-      photo.decode().catch(() => undefined),
-      new Promise((resolve) => setTimeout(resolve, 4000)),
-    ]);
-    new Image().src = images.hero.second.src;
-
-    const ctx = gsap.context(() => {
-      const lines = gsap.utils.toArray<SVGPathElement>("path", root);
-      gsap
-        .timeline()
-        .fromTo(
-          lines,
-          { strokeDashoffset: 1 },
-          { strokeDashoffset: 0, duration: 1.3, ease: "power2.inOut", stagger: 0.035 },
-        )
-        .call(() => {
-          photoReady.then(() => {
-            gsap
-              .timeline({ onComplete: onDone })
-              // The panel lifts away, uncovering the hero; its lines stay still.
-              .to(root, { clipPath: "inset(0% 0% 100% 0%)", duration: 1, ease: "power3.inOut" })
-              // The hero sits outside this context's scope, so target it directly.
-              .from(
-                document.querySelectorAll(".hero-first-photo"),
-                { scale: 1.08, duration: 1.6, ease: "power2.out" },
-                0,
-              )
-              .from(
-                document.querySelectorAll(".hero-h1"),
-                { opacity: 0, y: 28, duration: 0.9, ease: "power2.out" },
-                0.45,
-              );
-          });
-        });
-    });
-    return () => ctx.revert();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paths]);
-
-  // Portalled to <body> so it covers the fixed header as well.
-  return createPortal(
-    <div className="intro-loader" ref={rootRef} aria-hidden="true">
-      {paths ? (
-        <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet" focusable="false">
-          {paths.map((d, index) => (
-            <path key={index} d={d} pathLength={1} strokeDasharray="1 1" />
-          ))}
-        </svg>
-      ) : null}
-    </div>,
-    document.body,
-  );
-}
-
-/* ------------------------------ Shared parts ----------------------------- */
-
-function FirstPanel() {
-  return (
-    <div className="hero-first" data-header-tone="light">
-      <img
-        className="hero-first-photo"
-        src={images.hero.first.src}
-        alt={images.hero.first.alt}
-        fetchPriority="high"
-      />
-      <div className="hero-first-shade" aria-hidden="true" />
-      {/* The broad sweep enters from the corner opposite the headline. */}
-      <div className="hero-corner" aria-hidden="true">
-        <WaveCorner />
-      </div>
-      <h1 className="hero-h1" id="hero-heading">
-        {hero.h1}
-      </h1>
-    </div>
-  );
-}
-
-function HeroCopy() {
-  return (
-    <>
-      <p className="hero-lead">{hero.lead}</p>
-      <p className="hero-support">{hero.support}</p>
-      <a className="hero-cta" href={hero.cta.href}>
-        {hero.cta.label} <Arrow />
-      </a>
-    </>
-  );
-}
-
-/* ------------------------------ Pinned scene ----------------------------- */
-
-function PinnedHero() {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const [rebuild, setRebuild] = useState(0);
-
-  useEffect(() => {
-    const bump = () => setRebuild((value) => value + 1);
-    window.addEventListener(STAGE_CHANGE_EVENT, bump);
-    return () => window.removeEventListener(STAGE_CHANGE_EVENT, bump);
-  }, []);
-
-  useLayoutEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const ctx = gsap.context(() => {
-      const first = stage.querySelector<HTMLElement>(".hero-first");
-      const second = stage.querySelector<HTMLElement>(".hero-second");
-      const copy = stage.querySelector<HTMLElement>(".hero-copy");
-      const copyParts = gsap.utils.toArray<HTMLElement>(".hero-copy > *", stage);
-
-      const W = () => stage.clientWidth;
-      const H = () => stage.clientHeight;
-      // The photo layers extend up behind the transparent header by its
-      // height, so boxes are centred in the stage below that band.
-      const box = (width: number, height: number, radius: number) => {
-        const x = Math.max(0, (W() - width) / 2);
-        const y = Math.max(0, (H() - height) / 2);
-        return `inset(${y + headerHeight()}px ${x}px ${y}px ${x}px round ${radius}px)`;
-      };
-      // Frame 02: the box that rises into the first composition.
-      const riseBox = () => box(Math.min(W() * 0.24, 380), Math.min(H() * 0.34, 320), 24);
-      // Fills the stage and the band behind the header.
-      const fullFrame = () => "inset(0px 0px 0px 0px round 0px)";
-      const square = () => {
-        const { size, radius } = squareMetrics();
-        return box(size, size, radius);
-      };
-
-      // Overlap only when 03 is pinned and ready to take over in place.
-      const handsOver = Boolean(document.querySelector(".sessions.is-pinned"));
-
-      gsap.set(second, { clipPath: riseBox, y: () => H() * 0.72 });
-      gsap.set(copy, { autoAlpha: 0 });
-      gsap.set(copyParts, { y: 24 });
-
-      const tl = gsap.timeline({ defaults: { ease: "none" } });
-      tl.addLabel("first")
-        .to({}, { duration: 0.8 })
-        .to(second, { y: 0, duration: 1, ease: "power2.out" })
-        .addLabel("rise")
-        .to(second, { clipPath: fullFrame, duration: 1.2, ease: "power2.inOut" })
-        // Photo 1 is fully covered now; the sage field beneath takes its place.
-        .set(first, { autoAlpha: 0 })
-        .to(copy, { autoAlpha: 1, duration: 0.35 })
-        .to(copyParts, { y: 0, duration: 0.6, stagger: 0.12, ease: "power2.out" }, "<")
-        .to({}, { duration: 0.6 })
-        .addLabel("copy")
-        .to({}, { duration: 0.6 })
-        .to(copy, { autoAlpha: 0, duration: 0.4 })
-        .to(second, { clipPath: square, duration: 1.2, ease: "power2.inOut" })
-        .addLabel("square")
-        .to({}, { duration: 0.3 });
-
-      ScrollTrigger.create({
-        animation: tl,
-        trigger: stage,
-        pin: true,
-        start: () => `top top+=${headerHeight()}`,
-        end: () => `+=${window.innerHeight * 0.6 * tl.duration()}`,
-        scrub: 0.5,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        // The hero's pin spacing pushes 03 down, so it must be measured first,
-        // even when this trigger is rebuilt after 03's.
-        refreshPriority: 1,
-        // At release 03's identical intro frame sits exactly underneath, so the
-        // hero steps aside instead of scrolling away; 03 then cross-fades the
-        // photo square into its stone "01/04" square.
-        onLeave: () => handsOver && gsap.set(stage, { autoAlpha: 0 }),
-        onEnterBack: () => gsap.set(stage, { autoAlpha: 1 }),
-      });
-      ScrollTrigger.sort();
-    }, stage);
-    ScrollTrigger.refresh();
-
-    return () => ctx.revert();
-  }, [rebuild]);
-
-  return (
-    <div className="hero-stage" ref={stageRef}>
-      {/* Cream band behind the transparent header, under the photos. */}
-      <div className="hero-bleed" aria-hidden="true" data-header-tone="dark" />
-      <div className="hero-field" aria-hidden="true">
-        <div className="stage-contour">
-          <WaveCorner />
-        </div>
-      </div>
-      <FirstPanel />
-      <div className="hero-second" data-header-tone="light">
-        <img
-          className="hero-second-photo"
-          src={images.hero.second.src}
-          alt={images.hero.second.alt}
-        />
-        <div className="hero-second-shade" aria-hidden="true" />
-      </div>
-      <div className="hero-copy">
-        <HeroCopy />
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------- Flow layout ----------------------------- */
-
-function FlowHero() {
-  return (
-    <>
-      <FirstPanel />
-      <div className="hero-flow-second">
-        <img
-          className="hero-flow-photo"
-          src={images.hero.second.src}
-          alt={images.hero.second.alt}
-          loading="lazy"
-        />
-        <div className="hero-flow-copy">
-          <HeroCopy />
-        </div>
-      </div>
-    </>
-  );
-}
-
-/* --------------------------------- Section -------------------------------- */
-
-export function Hero() {
-  const [canPin, setCanPin] = useState(() => window.matchMedia(PIN_QUERY).matches);
-  const [introDone, setIntroDone] = useState(prefersReducedMotion);
-
-  useEffect(() => {
-    const query = window.matchMedia(PIN_QUERY);
-    const onChange = () => setCanPin(query.matches);
+    const query = window.matchMedia(REDUCED_MOTION);
+    const onChange = () => setReduced(query.matches);
     query.addEventListener("change", onChange);
     return () => query.removeEventListener("change", onChange);
   }, []);
+  return reduced;
+}
+
+/* -------------------------------- Section -------------------------------- */
+
+export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const still = useReducedMotionQuery();
+  const dry = images.hero.dry;
+
+  // 01.1 Arrival: H1 rises as it fades in, P1 follows beneath it.
+  useLayoutEffect(() => {
+    if (still) return;
+    const ctx = gsap.context(() => {
+      gsap
+        .timeline({ delay: 0.15 })
+        .from(".hero-h1", { opacity: 0, y: 26, duration: 0.95, ease: "power2.out" })
+        .from(".hero-lead", { opacity: 0, y: 16, duration: 0.8, ease: "power2.out" }, 0.4);
+    }, sectionRef);
+    return () => ctx.revert();
+  }, [still]);
+
+  // 01.2 Two photographs, then mist, scrubbed by scroll.
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (still || !section) return;
+    const ctx = gsap.context(() => {
+      // The zoom goes on the photographs, not their scene boxes, whose
+      // percentage translate positions the crop.
+      const first = gsap.utils.toArray<HTMLElement>(".hero-scene-first .hero-photo", section);
+      const wet = section.querySelector<HTMLElement>(".hero-photo-wet");
+      const second = section.querySelector<HTMLElement>(".hero-second");
+      const copy = section.querySelector<HTMLElement>(".hero-copy");
+      const fog = section.querySelector<HTMLElement>(".hero-fog");
+      // Section 02's heading lives in that section; this sequence reveals it.
+      const heading = document.getElementById(CONCERNS_HEADING_ID);
+
+      const tl = gsap.timeline({ defaults: { ease: "none" } });
+
+      // Water reaches the hairline, top-down from the fixture (dry frame only).
+      if (wet) tl.fromTo(wet, { "--water": "0%" }, { "--water": "130%", duration: 0.1 }, 0);
+
+      // The morph: one shared zoom keeps both photographs registered while
+      // hero-2 is revealed upward from the basin (--morph drives its mask).
+      const photos = [...first, ...(second ? [second.querySelector(".hero-photo")] : [])];
+      tl.to(photos, { scale: 1.06, duration: 0.4, ease: "sine.inOut" }, 0.1);
+      if (second) {
+        tl.set(second, { autoAlpha: 1 }, 0.12).fromTo(
+          second,
+          { "--morph": "0%" },
+          { "--morph": "140%", duration: 0.3, ease: "sine.inOut" },
+          0.12,
+        );
+      }
+
+      // The opening copy gives way as hero-2 takes the screen.
+      if (copy) tl.to(copy, { opacity: 0, y: -10, duration: 0.14 }, 0.22);
+
+      // Warm ivory mist rises from the basin and thickens into the next section.
+      if (fog) {
+        tl.fromTo(
+          fog,
+          { yPercent: 45, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.24, ease: "sine.out" },
+          0.58,
+        );
+      }
+
+      // Section 02's heading appears in the mist, where the copy was.
+      if (heading) {
+        tl.fromTo(
+          heading,
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.14, ease: "power1.out" },
+          0.7,
+        );
+      }
+      tl.set({}, {}, 1);
+
+      ScrollTrigger.create({
+        animation: tl,
+        trigger: section,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.4,
+        invalidateOnRefresh: true,
+      });
+    }, section);
+    return () => ctx.revert();
+  }, [still]);
+
+  const secondPhoto = (
+    <div className="hero-second">
+      <div className="hero-scene hero-scene-second">
+        <img
+          className="hero-photo"
+          src={images.hero.second.src}
+          alt={images.hero.second.alt}
+          loading={still ? "lazy" : undefined}
+        />
+      </div>
+      <div className="hero-shade" aria-hidden="true" />
+    </div>
+  );
 
   return (
     <section
       id="top"
-      className={`hero ${canPin ? "is-pinned" : "is-flow"}`}
+      ref={sectionRef}
+      className={`hero ${still ? "is-still" : "is-scrubbed"}`}
       aria-labelledby="hero-heading"
     >
-      {canPin ? <PinnedHero /> : <FlowHero />}
-      {introDone ? null : (
-        <IntroLoader
-          onDone={() => {
-            setIntroDone(true);
-            ScrollTrigger.refresh();
-          }}
-        />
-      )}
+      <div className="hero-stage">
+        <div className="hero-scene hero-scene-first">
+          {dry ? (
+            <>
+              <img className="hero-photo" src={dry.src} alt={dry.alt} fetchPriority="high" />
+              <img
+                className="hero-photo hero-photo-wet"
+                src={images.hero.first.src}
+                alt=""
+                aria-hidden="true"
+              />
+            </>
+          ) : (
+            <img
+              className="hero-photo"
+              src={images.hero.first.src}
+              alt={images.hero.first.alt}
+              fetchPriority="high"
+            />
+          )}
+        </div>
+        <div className="hero-shade" aria-hidden="true" />
+        {still ? null : secondPhoto}
+        <div className="hero-copy">
+          <h1 className="hero-h1" id="hero-heading">
+            {hero.h1}
+          </h1>
+          <p className="hero-lead">{hero.lead}</p>
+        </div>
+        <SoundToggle sectionRef={sectionRef} />
+        {/* Mist into Section 02. Slot for the shadcn.io Fog background. */}
+        {/* data-header-mist: the header reads its dense lower part as ivory. */}
+        {still ? null : <div className="hero-fog" aria-hidden="true" data-header-mist="0.6" />}
+      </div>
+      {/* Reduced motion: the second photograph follows in normal flow. */}
+      {still ? secondPhoto : null}
     </section>
   );
 }

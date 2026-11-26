@@ -38,15 +38,21 @@ export const images = {
       alt: "Water falls onto a guest's hair as she rests, eyes closed, at the basin",
       placeholder: false,
     },
-    // Supplied KOMO photograph (therapist in a KOMO apron at the basin).
+    // MISSING ASSET: the same frame before the water falls (same camera,
+    // framing and light; dry hair, no water sheet). When supplied, set it here
+    // and Section 01 reveals the water over it on the first scroll. Until
+    // then the sequence holds on `first`.
+    dry: null as ImageSlot | null,
+    // Supplied photograph: the closer frame, water on her hairline and
+    // steam rising beside her.
     second: {
       src: "/images/placeholders/hero-2.png",
-      alt: "A KOMO therapist massages a guest's scalp as she reclines at the basin",
+      alt: "A closer view of the guest at the basin as water runs through her hair and steam rises beside her",
       placeholder: false,
     },
   },
 
-  // 03 Choose your session (order matches the 01/04 – 04/04 counter)
+  // 03 Choose your session (Signature, Advanced, Waterfall, Meridian)
   sessions: {
     signature: komo(
       "Treatment Scalp Care.png",
@@ -57,12 +63,15 @@ export const images = {
       28994390,
       "A dropper applying scalp essence along a parting",
     ),
-    waterfall: pexels(
-      "session-waterfall",
-      3993449,
-      "A guest's hair lathered at a basin during a head spa",
+    // Water meeting the scalp: the supplied hero photograph, cropped close.
+    waterfall: komo(
+      "placeholders/hero-1.png",
+      "Water falls onto a guest's hairline as she rests at the basin",
     ),
-    meridian: pexels("session-meridian", 8088603, "Fingertip pressure across a guest's temples"),
+    meridian: komo(
+      "placeholders/meridian-hydro-restoring-scalp-spa.png",
+      "A KOMO therapist working along a guest's scalp during the Meridian Hydro Restoring Scalp Spa",
+    ),
   },
 
   // 05 Your first visit
@@ -82,8 +91,16 @@ export const images = {
   },
   basin: {
     basin: pexels("basin-basin", 3993449, "A guest's hair cleansed at the basin"),
-    massage: pexels("basin-massage", 8088603, "A therapist massaging a guest's scalp and temples"),
+    massage: komo(
+      "Luxury KOMO Head Massage.png",
+      "A KOMO therapist massages a guest's hairline as she rests under a KOMO eye pillow",
+    ),
     care: pexels("basin-care", 3865570, "A rounded gua sha tool used with gentle pressure"),
+    // Card 06 and the start of the bottle handover into Section 05.
+    treatment: komo(
+      "Treatment Scalp Care.png",
+      "A KOMO therapist mists a guest's scalp with Scalp Balancing Essence as she rests",
+    ),
   },
 
   // 06 A closer look at the bottle

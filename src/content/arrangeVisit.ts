@@ -1,32 +1,38 @@
 /**
- * 09 Arrange your visit — public copy from docs/content/KOMO_Homepage_Content.md
- * (Section 09). The WhatsApp message templates are working drafts for
- * approval; they never mention prices.
+ * 08 Arrange your visit — copy from storyboard Section 08. The WhatsApp
+ * message templates are working drafts for approval; they never mention
+ * prices.
  */
 import { sessions } from "@/content/sessions";
 
 export const arrangeVisit = {
   heading: "Arrange your visit",
-  chosenLead: "Already chosen a session?",
-  chosenBody:
-    "Choose your session to start a WhatsApp message to our Orchard team. Add your preferred day if you have one. Your appointment is confirmed when the team replies with an agreed date and time.",
-  selectorLabel: "Choose your session",
-  request: "Request a Visit",
-  decidingLead: "Still deciding?",
-  decidingBody:
-    "Tell us what matters most to you: a scalp cleanse, more detailed scalp care, a rhythmic massage or gua sha.",
-  help: "Help Me Choose on WhatsApp",
-  quote: "Get a Single Visit Quote",
+  intro:
+    "Have a session in mind? Tell our Orchard team what you’d like to book, or ask us to help you choose.",
+  selectorLabel: "Which session are you considering?",
+  placeholder: "Choose a session",
+  primary: "WhatsApp Us",
+  quote: "Ask for a single-visit quote",
+  confirm: "The team will confirm your date and time in their reply.",
+  draftLabel: "Your message to Orchard",
   copy: "Copy Message",
   privacy: "Privacy Policy",
   terms: "Booking and Trial Terms",
+  /** For Great World and Holland Village (Section 06's active outlet). */
+  orchardInstead: "Arrange a visit at Orchard",
 };
 
 /** The four approved session names, in their existing order. */
 export const sessionNames = sessions.map((session) => session.name);
 
-/** The quote path also accepts this in place of a session. */
-export const STILL_DECIDING = "Still deciding";
+/** The selector's last option: the team helps the visitor choose. */
+export const HELP_ME_CHOOSE = "Help me choose";
+
+/** Selector options: the four sessions (short labels), then Help me choose. */
+export const sessionOptions = [
+  ...sessions.map((session) => ({ value: session.name, label: session.short })),
+  { value: HELP_ME_CHOOSE, label: HELP_ME_CHOOSE },
+];
 
 /* ------------------------------ Message drafts ----------------------------- */
 

@@ -1,35 +1,48 @@
 /* ---------------------------------------------------------------------------
- * 09 Arrange your visit (storyboard frame 15)
+ * 08 Arrange your visit
  *
- * A still, soft sage booking block, at most one viewport below the header on
- * desktop: heading, intro, the "Choose your session" selector and the
- * primary Request a Visit together on the left; the editable message, Copy
- * Message, legal links and the "Still deciding?" paths on one solid, clear
- * field on the right. The ivory contour comes in from the right edge around
- * that field, its bend opening towards the CTA. Normal page flow.
- * Phones: one column, two sessions per row, and the message folded behind a
- * "Your message to Orchard" toggle (opened automatically if copying fails).
+ * On warm ivory, continuing Section 07, at the same page margins: the
+ * invitation on the left and the booking controls on the right (stacked on
+ * phones). Normal page flow; the footer follows directly beneath.
  *
- * Every visit action on the homepage points to #arrange-your-visit. A link
- * with `data-session` (Section 03) preselects that session; a general request
- * (header, Orchard in Section 07) keeps the current choice. `?session=` on the
- * page URL is honoured too, for links from other pages.
+ * Orchard (default): a session dropdown ("Choose a session" placeholder,
+ * Signature, Advanced, Waterfall, Meridian, Help me choose), the editable
+ * WhatsApp message it drafts (with Copy Message), "Message Orchard on
+ * WhatsApp" with the privacy and booking terms beside it, and "Ask for a
+ * single-visit quote". The message follows the selection: a general visit
+ * request at the placeholder, a request for the chosen session, or a request
+ * for guidance with Help me choose. If the visitor has edited it, only the
+ * session name is swapped so their wording (e.g. a preferred day) stays.
  *
- * Selecting a session only updates the local draft. WhatsApp opens only from
- * an explicit WhatsApp action. Copy Message copies the same draft that
- * Request a Visit sends; if the clipboard is unavailable, the draft is
- * selected in its field for manual copying.
+ * Great World / Holland Village (the outlet active in Section 06): that
+ * outlet's "Ask About … Opening Details" action, with "Arrange a visit at
+ * Orchard" to switch to the Orchard controls.
+ *
+ * Arrival: a visit link carrying `data-session` (Section 03's "Request …")
+ * opens the Orchard controls with that session selected; any
+ * other visit link (the header, Section 06's Orchard action) opens them at
+ * the placeholder. Section 02's matches never preselect. A
+ * `?session=` URL parameter is honoured for links from other pages.
  * ------------------------------------------------------------------------- */
 import { useEffect, useId, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { Check, Copy } from "lucide-react";
+import { WhatsAppMark } from "@/components/WhatsAppMark";
 import { Arrow } from "@/components/Arrow";
-import { images } from "@/content/images";
 import {
-  STILL_DECIDING,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  HELP_ME_CHOOSE,
   arrangeVisit as copy,
   helpMessage,
   quoteMessage,
   sessionNames,
+  sessionOptions,
   visitMessage,
 } from "@/content/arrangeVisit";
 import {
@@ -39,44 +52,36 @@ import {
   VISIT_HREF,
   orchardWhatsAppHref,
 } from "@/content/contact";
+import { outlets } from "@/content/outlets";
+import { setActiveOutlet, useActiveOutlet } from "@/lib/outletChoice";
 
-const CONTOUR_SRC = "/images/komo-contour.svg#lines";
-const COMPACT_QUERY = "(max-width: 760px)";
+const isOption = (value: string | null | undefined): value is string =>
+  Boolean(value) && sessionOptions.some((option) => option.value === value);
 
-function useCompact() {
-  const [matches, setMatches] = useState(() => window.matchMedia(COMPACT_QUERY).matches);
-  useEffect(() => {
-    const list = window.matchMedia(COMPACT_QUERY);
-    const onChange = () => setMatches(list.matches);
-    list.addEventListener("change", onChange);
-    return () => list.removeEventListener("change", onChange);
-  }, []);
-  return matches;
-}
-const options = [...sessionNames, STILL_DECIDING];
+/** A session name, or null for the placeholder / Help me choose. */
+const asSession = (choice: string) => (sessionNames.includes(choice) ? choice : null);
 
-/** A session name, or null for "Still deciding" / nothing chosen. */
-const asSession = (choice: string | null) =>
-  choice && sessionNames.includes(choice) ? choice : null;
+const draftFor = (choice: string) =>
+  choice === HELP_ME_CHOOSE ? helpMessage() : visitMessage(asSession(choice));
+
+const external = { target: "_blank", rel: "noopener noreferrer" } as const;
 
 export function ArrangeVisit() {
   const id = useId();
   const sectionRef = useRef<HTMLElement>(null);
+  const selectRef = useRef<HTMLButtonElement>(null);
   const draftRef = useRef<HTMLTextAreaElement>(null);
-  const [choice, setChoice] = useState<string | null>(null);
-  const [draft, setDraft] = useState(() => visitMessage(null));
-  const edited = useRef(false);
+  const outlet = useActiveOutlet();
+  // "" is the placeholder.
+  const [choice, setChoice] = useState("");
+  const [draft, setDraft] = useState(() => draftFor(""));
   const [status, setStatus] = useState("");
-  // Phones fold the message away to keep the section short; desktop shows it.
-  const compact = useCompact();
-  const [messageOpen, setMessageOpen] = useState(false);
-
-  // Selecting a session updates the draft. If the visitor has edited it, only
-  // the session name is swapped so their wording (e.g. a preferred day) stays.
-  const choiceRef = useRef<string | null>(null);
+  const edited = useRef(false);
+  const choiceRef = useRef(choice);
   const draftValue = useRef(draft);
   draftValue.current = draft;
-  const choose = (next: string | null) => {
+
+  const choose = (next: string) => {
     const before = asSession(choiceRef.current);
     const after = asSession(next);
     choiceRef.current = next;
@@ -85,7 +90,7 @@ export function ArrangeVisit() {
     if (edited.current && before && after && current.includes(before)) {
       updated = current.replace(before, after);
     } else {
-      updated = visitMessage(after);
+      updated = draftFor(next);
       edited.current = false;
     }
     draftValue.current = updated;
@@ -93,40 +98,40 @@ export function ArrangeVisit() {
     setDraft(updated);
     setStatus("");
   };
+  const chooseRef = useRef(choose);
+  chooseRef.current = choose;
 
-  // Arrival from any visit action, or a ?session= link from another page.
+  // Arrival from a visit link anywhere on the page, or ?session= from
+  // another page.
   useEffect(() => {
-    const focusSelector = () => {
-      const target =
-        sectionRef.current?.querySelector<HTMLInputElement>("input[type=radio]:checked") ??
-        sectionRef.current?.querySelector<HTMLInputElement>("input[type=radio]");
-      target?.focus({ preventScroll: true });
-    };
-
     const onClick = (event: MouseEvent) => {
       const link = (event.target as Element | null)?.closest?.<HTMLAnchorElement>(
         `a[href="${VISIT_HREF}"]`,
       );
       if (!link) return;
+      // Every visit request is an Orchard request.
+      setActiveOutlet("orchard");
       const session = link.dataset.session;
-      if (session && sessionNames.includes(session)) choose(session);
-      // Let the browser jump (scroll-padding-top clears the sticky header),
-      // then put keyboard focus on the selector.
-      requestAnimationFrame(() => requestAnimationFrame(focusSelector));
+      chooseRef.current(isOption(session) ? session : "");
+      // Let the browser jump (scroll-padding-top clears the header), then
+      // put keyboard focus on the dropdown.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => selectRef.current?.focus({ preventScroll: true })),
+      );
     };
     document.addEventListener("click", onClick);
 
     const fromUrl = new URLSearchParams(location.search).get("session");
-    if (fromUrl && sessionNames.includes(fromUrl)) choose(fromUrl);
+    if (isOption(fromUrl)) chooseRef.current(fromUrl);
 
-    // Landing on /#arrange-your-visit: pinned sections above add height after
-    // load, so jump again once the page has settled.
+    // Landing on /#arrange-your-visit: sections above add height after load,
+    // so jump again once the page has settled.
     let timer = 0;
     const settleHash = () => {
       timer = window.setTimeout(() => {
         if (location.hash === VISIT_HREF) {
           document.getElementById(VISIT_ANCHOR)?.scrollIntoView();
-          focusSelector();
+          selectRef.current?.focus({ preventScroll: true });
         }
       }, 400);
     };
@@ -139,7 +144,6 @@ export function ArrangeVisit() {
       window.removeEventListener("load", settleHash);
       window.clearTimeout(timer);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const copyDraft = async () => {
@@ -147,17 +151,14 @@ export function ArrangeVisit() {
       await navigator.clipboard.writeText(draft);
       setStatus("Message copied.");
     } catch {
-      // Show the message (folded away on phones) and select it.
-      flushSync(() => setMessageOpen(true));
-      const field = draftRef.current;
-      field?.focus();
-      field?.select();
+      draftRef.current?.focus();
+      draftRef.current?.select();
       setStatus("Copying didn’t work. The message is selected so you can copy it yourself.");
     }
   };
 
   const session = asSession(choice);
-  const external = { target: "_blank", rel: "noopener noreferrer" } as const;
+  const other = outlet === "orchard" ? null : outlets.find((item) => item.id === outlet);
 
   return (
     <section
@@ -166,134 +167,135 @@ export function ArrangeVisit() {
       className="arrange"
       aria-labelledby={`${id}-heading`}
     >
-      <div className="arrange-inner">
-        <div className="arrange-field">
-          <h2 id={`${id}-heading`}>{copy.heading}</h2>
-          <p className="arrange-lead">
-            <strong>{copy.chosenLead}</strong> {copy.chosenBody}
-          </p>
+      <div className="arrange-invite">
+        <h2 id={`${id}-heading`} className="arrange-heading">
+          {copy.heading}
+        </h2>
+        <p className="arrange-intro">{copy.intro}</p>
+      </div>
 
-          <fieldset className="arrange-sessions">
-            <legend>{copy.selectorLabel}</legend>
-            {options.map((option) => (
-              <label key={option} className={option === STILL_DECIDING ? "is-deciding" : undefined}>
-                <input
-                  type="radio"
-                  name={`${id}-session`}
-                  value={option}
-                  checked={choice === option}
-                  onChange={() => choose(option)}
-                />
-                <span>{option}</span>
-              </label>
-            ))}
-          </fieldset>
-
-          <a
-            className="session-request arrange-request"
-            href={orchardWhatsAppHref(draft)}
-            data-message="visit"
-            {...external}
-          >
-            {copy.request} <Arrow />
-          </a>
-        </div>
-
-        {/* Right half: a hair-care photograph under an 80% sage veil, the
-            still contour, and the message panel on a clear field above. */}
-        <div className="arrange-media">
-          <img className="arrange-photo" src={images.arrange.procedure.src} alt="" />
-          <div className="arrange-veil" aria-hidden="true" />
-          <div className="arrange-contour" aria-hidden="true">
-            <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" focusable="false">
-              <use href={CONTOUR_SRC} />
-            </svg>
-          </div>
-          <div className="arrange-side">
-            <div className="arrange-draft">
-              {compact ? (
+      <div className="arrange-controls">
+        {other ? (
+          // Great World or Holland Village, as chosen in Section 06.
+          <div className="arrange-outlet">
+            <h3>{other.name}</h3>
+            <p>{other.text}</p>
+            <ul className="arrange-actions">
+              {other.actions.map((action) => (
+                <li key={action.label}>
+                  <a
+                    className={
+                      action.primary ? "arrange-button" : "arrange-button arrange-button--outline"
+                    }
+                    href={action.href}
+                    {...(action.external ? external : {})}
+                  >
+                    {action.label} <Arrow />
+                  </a>
+                </li>
+              ))}
+              <li>
                 <button
                   type="button"
-                  className="arrange-draft-toggle"
-                  id={`${id}-draft-label`}
-                  aria-expanded={messageOpen}
-                  aria-controls={`${id}-draft-region`}
-                  onClick={() => setMessageOpen((open) => !open)}
-                >
-                  Your message to Orchard
-                  <span className="faq-icon" aria-hidden="true" />
-                </button>
-              ) : (
-                <label htmlFor={`${id}-draft`} id={`${id}-draft-label`}>
-                  Your message to Orchard
-                </label>
-              )}
-              <div id={`${id}-draft-region`} hidden={compact && !messageOpen}>
-                <textarea
-                  aria-labelledby={`${id}-draft-label`}
-                  id={`${id}-draft`}
-                  ref={draftRef}
-                  rows={4}
-                  value={draft}
-                  onChange={(event) => {
-                    edited.current = true;
-                    setDraft(event.target.value);
-                    setStatus("");
+                  className="arrange-button arrange-button--outline"
+                  onClick={() => {
+                    setActiveOutlet("orchard");
+                    requestAnimationFrame(() => selectRef.current?.focus());
                   }}
-                />
-              </div>
-              <ul className="arrange-meta">
-                <li>
-                  <button type="button" className="session-detail-link" onClick={copyDraft}>
-                    {copy.copy}
-                  </button>
-                </li>
-                <li>
-                  <a className="session-detail-link" href={PRIVACY_POLICY_HREF}>
-                    {copy.privacy}
-                  </a>
-                </li>
-                <li>
-                  <a className="session-detail-link" href={BOOKING_TERMS_HREF}>
-                    {copy.terms}
-                  </a>
-                </li>
-              </ul>
-              <p className="arrange-status" role="status">
-                {status}
-              </p>
+                >
+                  {copy.orchardInstead} <Arrow />
+                </button>
+              </li>
+            </ul>
+          </div>
+        ) : (
+          <>
+            <div className="arrange-field">
+              <label id={`${id}-session-label`} htmlFor={`${id}-session`}>
+                {copy.selectorLabel}
+              </label>
+              {/* shadcn Select (Radix): keyboard and screen-reader support built
+                  in; "" shows the placeholder. */}
+              <Select value={choice} onValueChange={choose}>
+                <SelectTrigger
+                  id={`${id}-session`}
+                  ref={selectRef}
+                  aria-labelledby={`${id}-session-label`}
+                  className="arrange-control arrange-trigger"
+                >
+                  <SelectValue placeholder={copy.placeholder} />
+                </SelectTrigger>
+                <SelectContent position="popper" sideOffset={6} className="arrange-menu">
+                  {sessionOptions.map((option) => (
+                    <div key={option.value}>
+                      {option.value === HELP_ME_CHOOSE ? <SelectSeparator /> : null}
+                      <SelectItem value={option.value} className="arrange-option">
+                        {option.label}
+                      </SelectItem>
+                    </div>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="arrange-deciding">
-              <p>
-                <strong>{copy.decidingLead}</strong> {copy.decidingBody}
-              </p>
-              <ul className="arrange-paths">
-                <li>
-                  <a
-                    className="session-detail-link"
-                    href={orchardWhatsAppHref(helpMessage())}
-                    data-message="help"
-                    {...external}
-                  >
-                    {copy.help} <Arrow />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className="session-detail-link"
-                    href={orchardWhatsAppHref(quoteMessage(session))}
-                    data-message="quote"
-                    {...external}
-                  >
-                    {copy.quote} <Arrow />
-                  </a>
-                </li>
-              </ul>
+            <div className="arrange-field">
+              <label htmlFor={`${id}-draft`}>{copy.draftLabel}</label>
+              <textarea
+                className="arrange-control"
+                id={`${id}-draft`}
+                ref={draftRef}
+                rows={4}
+                value={draft}
+                onChange={(event) => {
+                  edited.current = true;
+                  setDraft(event.target.value);
+                  setStatus("");
+                }}
+              />
+              <div className="arrange-draft-meta">
+                <button type="button" className="arrange-chip" onClick={copyDraft}>
+                  {status === "Message copied." ? (
+                    <Check aria-hidden="true" />
+                  ) : (
+                    <Copy aria-hidden="true" />
+                  )}
+                  {copy.copy}
+                </button>
+                <p className="arrange-status" role="status">
+                  {status}
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
+
+            <div className="arrange-primary">
+              <a className="arrange-button" href={orchardWhatsAppHref(draft)} {...external}>
+                <WhatsAppMark />
+                {copy.primary}
+              </a>
+              <p className="arrange-confirm">{copy.confirm}</p>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Left column on wide screens (under the heading, level with the
+          form's foot); after the form when stacked. */}
+      {other ? null : (
+        <div className="arrange-aside">
+          <a
+            className="arrange-button arrange-button--outline"
+            href={orchardWhatsAppHref(quoteMessage(session))}
+            {...external}
+          >
+            {copy.quote} <Arrow />
+          </a>
+          <p className="arrange-legal">
+            <a href={PRIVACY_POLICY_HREF}>{copy.privacy}</a>
+            <span aria-hidden="true"> · </span>
+            <a href={BOOKING_TERMS_HREF}>{copy.terms}</a>
+          </p>
+        </div>
+      )}
     </section>
   );
 }
